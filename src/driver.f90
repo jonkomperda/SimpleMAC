@@ -4,8 +4,8 @@ program simpleMAC
 	
 	implicit none
 	
-	integer						                  :: timestep, t
-	double precision, allocatable, dimension(:,:) :: u, v, p, Fn, Gn, Q
+	integer						      :: timestep, t
+	double precision, allocatable, dimension(:,:)	:: u, v, p, Fn, Gn, Q
 	
 	!allocate our host memory
 	allocate(  u(xSize,ySize) )
@@ -41,7 +41,7 @@ program simpleMAC
 		!calculate u-vel and v-vel
 		call calcVel(Fn,Gn,p,u,v)
 		
-		!Check NaN if case blew up / sucks if it did (>.<)
+		!Check NaN if case blew up (>.<)
 		if( isnan(u(int(xSize/2),int(ySize/2))) ) then
 			write(*,*)'Case Blew UP!!!!!!!!!'
 			stop
