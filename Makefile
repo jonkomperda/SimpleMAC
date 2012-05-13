@@ -6,6 +6,7 @@ flags		=	-O3					\
 libs		=
 
 objects	=	src/size.f90			\
+			src/carrier_initBC.f90		\
 			src/driver.f90
 				
 main: $(objects)
