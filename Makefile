@@ -7,6 +7,10 @@ libs		=
 
 objects	=	src/size.f90			\
 			src/carrier_initBC.f90		\
+			src/carrier_velCalc.f90		\
+			src/carrier_timeStep.f90	\
+			src/carrier_poisson.f90		\
+			src/carrier_vtk.f90		\
 			src/driver.f90
 				
 main: $(objects)
