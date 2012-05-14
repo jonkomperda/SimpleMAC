@@ -3,7 +3,7 @@
 		use omp_lib
 		use size
 		implicit none
-		double precision, dimension(:,:), intent(in)	:: u,v
+		double precision, dimension(xSize,ySize), intent(in)	:: u,v
 		integer, intent(in)								:: t
 		double precision, intent(out)					:: dtNew
 		double precision								:: umax1(2),umax2,vmax1(2),vmax2,dtC,dtR

@@ -1,8 +1,8 @@
 	subroutine poisson(q,u,v,tstep,p)
 		use size
 		implicit none
-		double precision, dimension(:,:), intent(out)   :: p
-		double precision, dimension(:,:), intent(in)    :: q ,u, v
+		double precision, dimension(xSize,ySize), intent(out)   :: p
+		double precision, dimension(xSize,ySize), intent(in)    :: q ,u, v
 		double precision, parameter						:: rf = 1.60d0
 		double precision  								:: change, pold, po, ch
 		integer           								:: iter, im, jm, k

@@ -3,7 +3,7 @@ subroutine initialConditions(u,v,p,Fn,Gn,Q)
 	use omp_lib
 	use size
 	implicit none
-	double precision, dimension(:,:), intent(inout) :: u, v, p, Fn, Gn, Q
+	double precision, dimension(xSize,ySize), intent(inout) :: u, v, p, Fn, Gn, Q
 	integer							:: i, j
 		
 	!populate the domain with zeros
@@ -26,7 +26,7 @@ subroutine ghostCondition(u,v)
 	use omp_lib
 	use size
 	implicit none
-	double precision, dimension(:,:), intent(inout) :: u, v
+	double precision, dimension(xSize,ySize), intent(inout) :: u, v
 	integer							:: i,j
 		
 	!X Boundary condition
@@ -51,7 +51,7 @@ subroutine lidCondition(u,v)
 	use omp_lib
 	use size
 	implicit none
-	double precision, dimension(:,:), intent(inout)	:: u, v
+	double precision, dimension(xSize,ySize), intent(inout)	:: u, v
 	integer							:: i, j
 		
 	!U velocity condition
