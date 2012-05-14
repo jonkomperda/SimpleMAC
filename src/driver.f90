@@ -36,7 +36,8 @@ program simpleMAC
 		call calcQn(Fn,Gn,Q)
 	
 		!calculate the pressure field
-		call poisson(Q,u,v,t,p)    !Serial Poisson solver (for testing)
+		!call poisson(Q,u,v,t,p)    !Serial Poisson solver (for testing)
+		call parPoisson(Q,u,v,t,p)
 		
 		!calculate u-vel and v-vel
 		call calcVel(Fn,Gn,p,u,v)
