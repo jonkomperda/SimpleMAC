@@ -28,6 +28,6 @@
 			dtNew = min(dtR,dtC)
 		else
 			!If first few steps then take a very small step
-			dtNew = (r/50.0d0)*dx*dy*re
+			dtNew = (r/25.0d0)*dx*dy*re
 		end if
 	end subroutine calcTStep
