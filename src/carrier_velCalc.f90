@@ -1,5 +1,8 @@
 !Calculates Fn and Gn used for calculating velocity
 	subroutine calcFnGn(u,v,Fn,Gn)
+		use size
+		use omp_lib
+		implicit none
 		double precision, dimension(:,:), intent(in)    :: u, v
 		double precision, dimension(:,:), intent(out)   :: Fn, Gn
 		integer											:: i, j, err
@@ -22,6 +25,8 @@
 
 !Calculates Qn, used for calculating pressure
 	subroutine calcQn(Fn,Gn,Q)
+		use size
+		use omp_lib
 		double precision, dimension(:,:), intent(in)    :: Fn, Gn
 		double precision, dimension(:,:), intent(out)   :: Q
 		integer											:: i, j, err
@@ -38,6 +43,8 @@
 
 !Calculates velocity using Fn and pressure
 	subroutine calcVel(Fn,Gn,p,u,v)
+		use size
+		use omp_lib
 		double precision, dimension(:,:), intent(in)	:: Fn, Gn, p
 		double precision, dimension(:,:), intent(out)	:: u, v
 		integer											:: i, j, err
