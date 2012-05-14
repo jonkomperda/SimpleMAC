@@ -1,11 +1,11 @@
 	!Calculates our timestep for variable timestepping algorithm
-	subroutine calcTStep(u,v,t,dt)
+	subroutine calcTStep(u,v,t,dtNew)
 		use omp_lib
 		use size
 		implicit none
 		double precision, dimension(:,:), intent(in)	:: u,v
 		integer, intent(in)								:: t
-		double precision, intent(out)					:: dt
+		double precision, intent(out)					:: dtNew
 		double precision								:: umax1(2),umax2,vmax1(2),vmax2,dtC,dtR
 		
 		!We use different step sizes depending on how long we've been running
@@ -25,9 +25,9 @@
 			dtC = (1.0d0 / r) / (re * (abs(umax2) + abs(vmax2))**2 )
 			
 			!use the smaller of the two
-			dt = min(dtR,dtC)
+			dtNew = min(dtR,dtC)
 		else
 			!If first few steps then take a very small step
-			dt = (r/20.0d0)*dx*dy*re
+			dtNew = (r/50.0d0)*dx*dy*re
 		end if
 	end subroutine calcTStep
