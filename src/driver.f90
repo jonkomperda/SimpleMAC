@@ -63,5 +63,5 @@ program simpleMAC
 	deallocate( Fn )
 	deallocate( Gn )
 	deallocate(  Q )
-end program macCavity
+end program simpleMAC
 	
