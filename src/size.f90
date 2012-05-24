@@ -1,3 +1,4 @@
+!This is a comment
 module size
 	integer, parameter             :: xSize      = 240
 	integer, parameter             :: ySize      = 240
