@@ -1,4 +1,4 @@
-!This subroutine populates the computational domain [0,0] to [1,1] with zeros in parallel
+!>This subroutine populates the computational domain [0,0] to [1,1] with zeros in parallel
 subroutine initialConditions(u,v,p,Fn,Gn,Q)
 	use omp_lib
 	use size
@@ -21,7 +21,7 @@ subroutine initialConditions(u,v,p,Fn,Gn,Q)
 	!$end omp parallel do
 end subroutine initialConditions
 
-!This subroutine applies the ghost cell boundary condition
+!>This subroutine applies the ghost cell boundary condition
 subroutine ghostCondition(u,v)
 	use omp_lib
 	use size
@@ -46,7 +46,7 @@ subroutine ghostCondition(u,v)
 	!$omp end parallel do
 end subroutine ghostCondition
 
-!our moving lid condition
+!>our moving lid condition
 subroutine lidCondition(u,v)
 	use omp_lib
 	use size

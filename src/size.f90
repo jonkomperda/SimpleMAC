@@ -1,4 +1,15 @@
-!This is a comment
+!> This module contains all size variables for the domain.
+!! @param xSize Number of cells in x direction
+!! @param ySize Number of cells in y direction
+!! @param Lx Length in x direction
+!! @param Ly Length in y direction
+!! @param Lz Length in z direction
+!! @param maxSteps Maximum number of timesteps to be taken for the code
+!! @param r Convergence criteria
+!! @param itmax Maximum number of steps for the Poisson solver to take before it gives up (it will be less than this if it converges)
+!! @param re Reynolds number of the flow
+!! @param conv Convergence criteria for Poisson solver
+!! @param pInterval Print interval
 module size
 	integer, parameter             :: xSize      = 240
 	integer, parameter             :: ySize      = 240

@@ -1,4 +1,4 @@
-	!Calculates our timestep for variable timestepping algorithm
+	!> Calculates our timestep for variable timestepping algorithm
 	subroutine calcTStep(u,v,t,dtNew)
 		use omp_lib
 		use size

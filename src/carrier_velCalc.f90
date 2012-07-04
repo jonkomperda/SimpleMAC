@@ -1,4 +1,4 @@
-!Calculates Fn and Gn used for calculating velocity
+!> Calculates Fn and Gn used for calculating velocity
 	subroutine calcFnGn(u,v,Fn,Gn)
 		use size
 		use omp_lib
@@ -23,7 +23,7 @@
 		!$omp end parallel do
 	end subroutine calcFnGn
 
-!Calculates Qn, used for calculating pressure
+!> Calculates Qn, used for calculating pressure
 	subroutine calcQn(Fn,Gn,Q)
 		use size
 		use omp_lib
@@ -41,7 +41,7 @@
 		
 	end subroutine calcQn
 
-!Calculates velocity using Fn and pressure
+!> Calculates velocity using Fn and pressure
 	subroutine calcVel(Fn,Gn,p,u,v)
 		use size
 		use omp_lib

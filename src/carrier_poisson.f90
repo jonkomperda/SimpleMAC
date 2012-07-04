@@ -1,3 +1,4 @@
+!> Poisson solver for the pressure field
 	subroutine poisson(q,u,v,tstep,p)
 		use size
 		implicit none
@@ -49,6 +50,7 @@
 100     continue		
 	end subroutine poisson
 
+!> Parallel poisson solver for the pressure field
 	subroutine parPoisson(q,u,v,tstep,p)
 		use omp_lib
 		use size

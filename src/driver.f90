@@ -15,49 +15,49 @@ program simpleMAC
 	allocate( Gn(xSize,ySize) )
 	allocate(  Q(xSize,ySize) )
 	
-	!establish initial conditions on the host
+	!> establish initial conditions on the host
 	call initialConditions(u,v,p,Fn,Gn,Q)
 	
-	!Our main computational loop
+	!> Our main computational loop
 	do t=1,maxSteps
-		!Calculate our timestep
+		!> Calculate our timestep
 		call calcTStep(u,v,t,dt)
 		
-		!Print the timestep to screen / gotta know what's going on
+		!> Print the timestep to screen / gotta know what's going on
 		write(*,*) 'Timestep: ',t,'dt: ',dt
 		
-		!First boundary condition
+		!> First boundary condition
 		call ghostCondition(u,v)
 		
-		!calculate Fn and Gn
+		!> calculate Fn and Gn
 		call calcFnGn(u,v,Fn,Gn)
 		
-		!calculate Qn
+		!> calculate Qn
 		call calcQn(Fn,Gn,Q)
 	
-		!calculate the pressure field
+		!> calculate the pressure field
 		!call poisson(Q,u,v,t,p)    !Serial Poisson solver (for testing)
 		call parPoisson(Q,u,v,t,p)
 		
-		!calculate u-vel and v-vel
+		!> calculate u-vel and v-vel
 		call calcVel(Fn,Gn,p,u,v)
 		
-		!Check NaN if case blew up (>.<)
+		!> Check NaN if case blew up (>.<)
 		if( isnan(u(int(xSize/2),int(ySize/2))) ) then
 			write(*,*)'Case Blew UP!!!!!!!!!'
 			stop
 		end if
 		
-		!Moving lid boundary
+		!> Moving lid boundary
 		call lidCondition(u,v)
 		
-		!Plot to file
+		!> Plot to file
 		if(mod(t,pInterval)==0) then 
 			call writeVTK(u,v,p,t)
 		end if
 	end do
 	
-	!free up our memory
+	!> free up our memory
 	deallocate(  u )
 	deallocate(  v )
 	deallocate(  p )
