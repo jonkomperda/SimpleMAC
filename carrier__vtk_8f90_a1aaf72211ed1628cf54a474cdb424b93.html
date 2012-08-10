@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>SimpleMAC: Main Page</title>
+<title>SimpleMAC: writevtk</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -49,7 +49,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </script>
   <div id="navrow1" class="tabs">
     <ul class="tablist">
-      <li class="current"><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="annotated.html"><span>Data&#160;Types&#160;List</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -82,7 +82,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 </div>
 <script type="text/javascript">
-$(document).ready(function(){initNavTree('index.html','');});
+$(document).ready(function(){initNavTree('carrier__vtk_8f90.html','');});
 </script>
 <div id="doc-content">
 <!-- window showing the filter options -->
@@ -99,16 +99,57 @@ $(document).ready(function(){initNavTree('index.html','');});
 </iframe>
 </div>
 
-<div class="header">
-  <div class="headertitle">
-<div class="title">SimpleMAC Documentation</div>  </div>
-</div><!--header-->
 <div class="contents">
+<a class="anchor" id="a1aaf72211ed1628cf54a474cdb424b93"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine writevtk </td>
+          <td>(</td>
+          <td class="paramtype">double precision, dimension(ysize,xsize), intent(in)&#160;</td>
+          <td class="paramname"><em>u</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double precision, dimension(ysize,xsize), intent(in)&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double precision, dimension(ysize,xsize), intent(in)&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer, intent(in)&#160;</td>
+          <td class="paramname"><em>timestep</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Subroutine that plots out the data in a VTK format for plotting in VisIt Visualization tool. This format is also compatible with Visualization Toolkit as well as paraview, although it has not been tested. </p>
+
+<p>Definition at line <a class="el" href="carrier__vtk_8f90_source.html#l00004">4</a> of file <a class="el" href="carrier__vtk_8f90_source.html">carrier_vtk.f90</a>.</p>
+
+<p>Referenced by <a class="el" href="driver_8f90_source.html#l00003">simplemac()</a>.</p>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
+    <li class="navelem"><a class="el" href="dir_f396504afdc959660871b003fa10164d.html">Documents</a></li><li class="navelem"><a class="el" href="dir_3caaad6e9f60a6d9e50f4aa78b5a49a5.html">SimpleMAC</a></li><li class="navelem"><a class="el" href="dir_9d5f31b5e3e0badbff491d4eeb57c66c.html">src</a></li><li class="navelem"><a class="el" href="carrier__vtk_8f90.html">carrier_vtk.f90</a></li>
     <li class="footer">Generated on Thu Aug 9 2012 23:19:37 for SimpleMAC by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.1.1 </li>
