@@ -4,7 +4,7 @@ subroutine initialConditions(u,v,p,Fn,Gn,Q)
 	use size
 	implicit none
 	double precision, dimension(xSize,ySize), intent(inout) :: u, v, p, Fn, Gn, Q
-	integer							:: i, j
+	integer                                                 :: i, j
 		
 	!populate the domain with zeros
 	!$omp parallel do shared(u,v,p) private(i,j)

@@ -1,3 +1,6 @@
+!> Subroutine that plots out the data in a VTK format for plotting in VisIt Visualization tool.
+!! This format is also compatible with Visualization Toolkit as well as paraview, although it has
+!! not been tested.
       subroutine writeVTK(u,v,p,timestep)
             use size
             implicit none

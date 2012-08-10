@@ -1,13 +1,21 @@
+!> Main drive file which contains all routine calls
+!! @author Jon Komperda Komperda.Jon@Gmail.com
 program simpleMAC
 	use omp_lib
 	use size
 	use domain 
 	implicit none!test comment for ubuntu git setup
 	
+<<<<<<< HEAD
 	integer						      :: timestep, t
 	double precision, allocatable, dimension(:,:)	:: u, v, p, Fn, Gn, Q
 	type(element), allocatable, Target, dimension(:):: d!<solution domain
 	type(element), allocatable, Target, dimension(:,:):: b!<boundary domains
+=======
+	integer                                         :: timestep, t
+	double precision, allocatable, dimension(:,:)   :: u, v, p, Fn, Gn, Q
+	
+>>>>>>> Full Doxygen commentary
 	!allocate our host memory
 	allocate(  d(xSizeSol*ySizeSol) )!>multiply xSizeSol by ySizeSol to establish a one dimensional list able to hold all positions on the two dimensional grid
 	allocate(  b(sides,sideSize) )!>1=S,2=E,3=N,4=W 
