@@ -1,11 +1,13 @@
+!> Main drive file which contains all routine calls
+!! @author Jon Komperda Komperda.Jon@Gmail.com
 program simpleMAC
 	use omp_lib
 	use size
 	
 	implicit none
 	
-	integer						      :: timestep, t
-	double precision, allocatable, dimension(:,:)	:: u, v, p, Fn, Gn, Q
+	integer                                         :: timestep, t
+	double precision, allocatable, dimension(:,:)   :: u, v, p, Fn, Gn, Q
 	
 	!allocate our host memory
 	allocate(  u(xSize,ySize) )
