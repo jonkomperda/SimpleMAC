@@ -1,11 +1,17 @@
 !JonMesh v1.0
-1 blocks
+blocks = 1
 
 rect
-origin: 0.054,0.0
-x= 1.0
-y= 1.0
+X-origin = 0.0
+Y-origin = 0.0
+X-length = 2.0
+Y-length = 1.0
+
+X-points = 4
+Y-points = 4
+
 1 wall
 2 wall
 3 wall
 4 wall
+end rect
