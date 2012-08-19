@@ -1,8 +1,16 @@
 import sys
 from os import rename, listdir
 import re
-import pyvtk
-import numpy as ar
+try:
+    import pyvtk
+except ImportError:
+    sys.exit("You must have pyVTK installed to use this program. http://http://code.google.com/p/pyvtk/")
+
+try:
+    import numpy as ar
+except ImportError:
+    sys.exit("You must have numPy installed to use this program. http://numpy.scipy.org/")
+
 from Tkinter import Tk
 from tkFileDialog import askopenfilename
 from tkFileDialog import asksaveasfilename as savename
@@ -35,16 +43,21 @@ def checkObject():
     for line in mesh:
         if not line.strip():
             continue
+        elif '!' in line:
+            continue
         else:
             elemType[line.strip()]()
             return
 
 # if the object is a rectangle then we draw the mesh for a rectangle
 def rectangle():
-    global xMin,yMin,xLeng,yLeng
+    global pointdata,cond
+    cond = 'false'
     print 'Shape:   Found a rectangle...'
     for line in mesh:
         if not line.strip():
+            continue
+        elif '!' in line:
             continue
         elif "X-origin" in line:
             xMin = getLineValDouble(line)
@@ -61,8 +74,14 @@ def rectangle():
             yP = getLineValInt(line)
         elif "end" and "rect" in line:
             createRect(xMin,yMin,xLeng,yLeng,xP,yP)
+            if cond is 'true':
+                pointdata = pyvtk.PointData(\
+                    pyvtk.Scalars(u,name='u'),\
+                    pyvtk.Scalars(v,name='v'))
         elif "bound" in line:
             continue
+        elif "initial" in line:
+            cond,u,v=figureOutInit(line,xMin,yMin,xLeng,yLeng,xP,yP)
         elif "Points" in line:
             lineError(line)
             sys.exit("Keyword error!")
@@ -74,6 +93,31 @@ def rectangle():
         else:
             lineError(line)
             sys.exit("Invalid keyword specified...")
+
+def figureOutInit(line,xMin,yMin,xLeng,yLeng,xP,yP):
+    u,v = 0,0
+    for line in mesh:
+        if not line.strip():
+            continue
+        elif "U" in line:
+            if "uniform" in line:
+                uT = getLineValDouble(line)
+                u = populateUniform('u',uT,xMin,yMin,xLeng,yLeng,xP,yP)
+            else:
+                lineError(line)
+        elif "V" in line:
+            if "uniform" in line:
+                vT = getLineValDouble(line)
+                v = populateUniform('v',vT,xMin,yMin,xLeng,yLeng,xP,yP)
+            else:
+                lineError(line)
+        elif "end" and "initial" in line:
+            return 'true',u,v
+
+def populateUniform(var,val,xMin,yMin,xLeng,yLeng,xP,yP):
+    total = xP * yP
+    dat = [val for yp in range(0,xP*yP)]
+    return dat
 
 def square():
     print 'Shape:   Found a square...'
@@ -103,7 +147,6 @@ def square():
         else:
             lineError(line)
             sys.exit("Invalid keyword specified...")
-            
 
 def createRect(xMin,yMin,xLeng,yLeng,xP,yP):
     global structure
@@ -114,8 +157,8 @@ def createRect(xMin,yMin,xLeng,yLeng,xP,yP):
     yTot = yMin + yLeng + dy*0.1
     x = ar.arange(xMin,xTot,dx)
     y = ar.arange(yMin,yTot,dy)
-    print x
-    print y
+    #print 'x: '+x
+    #print 'y: '+y
     
     ps = [(xp,yp,zp) for yp in y for xp in x for zp in [0]]
     
@@ -147,8 +190,8 @@ elemType = { 'rect' : rectangle,
 
 # Open the mesh file
 Tk().withdraw()
-filename = askopenfilename()
-#filename = 'cavity.in'
+#filename = askopenfilename()
+filename = 'cavity.in'
 mesh = open(filename,'r')
 
 # Check the mesh type
@@ -163,13 +206,17 @@ for n in range(0,blocks):
 
 #write the vtk
 tempFileName = 'temp'
-vtk = pyvtk.VtkData(structure)
+if cond is 'true':
+    vtk = pyvtk.VtkData(structure,pointdata)
+else:
+    vtk = pyvtk.VtkData(structure)
 
 #print vtk
 vtk.tofile(tempFileName,'ascii')
 
 #clean the mesh file
-saveFileName = savename()
+#saveFileName = savename()
+saveFileName = 'a'
 tempFile = open(tempFileName+'.vtk','r')
 outFile = open(saveFileName+'.vtk','w+')
 for line in tempFile:
