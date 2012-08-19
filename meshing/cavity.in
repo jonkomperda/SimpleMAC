@@ -4,14 +4,14 @@ blocks = 1
 rect
 X-origin = 0.0
 Y-origin = 0.0
-X-length = 2.0
+X-length = 1.0
 Y-length = 1.0
 
-X-points = 4
-Y-points = 4
+X-points = 200
+Y-points = 200
 
-1 wall
-2 wall
-3 wall
-4 wall
+bound 1 wall
+bound 2 wall
+bound 3 wall
+bound 4 wall
 end rect
