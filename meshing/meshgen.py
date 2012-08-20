@@ -38,7 +38,7 @@ def findBlocks():
         else:
             sys.exit("Blocks not defined in file!")
 
-# Checks what kind of block we have then calls it's respective routine
+# Checks what kind of block we have then calls its respective routine
 def checkObject():
     for line in mesh:
         if not line.strip():
@@ -51,7 +51,7 @@ def checkObject():
 
 # if the object is a rectangle then we draw the mesh for a rectangle
 def rectangle():
-    global pointdata,cond
+    global pointdata,cond,structure
     cond = 'false'
     print 'Shape:   Found a rectangle...'
     for line in mesh:
@@ -73,7 +73,8 @@ def rectangle():
         elif "Y-points" in line:
             yP = getLineValInt(line)
         elif "end" and "rect" in line:
-            createRect(xMin,yMin,xLeng,yLeng,xP,yP)
+            xp,yp,ps = createRect(xMin,yMin,xLeng,yLeng,xP,yP)
+            structure = pyvtk.StructuredGrid([xP,yP,1],ps)
             if cond is 'true':
                 pointdata = pyvtk.PointData(\
                     pyvtk.Scalars(u,name='u'),\
@@ -161,8 +162,8 @@ def createRect(xMin,yMin,xLeng,yLeng,xP,yP):
     #print 'y: '+y
     
     ps = [(xp,yp,zp) for yp in y for xp in x for zp in [0]]
-    
-    structure = pyvtk.StructuredGrid([xP,yP,1],ps)
+    return xp,yp,ps
+    #structure = pyvtk.StructuredGrid([xP,yP,1],ps)
 
 # Strip all unwanted line data and return the value
 def getLineVal(line):
@@ -202,7 +203,7 @@ blocks = findBlocks()
 
 # Find the first object
 for n in range(0,blocks):
-    status = checkObject()
+    stat = checkObject()
 
 #write the vtk
 tempFileName = 'temp'
