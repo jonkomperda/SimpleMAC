@@ -6,12 +6,14 @@ import pyvtk
 
 ############## Begin shapes
 class unstructShape:
+    # Constructs an unstructured shape, usually the result of adding together other shapes
     def __init__(self,points):
         print 'Shape: Creating an unstructured shape...'
         
         self.points = points
         self.connect= self.connections(self.points)
     
+    # Finds the element connections (*Needs to be improved, issues with gaps)
     def connections(self,points):
         connection = ()
         for i in range(0,len(points)-1):
@@ -36,6 +38,7 @@ class unstructShape:
         for i in xrange(0, len(list), size):
             yield list[i:i+size]
     
+    # Overloading of addition
     def __add__(self,other):
         temp        = self.points + other.points
         del_points  = list(set(temp))
@@ -51,6 +54,7 @@ class unstructShape:
         return  out
 
 class rectangle:
+    # Constructor of a rectangle (or possibly square)
     def __init__(self,xMin,yMin,xLeng,yLeng,npx,npy):
         print 'Shape: Creating a rectangle...'
         
@@ -103,6 +107,7 @@ class rectangle:
         for i in xrange(0, len(list), size):
             yield list[i:i+size]
     
+    # Calculates element connections (*needs to be improved to better handle gaps)
     def connections(self,points):
         connection = ()
         for i in range(0,len(points)-1):
@@ -147,7 +152,34 @@ def square(xMin,yMin,leng,npx,npy):
         return out
 
 ############## Begin data handling
-class io:
+class readMesh:
+    def __init__(self,theFile):
+        self.checkHeader(theFile)
+        self.blocks = self.findBlocks(theFile)
+    
+    # Read the first line for a file header
+    def checkHeader(self,theFile):
+        line = theFile.readline()
+        if "JonMesh" not in line:
+            sys.exit("Error: Incorrect mesh header.")
+        else:
+            print 'File format: ' + 'JonMesh'
+            print 'Version    : ' + str(re.findall(r'\d.\d+',line))
+        return
+    
+    # Get number of blocks from file being read
+    def findBlocks(self,theFile):
+        for line in theFile:
+            if not line.strip():
+                continue
+            elif "!" in line:
+                continue
+            elif "blocks" in line:
+                nBlock = self.getLineValInt(line)
+                print ('Blocks:     File is expected to contain '+ str(nBlock) + ' blocks...')
+                return nBlock
+            else:
+                sys.exit("Error: Blocks not defined in file!")
     
     # Returns a stripped value as a string
     def getLineVal(self,line):
@@ -156,20 +188,27 @@ class io:
         return value
     
     # Returns a stripped int value from the line
-    def getLineValInt(line):
-        value = getLineVal(line)
+    def getLineValInt(self,line):
+        value = self.getLineVal(line)
         return int(value)
 
     # Returns a stripped float value from the line
-    def getLineValDP(line):
-        value = getLineVal(line)
+    def getLineValDP(self,line):
+        value = self.getLineVal(line)
         return float(value)
     
     # Tells you there's an error in the file and prints the line
     def lineError(line):
         print "\n\nError in line: "+line
 
-############## Program loop
+############## Global Dictionaries
+# this needs to be fixed
+#elemType = {    'rectangle' :   rectangle,      \
+#                'square'    :   square,         \
+#                'unstruct'  :   unstructShape   }
+#
+
+############## Program loop (for testing)
 a = [0,0,0,0]
 a[0] = square(0.0,1.0,1.0,2,2)
 #print a[0].x
