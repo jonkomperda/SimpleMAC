@@ -54,6 +54,8 @@ class unstructShape:
         return  out
 
 class rectangle:
+    # Overload init with empty shape
+    
     # Constructor of a rectangle (or possibly square)
     def __init__(self,xMin,yMin,xLeng,yLeng,npx,npy):
         print 'Shape: Creating a rectangle...'
@@ -153,9 +155,20 @@ def square(xMin,yMin,leng,npx,npy):
 
 ############## Begin data handling
 class readMesh:
+    """
+    This class reads a mesh file and stores the data
+    """
+#    self.elemType   =   {   'rectangle' :   self.readRectangle
+#                            'square'    :   self.readSquare
+#                            'unstruct'  :   self.readUnstruct
+#                        }
+    
     def __init__(self,theFile):
         self.checkHeader(theFile)
-        self.blocks = self.findBlocks(theFile)
+        self.blocks     = self.findBlocks(theFile)
+        
+#        for n in range(0,self.blocks):
+#            status[n]  = self.elemType[]
     
     # Read the first line for a file header
     def checkHeader(self,theFile):
@@ -181,6 +194,17 @@ class readMesh:
             else:
                 sys.exit("Error: Blocks not defined in file!")
     
+    # Gets the shapes from the file
+    def getShape(self,theFile):
+        for line in theFile:
+            if not line.strip():
+                continue
+            elif "!" in line:
+                continue
+            else:
+                struct = self.elemType[line.strip]()
+                return struct
+    
     # Returns a stripped value as a string
     def getLineVal(self,line):
         temp = line.partition('=')[2]
@@ -191,7 +215,7 @@ class readMesh:
     def getLineValInt(self,line):
         value = self.getLineVal(line)
         return int(value)
-
+    
     # Returns a stripped float value from the line
     def getLineValDP(self,line):
         value = self.getLineVal(line)
@@ -209,6 +233,7 @@ class readMesh:
 #
 
 ############## Program loop (for testing)
+# put a conditional statement to run this or not
 a = [0,0,0,0]
 a[0] = square(0.0,1.0,1.0,2,2)
 #print a[0].x
@@ -229,8 +254,10 @@ print a[1].connect
 
 a[2] = rectangle(1.0,0.0,3.0,2.0,4,3)
 
+a[3] = square(4.0,0.0,1.0,2,2)
+
 #print 'result'
-z = a[0] + a[2]
+z = a[0] + a[2] + a[3]
 print z.connect
 
 vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( z.points, quad=z.connect))
