@@ -24,7 +24,8 @@ class unstructShape:
                 #print i
                 for j in range(i+1,len(points)-1):
                     other   = points[j]
-                    if (other[0] == here[0]):
+                    rightO  = points[j+1]
+                    if ((other[0] == here[0]) and (rightO[0] > here[0]) and (rightO[1] > here[1])):
                         #print (i,i+1,j+1,j)
 
                         temp        = (i,i+1,j+1,j)
@@ -235,31 +236,35 @@ class readMesh:
 ############## Program loop (for testing)
 # put a conditional statement to run this or not
 a = [0,0,0,0]
-a[0] = square(0.0,1.0,1.0,2,2)
+#a[0] = square(0.0,1.0,1.0,2,2)
 #print a[0].x
 #print a[0].y
 #print a[0].points
-print a[0].connect
+#print a[0].connect
 #print a[0].points
 
 #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( a[0].points, quad=a[0].connect ))
 #vtk.tofile('newTest')
 
-a[1] = square(2.0,0.0,1.0,2,2)
+#a[1] = square(2.0,0.0,1.0,2,2)
 #print a[1].x
 #print a[1].y
 #print a[1].points
-print a[1].connect
+#print a[1].connect
 #print a[1].points
 
-a[2] = rectangle(1.0,0.0,3.0,2.0,4,3)
+#a[2] = rectangle(1.0,0.0,3.0,2.0,4,3)
 
-a[3] = square(4.0,0.0,1.0,2,2)
+#a[3] = square(4.0,0.0,1.0,2,2)
 
 #print 'result'
-z = a[0] + a[2] + a[3]
-print z.connect
+#z = a[0] + a[2] + a[3]
+#print z.connect
 
+a[0] = rectangle(0.0,0.0,3.0,1.0,4,2)
+a[1] = rectangle(1.0,1.0,1.0,3.0,2,4)
+a[2] = rectangle(0.0,4.0,3.0,1.0,4,2)
+z = a[0]+a[1]+a[2]
 vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( z.points, quad=z.connect))
 vtk.tofile('newTest')
 #structure = pyvtk.UnstructuredGrid([4,3,1],z)
