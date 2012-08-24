@@ -30,7 +30,6 @@
             write(unit=51, fmt=textLine) 'Data'
             write(unit=51, fmt=textLine) 'ASCII'
             write(unit=51, fmt=textLine) 'DATASET RECTILINEAR_GRID'
-            write(unit=51, fmt=*)
             
 !     ------Write out mesh information
             write(unit=51, fmt=textIIText)  'DIMENSIONS ',xSize-1,ySize-1,' 1'
