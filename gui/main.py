@@ -23,14 +23,29 @@ class App(Frame):
         self.menu = Menu(self)
         self.master.config(menu=self.menu)
         
+        # File menu pane
+        self.fileMenu = Menu(self.menu)
+        self.menu.add_cascade(label='File', menu=self.fileMenu)
+        self.fileMenu.add_command(label='Open', command = self.fileOpen)
+        self.fileMenu.add_command(label='Save as...', command = self.fileSaveAs)
+        self.fileMenu.add_separator()
+        self.fileMenu.add_command(label='Quit', command = master.quit)
+        
+        # Help menu pane
         self.helpMenu = Menu(self.menu)
         self.menu.add_cascade(label='Help', menu=self.helpMenu)
-        self.helpMenu.add_command(label='About', command= self.about)
+        self.helpMenu.add_command(label='About', command = self.about)
     
     def about(self):
         tkMessageBox.showinfo("About", "Author: Jon Komperda\
                                       \nE-Mail: Komperda.Jon@gmail.com \
-                                      \nWeb:    github.com/jonkomperda")          
+                                      \nWeb:    github.com/jonkomperda")
+    
+    def fileOpen(self):
+        pass
+    
+    def fileSaveAs(self):
+        pass
 
 
 if __name__ == "__main__":
