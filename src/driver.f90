@@ -1,13 +1,14 @@
 program simpleMAC
 	use omp_lib
 	use size
-	
+	use domain 
 	implicit none
 	
 	integer						      :: timestep, t
 	double precision, allocatable, dimension(:,:)	:: u, v, p, Fn, Gn, Q
-	
+	type(element), allocatable, dimension(:):: d
 	!allocate our host memory
+	allocate(  d(xSize*ySize) )!>multiply xSize by ySize to establish a one dimensional list able to hold all positions on the two dimensional grid
 	allocate(  u(xSize,ySize) )
 	allocate(  v(xSize,ySize) )
 	allocate(  p(xSize,ySize) )
@@ -17,11 +18,12 @@ program simpleMAC
 	
 	!> establish initial conditions on the host
 	call initialConditions(u,v,p,Fn,Gn,Q)
-	
+	call initialConditionsForElement(d) 
 	!> Our main computational loop
 	do t=1,maxSteps
 		!> Calculate our timestep
 		call calcTStep(u,v,t,dt)
+		call calcTStepForElement(d,t,dt)
 		
 		!> Print the timestep to screen / gotta know what's going on
 		write(*,*) 'Timestep: ',t,'dt: ',dt

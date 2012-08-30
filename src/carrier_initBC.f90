@@ -21,6 +21,35 @@ subroutine initialConditions(u,v,p,Fn,Gn,Q)
 	!$end omp parallel do
 end subroutine initialConditions
 
+!>This subroutine populates the computational domain [0,0] to [1,1] with zeros in parallel
+subroutine initialConditionsForElement(d)
+	use omp_lib
+	use size
+	use domain
+	implicit none
+	double precision:: firstX
+	integer							:: n,row
+	type(element), dimension(xSize * ySize), intent(inout) :: d
+	row = -1
+	!populate the domain with zeros
+	!$omp parallel do shared(d) private(n)
+	do n=1,ySize*xSize
+	    d(n)%X(1) = mod(n-1,xSize) * dx
+	    if(d(1)%X(1)==d(n)%X(1)) then!<if we see the same x value again we have entered a new row, so update y value
+	        row = row + 1
+	    end if
+	    d(n)%X(2) = row 
+	    d(n)%u  = 0.0d0
+	    d(n)%v  = 0.0d0
+	    d(n)%p  = 0.0d0
+	    d(n)%Fn = 0.0d0
+	    d(n)%Gn = 0.0d0
+	    d(n)%Q  = 0.0d0
+	end do
+	
+	!$end omp parallel do
+end subroutine initialConditionsForElement
+
 !>This subroutine applies the ghost cell boundary condition
 subroutine ghostCondition(u,v)
 	use omp_lib
@@ -70,3 +99,5 @@ subroutine lidCondition(u,v)
 	end do
 	!$omp end parallel do
 end subroutine lidCondition
+
+
