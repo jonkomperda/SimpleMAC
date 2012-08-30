@@ -7,10 +7,18 @@ import pyvtk
 ############## Begin shapes
 class unstructShape:
     # Constructs an unstructured shape, usually the result of adding together other shapes
-    def __init__(self,points):
+    def __init__(self,points, old1='none', old2='none'):
         print 'Shape: Creating an unstructured shape...'
         
         self.points = points
+        
+        if( old1 == 'none' and old2 == 'none' ):
+            self.old1 = 0
+            self.old2 = 0
+        else:
+            self.old1 = old1
+            self.old2 = old2
+        
         self.connect= self.connections(self.points)
     
     # Finds the element connections (*Needs to be improved, issues with gaps)
@@ -26,13 +34,48 @@ class unstructShape:
                     other   = points[j]
                     rightO  = points[j+1]
                     if ((other[0] == here[0]) and (rightO[0] > here[0]) and (rightO[1] > here[1])):
-                        #print (i,i+1,j+1,j)
-
                         temp        = (i,i+1,j+1,j)
                         connection  = connection + temp
                         break
-        conList     = list(self.chopper(connection,4))
-        return conList
+        #conList     = list(self.chopper(connection,4))
+        
+        # This condition is if we are making the shape for the first time
+        if(self.old1 == 0 and self.old2 == 0):
+            conList     = list(self.chopper(connection,4))
+            return conList
+        # This condition is if we have added two shapes and need to check for messed up connections
+        else:
+            conList     = list(self.chopper(connection,4))
+            conList = self.cleanConnects(conList)
+            conList     = list(self.chopper(conList,4))
+            return conList
+    
+    # Checks if the connection is supposed to exist or if it was added by mistake
+    def cleanConnects(self,cons):
+        connection  = ()
+        for item in cons:
+            point1  = self.points[item[0]]
+            point2  = self.points[item[1]]
+            point3  = self.points[item[2]]
+            point4  = self.points[item[3]]
+            cond1   = False
+            cond2   = False
+            exists  = False
+            
+            if point1 in self.old1:
+                if point2 in self.old1:
+                    if point3 in self.old1:
+                        if point4 in self.old1:
+                            cond1 = True
+            if point1 in self.old2:
+                if point2 in self.old2:
+                    if point3 in self.old2:
+                        if point4 in self.old2:
+                            cond2 = True
+            
+            if (cond1 == True or cond2 == True):
+                connection = connection + item
+        return connection
     
     # Chops a list into 'size' tuples
     def chopper(self,list,size):
@@ -45,8 +88,7 @@ class unstructShape:
         del_points  = list(set(temp))
         new_points  = self.sort(del_points)
         
-        out         = unstructShape(new_points)
-        
+        out         = unstructShape(new_points, old1 = self.points, old2 = other.points)
         return out
     
     # Sorts a list of tuples (like our grid points)
@@ -72,7 +114,7 @@ class rectangle:
         self.x      = ar.arange(xMin,self.xSize,self.dx)
         self.y      = ar.arange(yMin,self.ySize,self.dy)
         
-        self.points = [(xp,yp,zp) for yp in self.y for xp in self.x for zp in [0]]
+        self.points = [(xp,yp,zp) for yp in self.y for xp in self.x for zp in [0.0]]
         self.connect= self.connections(self.points)
         
     # Overloading of the addition operator
@@ -83,21 +125,7 @@ class rectangle:
         
         new_totP    = len(new_points)                       #calculate the new number of total points
         
-        out         = unstructShape(new_points)
-        
-    #    for i in range(0,len(new_points)-1):
-    #        here    = new_points[i]
-    #        next    = new_points[i+1]
-    #        #see if the next point is the right point
-    #        if (next[0] > here[0]) and (next[1] == here[1]):
-    #            #print i
-    #            for j in range(i+1,len(new_points)-1):
-    #                other   = new_points[j]
-    #                if (other[0] == here[0]):
-    #                    print (i,i+1,j+1,j)
-    #                    break
-    #            
-        
+        out         = unstructShape(new_points, old1 = self.points, old2 = other.points)
         return out
     
     # Sorts a list of tuples (like our grid points)
@@ -129,25 +157,6 @@ class rectangle:
                         break
         conList     = list(self.chopper(connection,4))
         return conList
-
-    # Old Version   
-    # Create a list of connected points to create elements
-    #def connections(self,points):
-    #     ranger      = range(0,len(points))
-    #     connection  = ()
-    #     
-    #     for j in range(0,self.npy-1):
-    #         for i in range(0,self.npx-1):
-    #             here    = i + (j*self.npx)
-    #             right   = here + 1
-    #             top     = here + self.npx
-    #             topr    = here + self.npx + 1
-    #             
-    #             temp = (here, right, topr, top)
-    #             connection = connection + temp
-    #     
-    #     conList     = list(self.chopper(connection,4))
-    #    return conList
 
 # A square is actually a rectangle
 def square(xMin,yMin,leng,npx,npy):
@@ -235,36 +244,15 @@ class readMesh:
 
 ############## Program loop (for testing)
 # put a conditional statement to run this or not
-a = [0,0,0,0]
-#a[0] = square(0.0,1.0,1.0,2,2)
-#print a[0].x
-#print a[0].y
-#print a[0].points
-#print a[0].connect
-#print a[0].points
+a = [0,0,0,0,0]
 
-#vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( a[0].points, quad=a[0].connect ))
-#vtk.tofile('newTest')
+# we create a backward facing step
+a[0] = rectangle(0.0,1.0,2.0,1.0,41,21)
+a[1] = rectangle(0.0,2.0,2.0,1.0,41,21)
+a[2] = rectangle(2.0,0.0,6.0,1.0,123,21)
+a[3] = rectangle(2.0,1.0,6.0,2.0,123,41)
 
-#a[1] = square(2.0,0.0,1.0,2,2)
-#print a[1].x
-#print a[1].y
-#print a[1].points
-#print a[1].connect
-#print a[1].points
+z = a[0] + a[1] + a[2] + a[3]
 
-#a[2] = rectangle(1.0,0.0,3.0,2.0,4,3)
-
-#a[3] = square(4.0,0.0,1.0,2,2)
-
-#print 'result'
-#z = a[0] + a[2] + a[3]
-#print z.connect
-
-a[0] = rectangle(0.0,0.0,3.0,1.0,4,2)
-a[1] = rectangle(1.0,1.0,1.0,3.0,2,4)
-a[2] = rectangle(0.0,4.0,3.0,1.0,4,2)
-z = a[0]+a[1]+a[2]
 vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( z.points, quad=z.connect))
 vtk.tofile('newTest')
-#structure = pyvtk.UnstructuredGrid([4,3,1],z)
