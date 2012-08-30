@@ -2,7 +2,7 @@ program simpleMAC
 	use omp_lib
 	use size
 	use domain 
-	implicit none
+	implicit none!test comment for ubuntu git setup
 	
 	integer						      :: timestep, t
 	double precision, allocatable, dimension(:,:)	:: u, v, p, Fn, Gn, Q
