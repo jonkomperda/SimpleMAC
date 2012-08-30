@@ -30,6 +30,7 @@ program simpleMAC
 		
 		!> First boundary condition
 		call ghostCondition(u,v)
+		call ghostConditionForElement(d)
 		
 		!> calculate Fn and Gn
 		call calcFnGn(u,v,Fn,Gn)
@@ -60,6 +61,7 @@ program simpleMAC
 	end do
 	
 	!> free up our memory
+	deallocate(  d )
 	deallocate(  u )
 	deallocate(  v )
 	deallocate(  p )

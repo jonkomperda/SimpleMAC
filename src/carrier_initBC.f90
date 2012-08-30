@@ -30,11 +30,11 @@ subroutine initialConditionsForElement(d)
 	double precision:: firstX
 	integer							:: n,row
 	type(element), dimension(xSize * ySize), intent(inout) :: d
-	row = -1
+	row = 0
 	!populate the domain with zeros
 	!$omp parallel do shared(d) private(n)
 	do n=1,ySize*xSize
-	    d(n)%X(1) = mod(n-1,xSize) * dx
+	    d(n)%X(1) = (mod(n-1,xSize)+1.0) * dx
 	    if(d(1)%X(1)==d(n)%X(1)) then!<if we see the same x value again we have entered a new row, so update y value
 	        row = row + 1
 	    end if
@@ -74,6 +74,22 @@ subroutine ghostCondition(u,v)
 	end do
 	!$omp end parallel do
 end subroutine ghostCondition
+
+!>This subroutine applies the ghost cell boundary condition
+subroutine ghostConditionForElement(d)
+	use omp_lib
+	use size
+	use domain
+	implicit none
+	integer							:: n
+	type(element), dimension(xSize * ySize), intent(inout) :: d
+	!$omp parallel do shared(d) private(n)
+	do n=1,ySize*xSize
+		if(d(n)%X(1) == 1 .or. d(n)%X(1) == xSize) d(n)%u = 0.0d0!<For east and west walls 
+		if(d(n)%X(2) == 1 .or. d(n)%X(2)==ySize) d(n)%v = 0.0d0!<For north and south walls 
+	end do
+	!$end omp parallel do
+end subroutine ghostConditionForElement
 
 !>our moving lid condition
 subroutine lidCondition(u,v)
