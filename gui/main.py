@@ -1,6 +1,13 @@
 #! /usr/bin/env python
 from Tkinter import *
+from tkFileDialog import *
 import tkMessageBox
+import sys
+import os
+try:
+    import pyvtk
+except ImportError:
+    sys.exit("You must have pyVTK installed to use this program. http://http://code.google.com/p/pyvtk/")
 
 class App(Frame):
     def __init__(self, master):
@@ -42,11 +49,20 @@ class App(Frame):
                                       \nWeb:    github.com/jonkomperda")
     
     def fileOpen(self):
-        pass
+        self.inFileName = askopenfilename(filetypes=[("SimpleMAC Mesh Input","*.in")])
+        
     
     def fileSaveAs(self):
-        pass
-
+        try:
+            vtk
+        except NameError:
+            vtk = None
+        
+        if vtk is None:
+            tkMessageBox.showerror("Error","There is no data to save!")
+        else:
+            self.saveAsName = asksaveasfilename()
+            vtk.tofile(self.saveAsName,'ascii')
 
 if __name__ == "__main__":
     root = Tk()
