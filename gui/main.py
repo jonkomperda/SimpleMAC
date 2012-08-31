@@ -4,6 +4,7 @@ from tkFileDialog import *
 import tkMessageBox
 import sys
 import os
+import readIn
 try:
     import pyvtk
 except ImportError:
@@ -50,7 +51,9 @@ class App(Frame):
     
     def fileOpen(self):
         self.inFileName = askopenfilename(filetypes=[("SimpleMAC Mesh Input","*.in")])
+        self.meshFile = open(self.inFileName,'r')
         
+        readIn.readMesh(self.meshFile)
     
     def fileSaveAs(self):
         try:

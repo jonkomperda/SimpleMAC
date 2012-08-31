@@ -2,7 +2,7 @@ JonMesh v1.0
 blocks = 1
 
 !We state that there is a rectangle in the mesh
-rect
+rectangle
 	!The following are the x,y origins of the rectangle
 	X-origin = 1.0
 	Y-origin = 1.0
@@ -27,4 +27,4 @@ rect
 		V uniform = 2.0
 	end initial
 
-end rect
+end rectangle
