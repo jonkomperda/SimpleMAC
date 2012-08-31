@@ -6,9 +6,11 @@ program simpleMAC
 	
 	integer						      :: timestep, t
 	double precision, allocatable, dimension(:,:)	:: u, v, p, Fn, Gn, Q
-	type(element), allocatable, dimension(:):: d
+	type(element), allocatable, dimension(:):: d!<solution domain
+	type(element), allocatable, dimension(:,:):: b!<boundary domains
 	!allocate our host memory
-	allocate(  d(xSize*ySize) )!>multiply xSize by ySize to establish a one dimensional list able to hold all positions on the two dimensional grid
+	allocate(  d(xSizeSol*ySizeSol) )!>multiply xSizeSol by ySizeSol to establish a one dimensional list able to hold all positions on the two dimensional grid
+	allocate(  b(sides,sideSize) )!>1=S,2=E,3=N,4=W 
 	allocate(  u(xSize,ySize) )
 	allocate(  v(xSize,ySize) )
 	allocate(  p(xSize,ySize) )
@@ -18,7 +20,7 @@ program simpleMAC
 	
 	!> establish initial conditions on the host
 	call initialConditions(u,v,p,Fn,Gn,Q)
-	call initialConditionsForElement(d) 
+	call initialConditionsForElement(d,b) 
 	!> Our main computational loop
 	do t=1,maxSteps
 		!> Calculate our timestep
@@ -30,7 +32,7 @@ program simpleMAC
 		
 		!> First boundary condition
 		call ghostCondition(u,v)
-		call ghostConditionForElement(d)
+		call ghostConditionForElement(b)
 		
 		!> calculate Fn and Gn
 		call calcFnGn(u,v,Fn,Gn)

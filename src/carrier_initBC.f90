@@ -22,29 +22,59 @@ subroutine initialConditions(u,v,p,Fn,Gn,Q)
 end subroutine initialConditions
 
 !>This subroutine populates the computational domain [0,0] to [1,1] with zeros in parallel
-subroutine initialConditionsForElement(d)
+subroutine initialConditionsForElement(d,b)
 	use omp_lib
 	use size
 	use domain
 	implicit none
 	double precision:: firstX
-	integer							:: n,row
-	type(element), dimension(xSize * ySize), intent(inout) :: d
-	row = 0
+	integer							:: n,y,x,i,j!<n,i and j are counter variables. x and y keep track of position
+	type(element), dimension(xSizeSol * ySizeSol), intent(inout) :: d
+	type(element), dimension(sides, sideSize), intent(inout) :: b
+	y = 0
 	!populate the domain with zeros
 	!$omp parallel do shared(d) private(n)
-	do n=1,ySize*xSize
-	    d(n)%X(1) = (mod(n-1,xSize)+1.0) * dx
+	
+	!loop through solution domain
+	do n=1,ySizeSol*xSizeSol
+		x = (mod(n-1,xSizeSol)+1.0)
+	    d(n)%X(1) =  x * dx
 	    if(d(1)%X(1)==d(n)%X(1)) then!<if we see the same x value again we have entered a new row, so update y value
-	        row = row + 1
+	        y = y + 1
 	    end if
-	    d(n)%X(2) = row 
+	    d(n)%X(2) = y * dy 
 	    d(n)%u  = 0.0d0
 	    d(n)%v  = 0.0d0
 	    d(n)%p  = 0.0d0
 	    d(n)%Fn = 0.0d0
 	    d(n)%Gn = 0.0d0
 	    d(n)%Q  = 0.0d0
+	end do
+	
+	!loop though boundary domain
+	do i=1,sides
+		do j=1, sideSize
+			if(i==1) then!south
+				b(i,j)%X(1)=j*dx
+				b(i,j)%X(2)=0
+			else if(i==2) then!east
+				b(i,j)%X(1)=xSize*dx
+				b(i,j)%X(2)=j*dy
+			else if(i==3) then!North
+				b(i,j)%X(1)=j*dx
+				b(i,j)%X(2)=ySize*dy
+			else if(i==4) then!West
+				b(i,j)%X(1)=0
+				b(i,j)%X(2)=j*dy
+			end if
+			
+			b(i,j)%u  = 0.0d0
+	    	b(i,j)%v  = 0.0d0
+	    	b(i,j)%p  = 0.0d0
+	    	b(i,j)%Fn = 0.0d0
+	    	b(i,j)%Gn = 0.0d0
+	    	b(i,j)%Q  = 0.0d0
+		end do
 	end do
 	
 	!$end omp parallel do
@@ -76,17 +106,22 @@ subroutine ghostCondition(u,v)
 end subroutine ghostCondition
 
 !>This subroutine applies the ghost cell boundary condition
-subroutine ghostConditionForElement(d)
+subroutine ghostConditionForElement(b)
 	use omp_lib
 	use size
 	use domain
 	implicit none
-	integer							:: n
-	type(element), dimension(xSize * ySize), intent(inout) :: d
-	!$omp parallel do shared(d) private(n)
-	do n=1,ySize*xSize
-		if(d(n)%X(1) == 1 .or. d(n)%X(1) == xSize) d(n)%u = 0.0d0!<For east and west walls 
-		if(d(n)%X(2) == 1 .or. d(n)%X(2)==ySize) d(n)%v = 0.0d0!<For north and south walls 
+	integer							:: i,j
+	type(element), dimension(sides,sideSize), intent(inout) :: b
+	!$omp parallel do shared(b) private(i,j)
+	do i=1,sides
+		do j=1,sideSize
+			if(i==1 .or. i==3) then!North south
+				b(i,j)%v = 0.0d0
+			else if(i==2 .or. i==4) then
+				b(i,j)%u = 0.0d0
+			end if
+		end do
 	end do
 	!$end omp parallel do
 end subroutine ghostConditionForElement
