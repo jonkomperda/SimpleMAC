@@ -1,17 +1,30 @@
-!JonMesh v1.0
+JonMesh v1.0
 blocks = 1
 
+!We state that there is a rectangle in the mesh
 rect
-X-origin = 0.0
-Y-origin = 0.0
-X-length = 2.0
-Y-length = 1.0
+	!The following are the x,y origins of the rectangle
+	X-origin = 1.0
+	Y-origin = 1.0
+	
+	!These represent the lengths of the sides of the rectangle
+	X-length = 2.0
+	Y-length = 2.0
 
-X-points = 4
-Y-points = 4
+	!The quantity of grid points in each direction for this rectangle
+	X-points = 2
+	Y-points = 2
 
-1 wall
-2 wall
-3 wall
-4 wall
+	!The boundary conditions for each wall
+	bound 1 wall
+	bound 2 wall
+	bound 3 wall
+	bound 4 wall
+
+	!The initial conditions for our variables
+	initial
+		U uniform = 1.0
+		V uniform = 2.0
+	end initial
+
 end rect
