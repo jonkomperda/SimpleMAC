@@ -49,6 +49,62 @@
 		end do
 100     continue		
 	end subroutine poisson
+	
+	!> Poisson solver for the pressure field
+	subroutine poissonForElement(d,b)
+		use size
+		use domain
+		implicit none
+		type(element), dimension(xSizeSol * ySizeSol), intent(inout) :: d
+		type(element), dimension(sides, sideSize), intent(inout) :: b
+		double precision, parameter						:: rf = 1.60d0
+		double precision  								:: change, pold, po, ch
+		integer           								:: iter, im, jm, k
+		integer           								:: n,i,j,tstep
+
+		iter = 0
+		change = 1.0d0
+		do while((change .ge. conv))
+			iter = iter + 1
+			change = 0.0d0
+			do i=n,xSizeSol*ySizeSol
+				pold=d(n)%p
+				d(n)%p = 0.250d0*((d(n)%W%p+d(n)%S%p+d(n)%E%p+d(n)%N%p)-(d(n)%q*dx*dx))
+				d(n)%p = pold + rf*(d(n)%p-pold);
+				
+				!Calculates change
+				if(pold .ne. 0) ch = abs((d(n)%p-pold)/pold)
+				
+				if(ch .gt. change) then
+						change = ch
+						im = i
+						jm = j
+						po = pold
+				end if
+			end do
+			
+			!update boundaries on poisson solver
+			do i=1,sides
+				do j=1,sideSize
+					if(i==1) then!South
+						b(i,j)%p = b(i,j)%N%p - ((2.0 * b(i,j)%N%v)  / (re*dx))
+					else if (i==3) then!North
+						b(i,j)%p = b(i,j)%S%p + ((2.0 * b(i,j)%S%S%v) / (re*dx))
+					else if (i==2) then!East
+						b(i,j)%p   = b(i,j)%W%p + ((2.0 * b(i,j)%W%W%u) / (re*dx))
+					else if (i==4) then!West
+						b(i,j)%p   = b(i,j)%N%p  - ((2.0 * b(i,j)%N%u)     / (re*dx))
+					end if
+				end do
+			end do
+			
+			if(iter .gt. itmax) then
+				write(*,*)'No convergence for pressure at timestep:',tstep
+				goto 100
+			end if
+		end do
+100     continue		
+	end subroutine poissonForElement
 
 !> Parallel poisson solver for the pressure field
 	subroutine parPoisson(q,u,v,tstep,p)

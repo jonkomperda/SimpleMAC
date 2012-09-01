@@ -25,27 +25,31 @@ program simpleMAC
 	do t=1,maxSteps
 		!> Calculate our timestep
 		call calcTStep(u,v,t,dt)
-		call calcTStepForElement(d,t,dt)
+		!call calcTStepForElement(d,b,t,dt)
 		
 		!> Print the timestep to screen / gotta know what's going on
 		write(*,*) 'Timestep: ',t,'dt: ',dt
 		
 		!> First boundary condition
 		call ghostCondition(u,v)
-		call ghostConditionForElement(b)
+		!call ghostConditionForElement(b)
 		
 		!> calculate Fn and Gn
 		call calcFnGn(u,v,Fn,Gn)
+		!call calcFnGnForElement(d)
 		
 		!> calculate Qn
 		call calcQn(Fn,Gn,Q)
-	
+		!call calcQnForElement(d)
+		
 		!> calculate the pressure field
 		!call poisson(Q,u,v,t,p)    !Serial Poisson solver (for testing)
 		call parPoisson(Q,u,v,t,p)
+		!call poissonForElement(d,b)
 		
 		!> calculate u-vel and v-vel
 		call calcVel(Fn,Gn,p,u,v)
+		!call calcVelForElement(d)
 		
 		!> Check NaN if case blew up (>.<)
 		if( isnan(u(int(xSize/2),int(ySize/2))) ) then
@@ -55,10 +59,12 @@ program simpleMAC
 		
 		!> Moving lid boundary
 		call lidCondition(u,v)
+		!call lidConditionForElement(b)
 		
 		!> Plot to file
 		if(mod(t,pInterval)==0) then 
 			call writeVTK(u,v,p,t)
+			!call writeVTKForElement(d,t)
 		end if
 	end do
 	

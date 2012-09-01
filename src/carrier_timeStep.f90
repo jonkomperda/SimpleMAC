@@ -34,7 +34,7 @@
 	
 	
 		!> Calculates our timestep for variable timestepping algorithm
-	subroutine calcTStepForElement(d,t,dtNew)
+	subroutine calcTStepForElement(d,b,t,dtNew)
 		use omp_lib
 		use size
 		use domain
@@ -42,8 +42,9 @@
 		double precision, intent(out)					:: dtNew
 		double precision								:: umax1(2),umax2,vmax1(2),vmax2,dtC,dtR, maxValU, maxValV
 		integer, intent(in)								:: t
-		integer                                         :: n
-		type(element), dimension(xSize * ySize), intent(inout) :: d
+		integer                                         :: n,i,j
+		type(element), dimension(xSizeSol * ySizeSol), intent(inout) :: d
+		type(element), dimension(sides, sideSize), intent(inout) :: b
 		
 		!We use different step sizes depending on how long we've been running
 		if(t .gt. 10) then
@@ -56,10 +57,17 @@
 			    !Find Maximum value of u and v in array of elements. 
 			    maxValU = d(1)%u
 			    maxValV = d(1)%v
-			    n=2
-			    do n=2,ySize*xSize
+			    
+			    do n=2,ySizeSol*xSizeSol
 			       if(maxValU .lt. d(n)%u) maxValU = d(n)%u
 			       if(maxValV .lt. d(n)%v) maxValV = d(n)%v
+			    end do
+			    
+			    do i=1,sides
+			    	do j=1,sideSize
+			    		if(maxValU .lt. b(i,j)%u) maxValU = b(i,j)%u
+			    		if(maxValV .lt. b(i,j)%v) maxValV = b(i,j)%v
+			    	end do
 			    end do
 			    
 			    !Calculate using max values determined by above do loop
