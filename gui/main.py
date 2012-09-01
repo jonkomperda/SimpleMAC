@@ -23,9 +23,26 @@ class App(Frame):
 
         
     def bodyInit(self,master):
+        # window properties
+        master.title("SimpleMAC Mesh")
+        master.wm_state("zoomed")
+        
+        self.editor = Text(master)
+        self.editor.pack(fill=Y,expand=1)
+        self.editor.config(
+            borderwidth = 0,
+            font="Courier 13",
+            wrap=WORD,
+            undo=True
+            )
+        self.editor.focus_set()
+        
         self.master.title('SimpleMAC')
-        self.configure(height=200,width=200)
-        self.grid(padx=15, pady=15,sticky=N+S+E+W)
+        #self.configure(height=200,width=200)
+        #self.grid(padx=15, pady=15,sticky=N+S+E+W)
+        
+
+        
     
     def menuInit(self,master):
         self.menu = Menu(self)
@@ -52,10 +69,26 @@ class App(Frame):
     def fileOpen(self):
         self.inFileName = askopenfilename(filetypes=[("SimpleMAC Mesh Input","*.in")])
         self.meshFile = open(self.inFileName,'r')
-        
+        self.text = open(self.inFileName).read()
+        self.editor.delete(1.0,END)
+        self.editor.insert(END, self.text)
+        self.editor.mark_set(INSERT,1.0)
         readIn.readMesh(self.meshFile)
     
     def fileSaveAs(self):
+        try:
+            self.saveAsName = asksaveasfilename()
+            if '.in' in self.saveAsName:
+                self.writeFile = open(self.saveAsName,'w')
+            else:
+                self.writeFile = open(str(self.saveAsName) + '.in','w')
+            self.text = self.editor.get(1.0,END)
+            self.writeFile.write(self.text.rstrip())
+            self.writeFile.write("\n")
+        finally:
+            self.writeFile.close()
+    
+    def fileSaveAsVTK(self):
         try:
             vtk
         except NameError:
@@ -70,4 +103,6 @@ class App(Frame):
 if __name__ == "__main__":
     root = Tk()
     app = App(root)
+    
     root.mainloop()
+    
