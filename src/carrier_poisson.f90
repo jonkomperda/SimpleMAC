@@ -62,14 +62,16 @@
 		integer           								:: iter, im, jm, k
 		integer           								:: n,i,j,tstep
 
+		pold = 0
 		iter = 0
 		change = 1.0d0
 		do while((change .ge. conv))
 			iter = iter + 1
 			change = 0.0d0
-			do i=n,xSizeSol*ySizeSol
+			do n=1,xSizeSol*ySizeSol
 				pold=d(n)%p
-				d(n)%p = 0.250d0*((d(n)%W%p+d(n)%S%p+d(n)%E%p+d(n)%N%p)-(d(n)%q*dx*dx))
+				d(n)%p = 0.250d0* ( ( d(n)%W%p + d(n)%S%p + d(n)%E%p + &
+				d(n)%N%p )-( d(n)%Q *dx*dx))
 				d(n)%p = pold + rf*(d(n)%p-pold);
 				
 				!Calculates change
@@ -93,7 +95,7 @@
 					else if (i==2) then!East
 						b(i,j)%p   = b(i,j)%W%p + ((2.0 * b(i,j)%W%W%u) / (re*dx))
 					else if (i==4) then!West
-						b(i,j)%p   = b(i,j)%N%p  - ((2.0 * b(i,j)%N%u)     / (re*dx))
+						b(i,j)%p     = b(i,j)%E%p - ((2.0 * b(i,j)%E%u) / (re*dx))
 					end if
 				end do
 			end do

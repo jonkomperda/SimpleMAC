@@ -29,11 +29,10 @@ subroutine initialConditionsForElement(d,b)
 	implicit none
 	double precision:: firstX
 	integer							:: n,y,x,i,j!<n,i and j are counter variables. x and y keep track of position
-	type(element), dimension(xSizeSol * ySizeSol), intent(inout) :: d
-	type(element), dimension(sides, sideSize), intent(inout) :: b
-	type(element) :: test
+	type(element), Target, dimension(xSizeSol * ySizeSol), intent(inout) :: d
+	type(element), Target, dimension(sides, sideSize), intent(inout) :: b
 	y = 0
-	d(1)%W => test!TESTING TO SEE IF POINTERS TO DERIVED TYPE EVEN WORKS
+
 	!populate the domain with zeros
 	!$omp parallel do shared(d) private(n)
 	
@@ -55,27 +54,27 @@ subroutine initialConditionsForElement(d,b)
 	    d(n)%Q  = 0.0d0
 	    
 	    !Set N, S, E, & W Neighboring positions
-	    !if(x==1) then!At west boundary
-	    	!d(n)%W=>b(4,y+1)
-	    	!d(n)%E=>d(n+1)
-	    !else if (x==xSizeSol) then!At East boundary
-	    	!d(n)%E=>b(2,y+1)
-	    	!d(n)%W=>d(n-1)
-	    !else
-	    	!d(n)%E=>d(n+1)
-	    	!d(n)%W=>d(n-1)
-	    !end if
+	    if(x==1) then!At west boundary
+	    	d(n)%W=>b(4,y+1)
+	    	d(n)%E=>d(n+1)
+	    else if (x==xSizeSol) then!At East boundary
+	    	d(n)%E=>b(2,y+1)
+	    	d(n)%W=>d(n-1)
+	    else
+	    	d(n)%E=>d(n+1)
+	    	d(n)%W=>d(n-1)
+	    end if
 	    
-	    !if(y==1) then!At South boundary
-	    	!d(n)%S=>b(1,x+1)
-	    	!d(n)%N=>d(n+xSizeSol)
-	    !else if (y==ySizeSol) then
-	    	!d(n)%N=>b(3,x+1)
-	    	!d(n)%S=>d(n-xSizeSol)
-	    !else
-	    	!d(n)%N=>d(n+xSizeSol)
-	    	!d(n)%S=>d(n-xSizeSol)
-	    !end if	 
+	    if(y==1) then!At South boundary
+	    	d(n)%S=>b(1,x+1)
+	    	d(n)%N=>d(n+xSizeSol)
+	    else if (y==ySizeSol) then
+	    	d(n)%N=>b(3,x+1)
+	    	d(n)%S=>d(n-xSizeSol)
+	    else
+	    	d(n)%N=>d(n+xSizeSol)
+	    	d(n)%S=>d(n-xSizeSol)
+	    end if	 
 	    
 	end do
 	
@@ -88,17 +87,17 @@ subroutine initialConditionsForElement(d,b)
 				b(i,j)%xLoc(1)=j
 				b(i,j)%xLoc(2)=0
 				
-				!if(j==1) then
-					!b(i,j)%N => b(4,j+1)
-					!b(i,j)%E => b(i,j+1)
-				!else if (j==sideSize) then
-					!b(i,j)%N => b(2,2)
-					!b(i,j)%W => b(i,j-1)
-				!else
-					!b(i,j)%N => d(j-1)
-					!b(i,j)%E => b(i,j+1)
-					!b(i,j)%W => b(i,j-1)
-				!end if
+				if(j==1) then
+					b(i,j)%N => b(4,j+1)
+					b(i,j)%E => b(i,j+1)
+				else if (j==sideSize) then
+					b(i,j)%N => b(2,2)
+					b(i,j)%W => b(i,j-1)
+				else
+					b(i,j)%N => d(j-1)
+					b(i,j)%E => b(i,j+1)
+					b(i,j)%W => b(i,j-1)
+				end if
 				
 			else if(i==2) then!east
 				b(i,j)%X(1)=xSize*dx
@@ -106,17 +105,17 @@ subroutine initialConditionsForElement(d,b)
 				b(i,j)%xLoc(1)=xSize
 				b(i,j)%xLoc(2)=j
 				
-				!if(j==1) then
-					!b(i,j)%N=>b(i,j+1)
-					!b(i,j)%W=>b(1,sideSize-1)
-				!else if (j==sideSize) then
-					!b(i,j)%S=>b(i,j-1)
-					!b(i,j)%W=>b(3,sideSize-1)
-				!else
-					!b(i,j)%N=>b(i,j+1)
-					!b(i,j)%S=>b(i,j-1)
-					!b(i,j)%W=>d(xSizeSol*(j-1))
-				!end if
+				if(j==1) then
+					b(i,j)%N=>b(i,j+1)
+					b(i,j)%W=>b(1,sideSize-1)
+				else if (j==sideSize) then
+					b(i,j)%S=>b(i,j-1)
+					b(i,j)%W=>b(3,sideSize-1)
+				else
+					b(i,j)%N=>b(i,j+1)
+					b(i,j)%S=>b(i,j-1)
+					b(i,j)%W=>d(xSizeSol*(j-1))
+				end if
 				
 			else if(i==3) then!North
 				b(i,j)%X(1)=j*dx
@@ -124,17 +123,17 @@ subroutine initialConditionsForElement(d,b)
 				b(i,j)%xLoc(1)=j
 				b(i,j)%xLoc(2)=ySize
 				
-				!if(j==1) then
-					!b(i,j)%S => b(4,sideSize-1)
-					!b(i,j)%E => b(i,j+1)
-				!else if(j==sideSize) then
-					!b(i,j)%S => b(2,sideSize-1)
-					!b(i,j)%W => b(i,j-1)
-				!else
-					!b(i,j)%W => b(i,j-1)
-					!b(i,j)%E => b(i,j+1)
-					!b(i,j)%S => d( (xSizeSol*(ySizeSol-1)) + (j-1) )
-				!end if
+				if(j==1) then
+					b(i,j)%S => b(4,sideSize-1)
+					b(i,j)%E => b(i,j+1)
+				else if(j==sideSize) then
+					b(i,j)%S => b(2,sideSize-1)
+					b(i,j)%W => b(i,j-1)
+				else
+					b(i,j)%W => b(i,j-1)
+					b(i,j)%E => b(i,j+1)
+					b(i,j)%S => d( (xSizeSol*(ySizeSol-1)) + (j-1) )
+				end if
 				
 			else if(i==4) then!West
 				b(i,j)%X(1)=0
@@ -142,17 +141,17 @@ subroutine initialConditionsForElement(d,b)
 			    b(i,j)%xLoc(1)=0
 				b(i,j)%xLoc(2)=j
 				
-				!if(j==1) then
-					!b(i,j)%N=>b(i,j+1)
-					!b(i,j)%E=>b(1,2)
-				!else if (j==sideSize) then
-					!b(i,j)%S => b(i,j-1)
-					!b(i,j)%E => b(3,2)
-				!else 
-					!b(i,j)%N => b(i,j+1)
-					!b(i,j)%S => b(i,j-1)
-					!b(i,j)%E => d(1 + ( (j-2)*xSizeSol ) )
-				!end if
+				if(j==1) then
+					b(i,j)%N=>b(i,j+1)
+					b(i,j)%E=>b(1,2)
+				else if (j==sideSize) then
+					b(i,j)%S => b(i,j-1)
+					b(i,j)%E => b(3,2)
+				else 
+					b(i,j)%N => b(i,j+1)
+					b(i,j)%S => b(i,j-1)
+					b(i,j)%E => d(1 + ( (j-2)*xSizeSol ) )
+				end if
 				
 			end if
 			
