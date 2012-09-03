@@ -36,10 +36,10 @@
 			
 			!update boundaries on poisson solver
 			do k=1,xSize
-				p(k,1)     = p(k,2)       - ((2.0 * v(k,2))       / (re*dx))
-                p(k,ySize) = p(k,ySize-1) + ((2.0 * v(k,ySize-2)) / (re*dx))
-                p(1,k)     = p(2,k)       - ((2.0 * u(2,k))       / (re*dx))
-                p(xSize,k) = p(xSize-1,k) + ((2.0 * u(xSize-2,k)) / (re*dx))
+				p(k,1)     = p(k,2)       - ((2.0 * v(k,2))       / (re*dx))!South
+                p(k,ySize) = p(k,ySize-1) + ((2.0 * v(k,ySize-2)) / (re*dx))!North
+                p(1,k)     = p(2,k)       - ((2.0 * u(2,k))       / (re*dx))!West
+                p(xSize,k) = p(xSize-1,k) + ((2.0 * u(xSize-2,k)) / (re*dx))!East
 			end do
 			
 			if(iter .gt. itmax) then
@@ -70,8 +70,7 @@
 			change = 0.0d0
 			do n=1,xSizeSol*ySizeSol
 				pold=d(n)%p
-				d(n)%p = 0.250d0* ( ( d(n)%W%p + d(n)%S%p + d(n)%E%p + &
-				d(n)%N%p )-( d(n)%Q *dx*dx))
+				d(n)%p = 0.250d0*((d(n)%W%p+d(n)%S%p+d(n)%E%p+d(n)%N%p)-(d(n)%q*dx*dx))
 				d(n)%p = pold + rf*(d(n)%p-pold);
 				
 				!Calculates change
@@ -89,13 +88,13 @@
 			do i=1,sides
 				do j=1,sideSize
 					if(i==1) then!South
-						b(i,j)%p = b(i,j)%N%p - ((2.0 * b(i,j)%N%v)  / (re*dx))
+						b(i,j)%p= b(i,j)%N%p - ((2.0*b(i,j)%N%v) / (re*dx))!South
 					else if (i==3) then!North
-						b(i,j)%p = b(i,j)%S%p + ((2.0 * b(i,j)%S%S%v) / (re*dx))
+						b(i,j)%p = b(i,j)%S%p + ((2.0*b(i,j)%S%S%v) / (re*dx))
 					else if (i==2) then!East
-						b(i,j)%p   = b(i,j)%W%p + ((2.0 * b(i,j)%W%W%u) / (re*dx))
+						b(i,j)%p = b(i,j)%W%p + ((2.0*b(i,j)%W%W%u) / (re*dx))
 					else if (i==4) then!West
-						b(i,j)%p     = b(i,j)%E%p - ((2.0 * b(i,j)%E%u) / (re*dx))
+						b(i,j)%p = b(i,j)%E%p - ((2.0*b(i,j)%E%u) / (re*dx))
 					end if
 				end do
 			end do

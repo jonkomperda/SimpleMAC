@@ -82,9 +82,9 @@ subroutine initialConditionsForElement(d,b)
 	do i=1,sides
 		do j=1, sideSize
 			if(i==1) then!south
-				b(i,j)%X(1)=j*dx
+				b(i,j)%X(1)=(j-1)*dx
 				b(i,j)%X(2)=0
-				b(i,j)%xLoc(1)=j
+				b(i,j)%xLoc(1)=j-1
 				b(i,j)%xLoc(2)=0
 				
 				if(j==1) then
@@ -100,10 +100,10 @@ subroutine initialConditionsForElement(d,b)
 				end if
 				
 			else if(i==2) then!east
-				b(i,j)%X(1)=xSize*dx
-				b(i,j)%X(2)=j*dy
-				b(i,j)%xLoc(1)=xSize
-				b(i,j)%xLoc(2)=j
+				b(i,j)%X(1)=(xSize-1)*dx
+				b(i,j)%X(2)=(j-1)*dy
+				b(i,j)%xLoc(1)=xSize-1
+				b(i,j)%xLoc(2)=j-1
 				
 				if(j==1) then
 					b(i,j)%N=>b(i,j+1)
@@ -118,10 +118,10 @@ subroutine initialConditionsForElement(d,b)
 				end if
 				
 			else if(i==3) then!North
-				b(i,j)%X(1)=j*dx
-				b(i,j)%X(2)=ySize*dy
-				b(i,j)%xLoc(1)=j
-				b(i,j)%xLoc(2)=ySize
+				b(i,j)%X(1)=(j-1)*dx
+				b(i,j)%X(2)=(ySize-1)*dy
+				b(i,j)%xLoc(1)=j-1
+				b(i,j)%xLoc(2)=ySize-1
 				
 				if(j==1) then
 					b(i,j)%S => b(4,sideSize-1)
@@ -137,9 +137,9 @@ subroutine initialConditionsForElement(d,b)
 				
 			else if(i==4) then!West
 				b(i,j)%X(1)=0
-				b(i,j)%X(2)=j*dy
+				b(i,j)%X(2)=(j-1)*dy
 			    b(i,j)%xLoc(1)=0
-				b(i,j)%xLoc(2)=j
+				b(i,j)%xLoc(2)=(j-1)
 				
 				if(j==1) then
 					b(i,j)%N=>b(i,j+1)
@@ -164,6 +164,31 @@ subroutine initialConditionsForElement(d,b)
 		end do
 	end do
 	
+	goto 191!For debugging purposes 
+	i=4
+	do j=1+1, sideSize-1
+		write(*,*) 'j: ',j
+		write(*,*) 'mid: ',b(i,j)%xLoc(1), b(i,j)%xLoc(2)
+		write(*,*) 'south: ',b(i,j)%S%xLoc(1), b(i,j)%S%xLoc(2)
+		!write(*,*) 'east: ',b(i,j)%E%xLoc(1), b(i,j)%E%xLoc(2)
+		write(*,*) 'north: ',b(i,j)%N%xLoc(1), b(i,j)%N%xLoc(2)
+		!write(*,*) 'west: ',b(i,j)%W%xLoc(1), b(i,j)%W%xLoc(2)
+		write(*,*) ' '
+	end do
+	
+	do n=1,ySizeSol*xSizeSol
+		write(*,*) 'n: ',n
+		write(*,*) 'mid: ',d(n)%xLoc(1), d(n)%xLoc(2)
+		write(*,*) 'south: ',d(n)%S%xLoc(1), d(n)%S%xLoc(2)
+		write(*,*) 'east: ',d(n)%E%xLoc(1), d(n)%E%xLoc(2)
+		write(*,*) 'north: ',d(n)%N%xLoc(1), d(n)%N%xLoc(2)
+		write(*,*) 'west: ',d(n)%W%xLoc(1), d(n)%W%xLoc(2)
+		write(*,*) ' '
+	end do
+	
+	
+	
+	191 continue
 	!$end omp parallel do
 end subroutine initialConditionsForElement
 
@@ -253,14 +278,16 @@ subroutine lidConditionForElement(b)
 			if(i==1) then!South
 				b(i,j)%u = -b(i,j)%N%u
 			else if (i==2) then!East
-				b(i,j)%v = -b(i,j)%W%v
+				b(i,j)%v = -b(i,j)%W%v			
 			else if (i==3) then!North
-				b(i,j)%u = 2.0d0 - b(i,j)%S%u 
-			else if (i==4) then
-				b(i,j)%v = -b(i,j)%E%v			
+				b(i,j)%u = 2.0d0 - b(i,j)%S%u
+			else if (i==4) then!West
+				b(i,j)%v = -b(i,j)%E%v
 			end if
 		end do
 	end do
+
+	
 	!$omp end parallel do
 end subroutine lidConditionForElement
 

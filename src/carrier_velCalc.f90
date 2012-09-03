@@ -46,19 +46,19 @@
 			vSouth = d(n)%S%v
 			vEast = d(n)%E%v
 			vWest = d(n)%W%v
-			vNorth = d(n)%n%v
+			vNorth = d(n)%N%v
 			vSouthEast = d(n)%E%S%v
 			uNorthWest = d(n)%W%N%u
 			
-			d(n)%Fn = uMiddle+dt*(((uWest-2*uMiddle+uEast)/(re*dx*dx))+((uSouth               &
-				        -2.0d0*uMiddle+uNorth)/(re*dy*dy))-(((uMiddle+uWest)*(uMiddle+uWest)         &
-				        -(uEast+uMiddle)*(uEast+uMiddle))/(4.0d0*dx))-((((uMiddle+uNorth)*(vEast  &
-				        +vMiddle))-((uSouth+uMiddle)*(vSouthEast+vSouth)))/(4.0d0*dy)))
-				        
-			d(n)%Gn = vMiddle+dt*(((vEast-2.0d0*vMiddle+vWest)/(re*dx*dx))+((vSouth				&
-				        -2.0d0*vMiddle+vNorth)/(re*dy*dy))-(((vNorth+vMiddle)*(vNorth+vMiddle)			&
-				         -(vSouth+vMiddle)*(vSouth+vMiddle))/(4.0d0*dy))-((((uMiddle+uNorth)*(vEast  &
-				        +vMiddle))-((uWest+uNorthWest)*(vMiddle+vWest)))/(4.0d0*dx)))	          
+				d(n)%Fn = uMIddle+dt*(((uEast-2*uMIddle+uWest)/(re*dx*dx))+((uSouth               &
+				          -2.0d0*uMIddle+uNorth)/(re*dy*dy))-(((uMIddle+uEast)*(uMIddle+uEast)         &
+				          -(uWest+uMIddle)*(uWest+uMIddle))/(4.0d0*dx))-((((uMIddle+uNorth)*(vEast  &
+				          +vMIddle))-((uSouth+uMIddle)*(vSouthEast+vSouth)))/(4.0d0*dy)))
+				          
+				d(N)%Gn = vMIddle+dt*(((vEast-2.0d0*vMIddle+vWest)/(re*dx*dx))+((vSouth				&
+				          -2.0d0*vMIddle+vNorth)/(re*dy*dy))-(((vNorth+vMIddle)*(vNorth+vMIddle)			&
+				          -(vSouth+vMIddle)*(vSouth+vMIddle))/(4.0d0*dy))-((((uMIddle+uNorth)*(vEast  &
+				          +vMIddle))-((uWest+uNorthWest)*(vMIddle+vWest)))/(4.0d0*dx)))          
 		end do
 		!$omp end parallel do
 		
@@ -134,11 +134,11 @@
 		
 		!$omp parallel do private(n) schedule(dynamic)
 		do n=1, xSizeSol*ySizeSol
-			if(d(n)%xLoc(1)<xSizeSol-1) then
+			if(d(n)%xLoc(1)<xSizeSol) then
 				d(n)%u = d(n)%Fn - ( d(n)%E%p - d(n)%p ) * (dt/dx)
 			end if
 				
-			if(d(n)%xLoc(2)<ySizeSol-1) then
+			if(d(n)%xLoc(2)<ySizeSol) then
 				d(n)%v = d(n)%Gn - ( d(n)%N%p - d(n)%p ) * (dt/dy)
 			end if
 		end do

@@ -21,6 +21,7 @@ program simpleMAC
 	!> establish initial conditions on the host
 	!call initialConditions(u,v,p,Fn,Gn,Q)
 	call initialConditionsForElement(d,b) 
+	
 	!> Our main computational loop
 	do t=1,maxSteps
 		!> Calculate our timestep
@@ -70,6 +71,7 @@ program simpleMAC
 	
 	!> free up our memory
 	deallocate(  d )
+	deallocate(  b )
 	deallocate(  u )
 	deallocate(  v )
 	deallocate(  p )
