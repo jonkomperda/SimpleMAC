@@ -6,14 +6,16 @@ import sys
 import os
 import readIn
 import tkFont
+from meshIn import *
 try:
     import pyvtk
 except ImportError:
     sys.exit("You must have pyVTK installed to use this program. http://http://code.google.com/p/pyvtk/")
 
 class App(Frame):
-    _shapes = ['rectangle','square','end square','end rectangle']
+    _shapes = ['rectangle','square','square(','end square','end rectangle']
     _commands = ['blocks','JonMesh','X-origin','Y-origin','X-length','Y-length','Length','X-points','Y-points']
+    
     def __init__(self, master):
         """Initialise the base class"""
         Frame.__init__(self,master)
@@ -29,6 +31,7 @@ class App(Frame):
         self.editor.bind("<Key>", self.highlight)
         self.editor.tag_configure("shape", foreground="blue", underline=True)
         self.editor.tag_configure("command", foreground="dark green")
+    
     
     def bodyInit(self,master):
         # window properties
@@ -67,16 +70,34 @@ class App(Frame):
         self.fileMenu.add_separator()
         self.fileMenu.add_command(label='Quit', command = master.quit)
         
+        # preview menu
+        self.previewMenu = Menu(self.menu)
+        self.menu.add_cascade(label='Preview', menu=self.previewMenu)
+        self.previewMenu.add_command(label='Start in VTK...', command = self.previewVtk)
+        #self.previewMenu.add_command(label='Stop VTK...', command = self.vtkStop)
+        
+        #run menu
+        self.runMenu = Menu(self.menu)
+        self.menu.add_cascade(label='Run', menu = self.runMenu)
+        self.runMenu.add_command(label='in Terminal...', command = self.run)
+        
         # Help menu pane
         self.helpMenu = Menu(self.menu)
         self.menu.add_cascade(label='Help', menu=self.helpMenu)
         self.helpMenu.add_command(label='About', command = self.about)
-        
-        # preview menu
-        self.previewMenu = Menu(self.menu)
-        self.menu.add_cascade(label='Preview', menu=self.previewMenu)
-        self.previewMenu.add_command(label='in VTK...', command = self.previewVtk)
     
+    
+    def run(self):
+        contents = self.editor.get(1.0,END)
+        
+        try:
+            exec contents
+        except:
+            tkMessageBox.showerror("Error!","This is not valid SimpleMesh format code!\
+            \nRead the documentation!")
+        else:
+            self.vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( mesh.points, quad=mesh.connect))
+            self.vtk.tofile('tmp')
     
     def about(self):
         tkMessageBox.showinfo("About", "Author: Jon Komperda\
@@ -126,7 +147,7 @@ class App(Frame):
         import vtk
         
         # The source file
-        file_name = "newTest.vtk"
+        file_name = "tmp.vtk"
         
         # Read the source file.
         reader = vtk.vtkUnstructuredGridReader()
@@ -148,17 +169,41 @@ class App(Frame):
         # Create the Renderer
         renderer = vtk.vtkRenderer()
         renderer.AddActor(actor)
-        renderer.SetBackground(1, 1, 1) # Set background to white
+        renderer.SetBackground(.1, .1, .1) # Set background 
+        
+        # add an axes indicator
+        transform = vtk.vtkTransform()
+        transform.Translate(-.5,-.5,0.0)
+        axes = vtk.vtkAxesActor()
+        axes.SetUserTransform(transform)
+        renderer.AddActor(axes)
         
         # Create the RendererWindow
         renderer_window = vtk.vtkRenderWindow()
         renderer_window.AddRenderer(renderer)
         
         # Create the RendererWindowInteractor and display the vtk_file
-        interactor = vtk.vtkRenderWindowInteractor()
-        interactor.SetRenderWindow(renderer_window)
-        interactor.Initialize()
-        interactor.Start()
+        self.interactor = vtk.vtkRenderWindowInteractor()
+        self.interactor.SetRenderWindow(renderer_window)
+        
+        # this is buggy
+        #def exitCheck(obj,event):
+        #    if obj.GetEventPending() != 0:
+        #        obj.SetAbortRender(1)
+        #
+        #renderer_window.AddObserver("AbortCheckEvent",exitCheck)
+        
+        #self.interactor.Initialize()
+        renderer_window.Render()
+        #self.interactor.Start()
+    
+    def vtkStop(self):
+        try:
+            self.interactor
+        except NameError:
+            pass
+        else:
+            self.interactor.Stop()
     
     
     def highlight(self,master):
