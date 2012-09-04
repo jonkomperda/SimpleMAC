@@ -171,6 +171,7 @@ def square(xMin,yMin,leng,npx,npy):
 #                'unstruct'  :   unstructShape   }
 #
 
+############## Program loop (for testing)
 if __name__ == "__main__":
     # put a conditional statement to run this or not
     a = [0,0,0,0,0]

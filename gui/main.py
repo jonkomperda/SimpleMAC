@@ -13,8 +13,8 @@ except ImportError:
     sys.exit("You must have pyVTK installed to use this program. http://http://code.google.com/p/pyvtk/")
 
 class App(Frame):
-    _shapes = ['rectangle','square','square(','end square','end rectangle']
-    _commands = ['blocks','JonMesh','X-origin','Y-origin','X-length','Y-length','Length','X-points','Y-points']
+    _shapes = ['rectangle','square','square(','rectangle(']
+    _commands = ['mesh','blocks','JonMesh','X-origin','Y-origin','X-length','Y-length','Length','X-points','Y-points']
     
     def __init__(self, master):
         """Initialise the base class"""
@@ -29,7 +29,7 @@ class App(Frame):
         # Syntax highlighting
         self.editor.bind("<space>", self.highlight)
         self.editor.bind("<Key>", self.highlight)
-        self.editor.tag_configure("shape", foreground="blue", underline=True)
+        self.editor.tag_configure("shape", foreground="blue", underline=False)
         self.editor.tag_configure("command", foreground="dark green")
     
     
@@ -66,7 +66,8 @@ class App(Frame):
         self.fileMenu = Menu(self.menu)
         self.menu.add_cascade(label='File', menu=self.fileMenu)
         self.fileMenu.add_command(label='Open', command = self.fileOpen)
-        self.fileMenu.add_command(label='Save as...', command = self.fileSaveAs)
+        self.fileMenu.add_command(label='Save as mesh...', command = self.fileSaveAs)
+        self.fileMenu.add_command(label='Save as VTK...', command = self.fileSaveAsVTK)
         self.fileMenu.add_separator()
         self.fileMenu.add_command(label='Quit', command = master.quit)
         
@@ -96,8 +97,12 @@ class App(Frame):
             tkMessageBox.showerror("Error!","This is not valid SimpleMesh format code!\
             \nRead the documentation!")
         else:
-            self.vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( mesh.points, quad=mesh.connect))
-            self.vtk.tofile('tmp')
+            try:
+                self.vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( mesh.points, quad=mesh.connect))
+                #self.vtk.tofile('tmp')
+            except:
+                tkMessageBox.showerror("Error!", "You appear to be missing the \'mesh\' variable")
+    
     
     def about(self):
         tkMessageBox.showinfo("About", "Author: Jon Komperda\
@@ -107,13 +112,16 @@ class App(Frame):
     
     def fileOpen(self):
         self.inFileName = askopenfilename(filetypes=[("SimpleMAC Mesh Input","*.in")])
-        self.meshFile = open(self.inFileName,'r')
-        self.text = open(self.inFileName).read()
-        self.editor.delete(1.0,END)
-        self.editor.insert(END, self.text)
-        self.editor.mark_set(INSERT,1.0)
-        readIn.readMesh(self.meshFile)
-        self.highlight(Frame)
+        if self.inFileName == '':
+            pass
+        else:
+            self.meshFile = open(self.inFileName,'r')
+            self.text = open(self.inFileName).read()
+            self.editor.delete(1.0,END)
+            self.editor.insert(END, self.text)
+            self.editor.mark_set(INSERT,1.0)
+            #readIn.readMesh(self.meshFile) #probably not needed for new format
+            self.highlight(Frame)
     
     
     def fileSaveAs(self):
@@ -131,19 +139,31 @@ class App(Frame):
     
     
     def fileSaveAsVTK(self):
+        self.run()
         try:
-            vtk
+            self.vtk
         except NameError:
-            vtk = None
+            self.vtk = None
         
-        if vtk is None:
+        if self.vtk is None:
             tkMessageBox.showerror("Error","There is no data to save!")
         else:
-            self.saveAsName = asksaveasfilename()
-            vtk.tofile(self.saveAsName,'ascii')
-    
+            self.run()
+            try:
+                self.saveAsName = asksaveasfilename()
+                self.vtk.tofile(self.saveAsName,'ascii')
+            except:
+                tkMessageBox.showerror("Error!","Issue writing VTK data to file.")
     
     def previewVtk(self):
+        
+        self.run()
+        
+        try:
+            self.vtk.tofile('tmp')
+        except:
+            tkMessageBox.showerror("Error!", "Issue writing temporary mesh file to display.")
+        
         import vtk
         
         # The source file
@@ -196,6 +216,7 @@ class App(Frame):
         #self.interactor.Initialize()
         renderer_window.Render()
         #self.interactor.Start()
+    
     
     def vtkStop(self):
         try:
