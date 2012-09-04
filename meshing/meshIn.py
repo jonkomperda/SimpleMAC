@@ -171,17 +171,17 @@ def square(xMin,yMin,leng,npx,npy):
 #                'unstruct'  :   unstructShape   }
 #
 
-if __name__ == "__main__":
-    # put a conditional statement to run this or not
-    a = [0,0,0,0,0]
-    
-    # we create a backward facing step
-    a[0] = rectangle(0.0,1.0,2.0,1.0,41,21)
-    a[1] = rectangle(0.0,2.0,2.0,1.0,41,21)
-    a[2] = rectangle(2.0,0.0,6.0,1.0,123,21)
-    a[3] = rectangle(2.0,1.0,6.0,2.0,123,41)
-    
-    z = a[0] + a[1] + a[2] + a[3]
-    
-    vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( z.points, quad=z.connect))
-    vtk.tofile('newTest')
+############## Program loop (for testing)
+# put a conditional statement to run this or not
+a = [0,0,0,0,0]
+
+# we create a backward facing step
+a[0] = rectangle(0.0,1.0,2.0,1.0,41,21)
+a[1] = rectangle(0.0,2.0,2.0,1.0,41,21)
+a[2] = rectangle(2.0,0.0,6.0,1.0,123,21)
+a[3] = rectangle(2.0,1.0,6.0,2.0,123,41)
+
+z = a[0] + a[1] + a[2] + a[3]
+
+vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( z.points, quad=z.connect))
+vtk.tofile('newTest')
