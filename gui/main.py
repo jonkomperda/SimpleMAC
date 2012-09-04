@@ -60,11 +60,6 @@ class App(Frame):
         self.helpMenu = Menu(self.menu)
         self.menu.add_cascade(label='Help', menu=self.helpMenu)
         self.helpMenu.add_command(label='About', command = self.about)
-        
-        # preview menu
-        self.previewMenu = Menu(self.menu)
-        self.menu.add_cascade(label='Preview', menu=self.previewMenu)
-        self.previewMenu.add_command(label='in VTK...', command = self.previewVtk)
     
     def about(self):
         tkMessageBox.showinfo("About", "Author: Jon Komperda\
@@ -104,44 +99,6 @@ class App(Frame):
         else:
             self.saveAsName = asksaveasfilename()
             vtk.tofile(self.saveAsName,'ascii')
-            
-    def previewVtk(self):
-        import vtk
-
-        # The source file
-        file_name = "newTest.vtk"
-
-        # Read the source file.
-        reader = vtk.vtkUnstructuredGridReader()
-        reader.SetFileName(file_name)
-        reader.Update() # Needed because of GetScalarRange
-        output = reader.GetOutput()
-        scalar_range = output.GetScalarRange()
-
-        # Create the mapper that corresponds the objects of the vtk file
-        # into graphics elements
-        mapper = vtk.vtkDataSetMapper()
-        mapper.SetInput(output)
-        mapper.SetScalarRange(scalar_range)
-
-        # Create the Actor
-        actor = vtk.vtkActor()
-        actor.SetMapper(mapper)
-
-        # Create the Renderer
-        renderer = vtk.vtkRenderer()
-        renderer.AddActor(actor)
-        renderer.SetBackground(1, 1, 1) # Set background to white
-
-        # Create the RendererWindow
-        renderer_window = vtk.vtkRenderWindow()
-        renderer_window.AddRenderer(renderer)
-
-        # Create the RendererWindowInteractor and display the vtk_file
-        interactor = vtk.vtkRenderWindowInteractor()
-        interactor.SetRenderWindow(renderer_window)
-        interactor.Initialize()
-        interactor.Start()
 
 if __name__ == "__main__":
     root = Tk()
