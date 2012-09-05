@@ -1,6 +1,4 @@
-!> @brief Calculates Fn and Gn used for calculating velocity
-!! 
-!! @todo fill out the rest of this commentary
+!> Calculates Fn and Gn used for calculating velocity
 	subroutine calcFnGn(u,v,Fn,Gn)
 		use size
 		use omp_lib
@@ -66,9 +64,7 @@
 		
 	end subroutine calcFnGnForElement
 
-!> @brief Calculates Qn, used for calculating pressure
-!!
-!! @todo fill out the rest of this commentary
+!> Calculates Qn, used for calculating pressure
 	subroutine calcQn(Fn,Gn,Q)
 		use size
 		use omp_lib
@@ -102,12 +98,7 @@
 		
 	end subroutine calcQnForElement
 
-!> @brief Calculates velocity using Fn and pressure
-!!
-!! U-velocity is calculated from:
-!! \f$  u_{n_1}^{i+1/2,j} = F^n_{i+1/2,j} - \frac{\Delta t}{\Delta x} (P^{n+1}_{i+1,j} - P^{n+1}_{i,j})  \f$
-!! V-Velocity is calculated from:
-!! \f$  v_{n_1}^{i,j+1/2} = G^n_{i,j+1/2} - \frac{\Delta t}{\Delta x} (P^{n+1}_{i,j+1} - P^{n+1}_{i,j})  \f$
+!> Calculates velocity using Fn and pressure
 	subroutine calcVel(Fn,Gn,p,u,v)
 		use size
 		use omp_lib
