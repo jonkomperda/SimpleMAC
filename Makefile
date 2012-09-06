@@ -1,7 +1,6 @@
 f90		=	gfortran
 
-flags		=	-O3					\
-			-fopenmp
+flags		=	-g			\
 				
 libs		=
 

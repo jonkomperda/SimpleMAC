@@ -127,7 +127,7 @@
 		
 		!For OpenMP
 		numThreads = 4
-		call omp_set_num_threads(numThreads)
+		!call omp_set_num_threads(numThreads)
 		
 		!calculate sizes of blocks
 		rowPer = int(ySize/numThreads)
@@ -135,7 +135,7 @@
 		
 		!Fork the threads
 		!$omp parallel private(myid, istart, iend, i, j, k,t, iter, pold, changeThread) shared(change)
-		myid = omp_get_thread_num()
+		!myid = omp_get_thread_num()
 		
 		istart = myid*rowPer + 1
 		if(myid == 0) istart = istart + 1

@@ -53,10 +53,10 @@ program simpleMAC
 		call calcVelForElement(d)
 		
 		!> Check NaN if case blew up (>.<)
-		if( isnan(u(int(xSize/2),int(ySize/2))) ) then
-			write(*,*)'Case Blew UP!!!!!!!!!'
-			stop
-		end if
+		!if( isnan(u(int(xSize/2),int(ySize/2))) ) then
+			!write(*,*)'Case Blew UP!!!!!!!!!'
+			!stop
+		!end if
 		
 		!> Moving lid boundary
 		!call lidCondition(u,v)
