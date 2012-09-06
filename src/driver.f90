@@ -46,7 +46,7 @@ program simpleMAC
 		!> calculate the pressure field
 		!call poisson(Q,u,v,t,p)    !Serial Poisson solver (for testing)
 		!call parPoisson(Q,u,v,t,p)
-		call poissonForElement(d,b)
+		call poissonForElement(d,b,t)
 		
 		!> calculate u-vel and v-vel
 		!call calcVel(Fn,Gn,p,u,v)
