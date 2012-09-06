@@ -1,28 +1,3 @@
-!> Calculates Fn and Gn used for calculating velocity
-	subroutine calcFnGn(u,v,Fn,Gn)
-		use size
-		use omp_lib
-		implicit none
-		double precision, dimension(xSize,ySize), intent(in)    :: u, v
-		double precision, dimension(xSize,ySize), intent(out)   :: Fn, Gn
-		integer											:: i, j, err
-		
-		!$omp parallel do private(i,j) schedule(dynamic)
-		do i=2,xSize-1
-			do j=2,ySize-1
-				Fn(i,j) = u(i,j)+dt*(((u(i+1,j)-2*u(i,j)+u(i-1,j))/(re*dx*dx))+((u(i,j-1)               &
-				          -2.0d0*u(i,j)+u(i,j+1))/(re*dy*dy))-(((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))         &
-				          -(u(i-1,j)+u(i,j))*(u(i-1,j)+u(i,j)))/(4.0d0*dx))-((((u(i,j)+u(i,j+1))*(v(i+1,j)  &
-				          +v(i,j)))-((u(i,j-1)+u(i,j))*(v(i+1,j-1)+v(i,j-1))))/(4.0d0*dy)))
-				Gn(i,j) = v(i,j)+dt*(((v(i+1,j)-2.0d0*v(i,j)+v(i-1,j))/(re*dx*dx))+((v(i,j-1)				&
-				          -2.0d0*v(i,j)+v(i,j+1))/(re*dy*dy))-(((v(i,j+1)+v(i,j))*(v(i,j+1)+v(i,j))			&
-				          -(v(i,j-1)+v(i,j))*(v(i,j-1)+v(i,j)))/(4.0d0*dy))-((((u(i,j)+u(i,j+1))*(v(i+1,j)  &
-				          +v(i,j)))-((u(i-1,j)+u(i-1,j+1))*(v(i,j)+v(i-1,j))))/(4.0d0*dx)))
-			end do
-		end do
-		!$omp end parallel do
-	end subroutine calcFnGn
-	
 	!> Calculates Fn and Gn used for calculating velocity
 	subroutine calcFnGnForElement(d)
 		use size
@@ -63,8 +38,72 @@
 		!$omp end parallel do
 		
 	end subroutine calcFnGnForElement
+	
+	!> Calculates Qn, used for calculating pressure
+	subroutine calcQnForElement(d)
+		use size
+		use omp_lib
+		use domain
+		type(element), dimension(xSizeSol * ySizeSol), intent(inout) :: d
+		integer											:: n, err
+		
+		!$omp parallel do private(n) schedule(dynamic)
+		do n=1,xSizeSol*ySizeSol
+			d(n)%Q =((d(n)%Fn-d(n)%W%Fn+d(n)%Gn-d(n)%S%Gn)/(dt*dx))
+		end do
+		!$omp end parallel do
+		
+	end subroutine calcQnForElement
+	
+	!> Calculates velocity using Fn and pressure
+	subroutine calcVelForElement(d)
+		use size
+		use omp_lib
+		use domain
+		type(element), dimension(xSizeSol * ySizeSol), intent(inout) :: d
+		integer											:: n, err
+		
+		!$omp parallel do private(n) schedule(dynamic)
+		do n=1, xSizeSol*ySizeSol
+			if(d(n)%xLoc(1)<xSizeSol) then
+				d(n)%u = d(n)%Fn - ( d(n)%E%p - d(n)%p ) * (dt/dx)
+			end if
+				
+			if(d(n)%xLoc(2)<ySizeSol) then
+				d(n)%v = d(n)%Gn - ( d(n)%N%p - d(n)%p ) * (dt/dy)
+			end if
+			
+		end do
+		!$omp end parallel do
 
-!> Calculates Qn, used for calculating pressure
+	end subroutine calcVelForElement
+
+	!> Calculates Fn and Gn used for calculating velocity
+	subroutine calcFnGn(u,v,Fn,Gn)
+		use size
+		use omp_lib
+		implicit none
+		double precision, dimension(xSize,ySize), intent(in)    :: u, v
+		double precision, dimension(xSize,ySize), intent(out)   :: Fn, Gn
+		integer											:: i, j, err
+		
+		!$omp parallel do private(i,j) schedule(dynamic)
+		do i=2,xSize-1
+			do j=2,ySize-1
+				Fn(i,j) = u(i,j)+dt*(((u(i+1,j)-2*u(i,j)+u(i-1,j))/(re*dx*dx))+((u(i,j-1)               &
+				          -2.0d0*u(i,j)+u(i,j+1))/(re*dy*dy))-(((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))         &
+				          -(u(i-1,j)+u(i,j))*(u(i-1,j)+u(i,j)))/(4.0d0*dx))-((((u(i,j)+u(i,j+1))*(v(i+1,j)  &
+				          +v(i,j)))-((u(i,j-1)+u(i,j))*(v(i+1,j-1)+v(i,j-1))))/(4.0d0*dy)))
+				Gn(i,j) = v(i,j)+dt*(((v(i+1,j)-2.0d0*v(i,j)+v(i-1,j))/(re*dx*dx))+((v(i,j-1)				&
+				          -2.0d0*v(i,j)+v(i,j+1))/(re*dy*dy))-(((v(i,j+1)+v(i,j))*(v(i,j+1)+v(i,j))			&
+				          -(v(i,j-1)+v(i,j))*(v(i,j-1)+v(i,j)))/(4.0d0*dy))-((((u(i,j)+u(i,j+1))*(v(i+1,j)  &
+				          +v(i,j)))-((u(i-1,j)+u(i-1,j+1))*(v(i,j)+v(i-1,j))))/(4.0d0*dx)))
+			end do
+		end do
+		!$omp end parallel do
+	end subroutine calcFnGn
+	
+	!> Calculates Qn, used for calculating pressure
 	subroutine calcQn(Fn,Gn,Q)
 		use size
 		use omp_lib
@@ -82,23 +121,7 @@
 		
 	end subroutine calcQn
 	
-	!> Calculates Qn, used for calculating pressure
-	subroutine calcQnForElement(d)
-		use size
-		use omp_lib
-		use domain
-		type(element), dimension(xSizeSol * ySizeSol), intent(inout) :: d
-		integer											:: n, err
-		
-		!$omp parallel do private(n) schedule(dynamic)
-		do n=1,xSizeSol*ySizeSol
-			d(n)%Q =((d(n)%Fn-d(n)%W%Fn+d(n)%Gn-d(n)%S%Gn)/(dt*dx))
-		end do
-		!$omp end parallel do
-		
-	end subroutine calcQnForElement
-
-!> Calculates velocity using Fn and pressure
+	!> Calculates velocity using Fn and pressure
 	subroutine calcVel(Fn,Gn,p,u,v)
 		use size
 		use omp_lib
@@ -123,27 +146,3 @@
 		!$omp end parallel do
 		
 	end subroutine calcVel
-	
-	!> Calculates velocity using Fn and pressure
-	subroutine calcVelForElement(d)
-		use size
-		use omp_lib
-		use domain
-		type(element), dimension(xSizeSol * ySizeSol), intent(inout) :: d
-		integer											:: n, err
-		
-		!$omp parallel do private(n) schedule(dynamic)
-		do n=1, xSizeSol*ySizeSol
-			if(d(n)%xLoc(1)<xSizeSol) then
-				d(n)%u = d(n)%Fn - ( d(n)%E%p - d(n)%p ) * (dt/dx)
-			end if
-				
-			if(d(n)%xLoc(2)<ySizeSol) then
-				d(n)%v = d(n)%Gn - ( d(n)%N%p - d(n)%p ) * (dt/dy)
-			end if
-		end do
-		!$omp end parallel do
-		
-	
-		
-	end subroutine calcVelForElement

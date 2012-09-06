@@ -1,27 +1,4 @@
 !>This subroutine populates the computational domain [0,0] to [1,1] with zeros in parallel
-subroutine initialConditions(u,v,p,Fn,Gn,Q)
-	use omp_lib
-	use size
-	implicit none
-	double precision, dimension(xSize,ySize), intent(inout) :: u, v, p, Fn, Gn, Q
-	integer							:: i, j
-		
-	!populate the domain with zeros
-	!$omp parallel do shared(u,v,p) private(i,j)
-	do j=1,ySize
-		do i=1,xSize
-			u(i,j)  = 0.0d0
-			v(i,j)  = 0.0d0
-			p(i,j)  = 0.0d0
-			Fn(i,j) = 0.0d0
-			Gn(i,j) = 0.0d0
-			Q(i,j)  = 0.0d0
-		end do
-	end do
-	!$end omp parallel do
-end subroutine initialConditions
-
-!>This subroutine populates the computational domain [0,0] to [1,1] with zeros in parallel
 subroutine initialConditionsForElement(d,b)
 	use omp_lib
 	use size
@@ -164,33 +141,83 @@ subroutine initialConditionsForElement(d,b)
 		end do
 	end do
 	
-	goto 191!For debugging purposes 
-	i=4
-	do j=1+1, sideSize-1
-		write(*,*) 'j: ',j
-		write(*,*) 'mid: ',b(i,j)%xLoc(1), b(i,j)%xLoc(2)
-		write(*,*) 'south: ',b(i,j)%S%xLoc(1), b(i,j)%S%xLoc(2)
-		!write(*,*) 'east: ',b(i,j)%E%xLoc(1), b(i,j)%E%xLoc(2)
-		write(*,*) 'north: ',b(i,j)%N%xLoc(1), b(i,j)%N%xLoc(2)
-		!write(*,*) 'west: ',b(i,j)%W%xLoc(1), b(i,j)%W%xLoc(2)
-		write(*,*) ' '
-	end do
-	
-	do n=1,ySizeSol*xSizeSol
-		write(*,*) 'n: ',n
-		write(*,*) 'mid: ',d(n)%xLoc(1), d(n)%xLoc(2)
-		write(*,*) 'south: ',d(n)%S%xLoc(1), d(n)%S%xLoc(2)
-		write(*,*) 'east: ',d(n)%E%xLoc(1), d(n)%E%xLoc(2)
-		write(*,*) 'north: ',d(n)%N%xLoc(1), d(n)%N%xLoc(2)
-		write(*,*) 'west: ',d(n)%W%xLoc(1), d(n)%W%xLoc(2)
-		write(*,*) ' '
-	end do
-	
-	
-	
-	191 continue
 	!$end omp parallel do
 end subroutine initialConditionsForElement
+
+!>This subroutine applies the ghost cell boundary condition
+subroutine ghostConditionForElement(b)
+	use omp_lib
+	use size
+	use domain
+	implicit none
+	integer							:: i,j
+	type(element), dimension(sides,sideSize), intent(inout) :: b
+	!$omp parallel do shared(b) private(i,j)
+	do i=1,sides
+		do j=1,sideSize
+			if(i==1 .or. i==3) then!North south
+				b(i,j)%v = 0.0d0
+			else if(i==2 .or. i==4) then
+				b(i,j)%u = 0.0d0
+			end if
+		end do
+	end do
+	!$end omp parallel do
+end subroutine ghostConditionForElement
+
+!>our moving lid condition
+subroutine lidConditionForElement(b)
+	use omp_lib
+	use size
+	use domain
+	implicit none
+	type(element), dimension(sides,sideSize), intent(inout) :: b
+	integer							:: i,j
+	!U and V velocity condition
+	!$omp parallel do private(i,j) shared(b) schedule(dynamic)
+	do i=1,sides
+		do j=2, sideSize
+			if(i==1) then!South
+				b(i,j)%u = -b(i,j)%N%u
+			end if
+			if (i==2) then!East
+				b(i,j)%v = -b(i,j)%W%v			
+			end if
+			if (i==3) then!North
+				b(i,j)%u = 2.0d0 - b(i,j)%S%u
+			end if
+			if (i==4) then!West
+				b(i,j)%v = -b(i,j)%E%v
+			end if
+		end do
+	end do
+
+	
+	!$omp end parallel do
+end subroutine lidConditionForElement
+
+!>This subroutine populates the computational domain [0,0] to [1,1] with zeros in parallel
+subroutine initialConditions(u,v,p,Fn,Gn,Q)
+	use omp_lib
+	use size
+	implicit none
+	double precision, dimension(xSize,ySize), intent(inout) :: u, v, p, Fn, Gn, Q
+	integer							:: i, j
+		
+	!populate the domain with zeros
+	!$omp parallel do shared(u,v,p) private(i,j)
+	do j=1,ySize
+		do i=1,xSize
+			u(i,j)  = 0.0d0
+			v(i,j)  = 0.0d0
+			p(i,j)  = 0.0d0
+			Fn(i,j) = 0.0d0
+			Gn(i,j) = 0.0d0
+			Q(i,j)  = 0.0d0
+		end do
+	end do
+	!$end omp parallel do
+end subroutine initialConditions
 
 !>This subroutine applies the ghost cell boundary condition
 subroutine ghostCondition(u,v)
@@ -217,27 +244,6 @@ subroutine ghostCondition(u,v)
 	!$omp end parallel do
 end subroutine ghostCondition
 
-!>This subroutine applies the ghost cell boundary condition
-subroutine ghostConditionForElement(b)
-	use omp_lib
-	use size
-	use domain
-	implicit none
-	integer							:: i,j
-	type(element), dimension(sides,sideSize), intent(inout) :: b
-	!$omp parallel do shared(b) private(i,j)
-	do i=1,sides
-		do j=1,sideSize
-			if(i==1 .or. i==3) then!North south
-				b(i,j)%v = 0.0d0
-			else if(i==2 .or. i==4) then
-				b(i,j)%u = 0.0d0
-			end if
-		end do
-	end do
-	!$end omp parallel do
-end subroutine ghostConditionForElement
-
 !>our moving lid condition
 subroutine lidCondition(u,v)
 	use omp_lib
@@ -262,33 +268,3 @@ subroutine lidCondition(u,v)
 	end do
 	!$omp end parallel do
 end subroutine lidCondition
-
-!>our moving lid condition
-subroutine lidConditionForElement(b)
-	use omp_lib
-	use size
-	use domain
-	implicit none
-	type(element), dimension(sides,sideSize), intent(inout) :: b
-	integer							:: i,j
-	!U and V velocity condition
-	!$omp parallel do private(i,j) shared(b) schedule(dynamic)
-	do i=1,sides
-		do j=2, sideSize-1
-			if(i==1) then!South
-				b(i,j)%u = -b(i,j)%N%u
-			else if (i==2) then!East
-				b(i,j)%v = -b(i,j)%W%v			
-			else if (i==3) then!North
-				b(i,j)%u = 2.0d0 - b(i,j)%S%u
-			else if (i==4) then!West
-				b(i,j)%v = -b(i,j)%E%v
-			end if
-		end do
-	end do
-
-	
-	!$omp end parallel do
-end subroutine lidConditionForElement
-
-
