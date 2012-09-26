@@ -16,6 +16,7 @@ program simpleMAC
 	
 	!> Our main computational loop
 	do t=1,maxSteps
+		!go to 49
 		!> Calculate our timestep
 		call calcTStepForElement(d,b,t,dt)
 		
@@ -45,13 +46,13 @@ program simpleMAC
 		
 		!> Moving lid boundary
 		call lidConditionForElement(b)
-		
+		!49 continue
 		!> Plot to file
 		if(mod(t,pInterval)==0) then 
 			call writeVTKForElement(d,t)
 		end if
 	end do
-	
+
 	!> free up our memory
 	deallocate(  d )
 	deallocate(  b )

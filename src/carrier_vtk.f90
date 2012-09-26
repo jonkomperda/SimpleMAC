@@ -23,39 +23,64 @@
             write(filename, fmt='(a4,i7.7,a4)') 'data',timestep,'.vtk'
             open(unit=51, file=filePath//filename, iostat=ios, status="new")
             
-!     ------now write the header portion of the VTK file
-            write(unit=51, fmt=textLine) '# vtk DataFile Version 3.0'
+!     ------now write the header portion of the VTK filel
+            write(unit=51, fmt=textLine) '# vtk DataFile Version 2.0'
+            !write(unit=51, fmt=textLine) '# vtk DataFile Version 3.0'
             write(unit=51, fmt=textLine) 'Data'
             write(unit=51, fmt=textLine) 'ASCII'
-            write(unit=51, fmt=textLine) 'DATASET RECTILINEAR_GRID'
+            write(unit=51, fmt=textLine) 'DATASET UNSTRUCTURED_GRID'
+            !write(unit=51, fmt=textLine) 'DATASET STRUCTURED_GRID'
+            !write(unit=51, fmt=textLine) 'DATASET RECTILINEAR_GRID'
             write(unit=51, fmt=*)
             
+!     ------Write out Points
+			!write(unit=51, fmt=textIIText)  'DIMENSIONS ',xSizeSol,ySizeSol,' 1'
+			write(unit=51, fmt=textIntText) 'POINTS',xSizeSol * ySizeSol,' float'
+            do n=1,xSizeSol*ySizeSol
+				write(unit=51, fmt=*) d(n)%X(1),  d(n)%X(2), '0'
+            end do
+            
+            write(unit=51, fmt=*) 'Cells',(xSizeSol-1) * (ySizeSol-1), (xSizeSol-1)*(ySizeSol-1)*5
+            do n=1,xSizeSol*ySizeSol
+            	if(d(n)%xLoc(1)<xSizeSol .and. d(n)%xLoc(2)<ySizeSol) then
+            		write(unit=51, fmt=*) 4,n-1,n,n-1+xSizeSol+1,n-1+xSizeSol
+            	end if
+            end do
+            
+            write(unit=51, fmt=*) 'CELL_TYPES',(xSizeSol-1) * (ySizeSol-1)
+            do n=1,(xSizeSol-1) * (ySizeSol-1)
+				write(unit=51, fmt=*) 9
+            end do
+            
+            !go to 105
 !     ------Write out mesh information
-            write(unit=51, fmt=textIIText)  'DIMENSIONS ',xSize-1,ySize-1,' 1'
+            !write(unit=51, fmt=textIIText)  'DIMENSIONS ',xSize-1,ySize-1,' 1'
+            !write(unit=51, fmt=textIntText) 'POINTS ',xSizeSol * ySizeSol,' float'
+            
             
             !---- X Coords plotted out
-            write(unit=51, fmt=textIntText) 'X_COORDINATES ',xSize-1,' float'
-			x = 0.0d0
-            do i=1,xSize-1
-                  write(unit=51, fmt='(11e20.10)') x
-				  x = x+dx
-            end do
+            !write(unit=51, fmt=textIntText) 'X_COORDINATES ',xSize-1,' float'
+			!x = 0.0d0
+            !do i=1,xSize-1
+                  !write(unit=51, fmt='(11e20.10)') x
+				  !x = x+dx
+            !end do
             
             !---- Y Coords plotted out
-            write(unit=51, fmt=textIntText) 'Y_COORDINATES ',ySize-1,' float'
-			y = 0.0d0
-            do i=1,ySize-1
-                  write(unit=51, fmt='(11e20.10)') y
-				  y = y + dy
-            end do
+            !write(unit=51, fmt=textIntText) 'Y_COORDINATES ',ySize-1,' float'
+			!y = 0.0d0
+            !do i=1,ySize-1
+                  !write(unit=51, fmt='(11e20.10)') y
+				  !y = y + dy
+            !end do
             
             !---- Z Coords plotted out / placeholder for 3D code
-            write(unit=51, fmt=textLine) 'Z_COORDINATES 1 float'
-            write(unit=51, fmt=textLine) '0.0000000000E+00' 
-            write(unit=51, fmt=textLine)
+            !write(unit=51, fmt=textLine) 'Z_COORDINATES 1 float'
+            !write(unit=51, fmt=textLine) '0.0000000000E+00' 
+            !write(unit=51, fmt=textLine)
             
 !     ------write particle data out
-            write(unit=51, fmt=textInt) 'CELL_DATA ',(xSize-2)*(ySize-2)
+            write(unit=51, fmt=textInt) 'POINT_DATA ',xSizeSol*ySizeSol
 
             !-----begin with scalars
             write(unit=51, fmt=textLine) 'SCALARS u float'
@@ -77,6 +102,7 @@
 		do j=n, xSizeSol*ySizeSol
 			write(unit=51, fmt=*) d(n)%p
 		end do
+		!105 continue
 		write(unit=51, fmt=*)
 		close(51)
             
