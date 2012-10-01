@@ -25,21 +25,18 @@
             
 !     ------now write the header portion of the VTK filel
             write(unit=51, fmt=textLine) '# vtk DataFile Version 2.0'
-            !write(unit=51, fmt=textLine) '# vtk DataFile Version 3.0'
             write(unit=51, fmt=textLine) 'Data'
             write(unit=51, fmt=textLine) 'ASCII'
             write(unit=51, fmt=textLine) 'DATASET UNSTRUCTURED_GRID'
-            !write(unit=51, fmt=textLine) 'DATASET STRUCTURED_GRID'
-            !write(unit=51, fmt=textLine) 'DATASET RECTILINEAR_GRID'
             write(unit=51, fmt=*)
             
 !     ------Write out Points
-			!write(unit=51, fmt=textIIText)  'DIMENSIONS ',xSizeSol,ySizeSol,' 1'
 			write(unit=51, fmt=textIntText) 'POINTS',xSizeSol * ySizeSol,' float'
             do n=1,xSizeSol*ySizeSol
 				write(unit=51, fmt=*) d(n)%X(1),  d(n)%X(2), '0'
             end do
             
+!     ------Write out Cells
             write(unit=51, fmt=*) 'Cells',(xSizeSol-1) * (ySizeSol-1), (xSizeSol-1)*(ySizeSol-1)*5
             do n=1,xSizeSol*ySizeSol
             	if(d(n)%xLoc(1)<xSizeSol .and. d(n)%xLoc(2)<ySizeSol) then
@@ -47,66 +44,39 @@
             	end if
             end do
             
+!     ------Write out Cell Types
             write(unit=51, fmt=*) 'CELL_TYPES',(xSizeSol-1) * (ySizeSol-1)
             do n=1,(xSizeSol-1) * (ySizeSol-1)
 				write(unit=51, fmt=*) 9
             end do
             
-            !go to 105
-!     ------Write out mesh information
-            !write(unit=51, fmt=textIIText)  'DIMENSIONS ',xSize-1,ySize-1,' 1'
-            !write(unit=51, fmt=textIntText) 'POINTS ',xSizeSol * ySizeSol,' float'
-            
-            
-            !---- X Coords plotted out
-            !write(unit=51, fmt=textIntText) 'X_COORDINATES ',xSize-1,' float'
-			!x = 0.0d0
-            !do i=1,xSize-1
-                  !write(unit=51, fmt='(11e20.10)') x
-				  !x = x+dx
-            !end do
-            
-            !---- Y Coords plotted out
-            !write(unit=51, fmt=textIntText) 'Y_COORDINATES ',ySize-1,' float'
-			!y = 0.0d0
-            !do i=1,ySize-1
-                  !write(unit=51, fmt='(11e20.10)') y
-				  !y = y + dy
-            !end do
-            
-            !---- Z Coords plotted out / placeholder for 3D code
-            !write(unit=51, fmt=textLine) 'Z_COORDINATES 1 float'
-            !write(unit=51, fmt=textLine) '0.0000000000E+00' 
-            !write(unit=51, fmt=textLine)
-            
 !     ------write particle data out
             write(unit=51, fmt=textInt) 'POINT_DATA ',xSizeSol*ySizeSol
 
-            !-----begin with scalars
-            write(unit=51, fmt=textLine) 'SCALARS u float'
-            write(unit=51, fmt=textLine) 'LOOKUP_TABLE default'
+!	  -----begin with scalars
+        	write(unit=51, fmt=textLine) 'SCALARS u float'
+        	write(unit=51, fmt=textLine) 'LOOKUP_TABLE default'
 			do n = 1, ySizeSol*xSizeSol
-                write(unit=51, fmt=*) d(n)%u
+            	write(unit=51, fmt=*) d(n)%u
 			end do
-            write(unit=51, fmt=*)
+        	write(unit=51, fmt=*)
 
-		write(unit=51, fmt=textLine) 'SCALARS v float'
-		write(unit=51, fmt=textLine) 'LOOKUP_TABLE default'
-		do n=1, xSizeSol*ySizeSol
-			write(unit=51, fmt=*) d(n)%v
-		end do
-		write(unit=51, fmt=*)
+			write(unit=51, fmt=textLine) 'SCALARS v float'
+			write(unit=51, fmt=textLine) 'LOOKUP_TABLE default'
+			do n=1, xSizeSol*ySizeSol
+				write(unit=51, fmt=*) d(n)%v
+			end do
+			write(unit=51, fmt=*)
 		
-		write(unit=51, fmt=textLine) 'SCALARS p float'
-		write(unit=51, fmt=textLine) 'LOOKUP_TABLE default'
-		do j=n, xSizeSol*ySizeSol
-			write(unit=51, fmt=*) d(n)%p
-		end do
-		!105 continue
-		write(unit=51, fmt=*)
-		close(51)
+			write(unit=51, fmt=textLine) 'SCALARS p float'
+			write(unit=51, fmt=textLine) 'LOOKUP_TABLE default'
+			do j=n, xSizeSol*ySizeSol
+				write(unit=51, fmt=*) d(n)%p
+			end do
+			write(unit=51, fmt=*)
+			close(51)
             
-      end subroutine writeVTKForElement
+      	end subroutine writeVTKForElement
       
       subroutine writeVTK(u,v,p,timestep)
             use size
