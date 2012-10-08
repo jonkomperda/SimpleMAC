@@ -16,7 +16,10 @@ module size
 	integer, parameter             :: xSizeSol      = xSize - 2!size of solution part of grid
 	integer, parameter             :: ySizeSol      = ySize - 2!size of solution part of grid
 	integer, parameter             :: sides      = 4
+	!integer, parameter             :: sides      = 6
 	integer, parameter             :: sideSize      = xSize
+	integer, parameter             :: sizeSol = (sideSize * (sideSize-2)) + (xSizeSol * (sideSize-2))
+	integer, parameter			   :: sideSizeSmall = sideSize / 2
 	double precision, parameter    :: Lx	   = 1.0d0
 	double precision, parameter    :: Ly         = 1.0d0
 	double precision, parameter    :: Lz         = 0.10d0

@@ -1,3 +1,83 @@
+            subroutine writeVTKComplexGeometry(d,timestep)
+            use size
+            use domain
+            implicit none
+            
+!     ------Input definitions
+           type(element), dimension(sizeSol), intent(inout) :: d
+            integer, intent(in)               :: timestep
+            
+!     ------Variable definitions
+            character(len=32)                 :: filename
+            character(len=5)                  :: filePath = 'data/'
+            integer                           :: i, ios, j, n
+                  double precision                  :: x, y
+
+!     ------Format definitions
+            character(len=*), parameter     :: textLine = "(A)"
+            character(len=*), parameter     :: textInt  = "(A,I7)"
+            character(len=*), parameter     :: textIntText = "(A,I7,A)"
+            character(len=*), parameter     :: textIIText = "(A,I7,I7,A)"
+
+!     ------Filename generation
+            write(filename, fmt='(a4,i7.7,a4)') 'data',timestep,'.vtk'
+            open(unit=51, file=filePath//filename, iostat=ios, status="new")
+            
+!     ------now write the header portion of the VTK filel
+            write(unit=51, fmt=textLine) '# vtk DataFile Version 2.0'
+            write(unit=51, fmt=textLine) 'Data'
+            write(unit=51, fmt=textLine) 'ASCII'
+            write(unit=51, fmt=textLine) 'DATASET UNSTRUCTURED_GRID'
+            write(unit=51, fmt=*)
+            
+!     ------Write out Points
+                  write(unit=51, fmt=textIntText) 'POINTS',sizeSol,' float'
+            do n=1,sizeSol
+                        write(unit=51, fmt=*) d(n)%X(1),  d(n)%X(2), '0'
+            end do
+            
+!     ------Write out Cells
+            write(unit=51, fmt=*) 'Cells',(xSizeSol-1) * (ySizeSol-1), (xSizeSol-1)*(ySizeSol-1)*5
+            do n=1,sizeSol
+                  if(d(n)%xLoc(1)<xSizeSol .and. d(n)%xLoc(2)<ySizeSol) then
+                        write(unit=51, fmt=*) 4,n-1,n,n-1+xSizeSol+1,n-1+xSizeSol
+                  end if
+            end do
+            
+!     ------Write out Cell Types
+            write(unit=51, fmt=*) 'CELL_TYPES',(xSizeSol-1) * (ySizeSol-1)
+            do n=1,(xSizeSol-1) * (ySizeSol-1)
+                        write(unit=51, fmt=*) 9
+            end do
+            
+!     ------write particle data out
+            write(unit=51, fmt=textInt) 'POINT_DATA ',xSizeSol*ySizeSol
+
+!       -----begin with scalars
+            write(unit=51, fmt=textLine) 'SCALARS u float'
+            write(unit=51, fmt=textLine) 'LOOKUP_TABLE default'
+                  do n = 1, ySizeSol*xSizeSol
+                  write(unit=51, fmt=*) d(n)%u
+                  end do
+            write(unit=51, fmt=*)
+
+                  write(unit=51, fmt=textLine) 'SCALARS v float'
+                  write(unit=51, fmt=textLine) 'LOOKUP_TABLE default'
+                  do n=1, xSizeSol*ySizeSol
+                        write(unit=51, fmt=*) d(n)%v
+                  end do
+                  write(unit=51, fmt=*)
+            
+                  write(unit=51, fmt=textLine) 'SCALARS p float'
+                  write(unit=51, fmt=textLine) 'LOOKUP_TABLE default'
+                  do j=n, xSizeSol*ySizeSol
+                        write(unit=51, fmt=*) d(n)%p
+                  end do
+                  write(unit=51, fmt=*)
+                  close(51)
+            
+      end subroutine writeVTKComplexGeometry
+
       subroutine writeVTKForElement(d,timestep)
             use size
             use domain
@@ -76,7 +156,7 @@
 			write(unit=51, fmt=*)
 			close(51)
             
-      	end subroutine writeVTKForElement
+      end subroutine writeVTKForElement
       
       subroutine writeVTK(u,v,p,timestep)
             use size

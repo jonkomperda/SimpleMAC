@@ -1,4 +1,223 @@
 !>This subroutine populates the computational domain [0,0] to [1,1] with zeros in parallel
+subroutine initialConditionsComplexGeometry(d,b)
+	use omp_lib
+	use size
+	use domain
+	implicit none
+	double precision:: firstX
+	integer							:: n,y,x,i,j,e,xLimit, boundSize!<n,i and j are counter variables. x and y keep track of position
+	type(element), Target, dimension(sizeSol), intent(inout) :: d
+	type(element), Target, dimension(sides, sideSize), intent(inout) :: b
+	y = 0
+
+	!populate the domain with zeros
+	!$omp parallel do shared(d) private(n)
+	
+	!loop through solution domain
+	e = 0
+	xLimit = sideSizeSmall - 2
+	do n=1,sizeSol
+		e = e + 1
+		x = (mod(e-1,xLimit)+1.0)
+		d(n)%xLoc(1) = x
+	    d(n)%X(1) =  x * dx
+	    
+		if(n>1 .and. xLimit == xSize/2 - 2) then
+			if(d(1)%X(1) == d(n)%X(1) .and. d(n-1)%xLoc(2) == sideSizeSmall) then
+				e = 1
+				xLimit = xSizeSol
+				x = (mod(e-1,xLimit)+1.0)
+				d(n)%xLoc(1) = x
+	    		d(n)%X(1) =  x * dx
+			end if
+		end if
+		
+	    if(d(1)%X(1)==d(n)%X(1)) then!<if we see the same x value again we have entered a new row, so update y value
+	        y = y + 1
+	    end if
+	    d(n)%xLoc(2) = y
+	    d(n)%X(2) = y * dy 
+	    
+	    d(n)%u  = 0.0d0
+	    d(n)%v  = 0.0d0
+	    d(n)%p  = 0.0d0
+	    d(n)%Fn = 0.0d0
+	    d(n)%Gn = 0.0d0
+	    d(n)%Q  = 0.0d0
+	    
+	    !Set N, S, E, & W Neighboring positions
+	    if(x==1) then!At west boundary
+	    	d(n)%W=>b(6,y+1)
+	    	d(n)%E=>d(n+1)
+	    else if(x==(sideSizeSmall - 2) .and. y<=sideSizeSmall) then!At 1st East boundary
+	    	d(n)%E=>b(2,y+1)
+	    	d(n)%W=>d(n-1)
+	    else if(x==xSizeSol .and. y>sideSizeSmall) then
+	    	d(n)%E=>b(4,y+1)
+	    	d(n)%W=>d(n-1)
+	    else
+	    	d(n)%E=>d(n+1)
+	    	d(n)%W=>d(n-1)
+	    end if
+	    
+	    if(y==1) then!At South boundary
+	    	d(n)%S=>b(1,x+1)
+	    	d(n)%N=>d(n+(sideSizeSmall-2))
+	    else if (y==(sideSizeSmall+1) .and. x>(sideSizeSmall-2)) then
+	    	d(n)%S=>b(3,x - (sideSizeSmall-2))
+	    	d(n)%N=>d(n+xSizeSol)
+	    else if (y==ySizeSol) then
+	    	d(n)%N=>b(5,x+1)
+	    	d(n)%S=>d(n-xSizeSol)
+	    else if (y<=sideSizeSmall .and. y>1) then
+	    	d(n)%N=>d(n+(sideSizeSmall-2))
+	    	d(n)%S=>d(n-(sideSizeSmall-2))
+		else if (y== (sideSizeSmall+1) .and. x<=(sideSizeSmall-2)) then
+	    	d(n)%N=>d(n+xSizeSol)
+	    	d(n)%S=>d(n-(sideSizeSmall-2))
+	    else if (y>(sideSizeSmall+1) .and. y<ySizeSol) then
+	    	d(n)%N=>d(n+xSizeSol)
+	    	d(n)%S=>d(n-xSizeSol)
+	    end if	 
+	    
+	end do
+	
+	!loop though boundary domain
+	do i=1,sides
+		if (i == 1 .or. i == 4) then
+			boundSize = sideSizeSmall
+		else if (i == 2 .or. i == 3) then
+			boundSize = sideSizeSmall + 1
+		else if (i==5 .or. i==6) then
+			boundSize = sideSize
+		end if
+		
+		do j=1, boundSize
+			if(i==1) then!Most South Wall
+				b(i,j)%X(1)=(j-1)*dx
+				b(i,j)%X(2)=0
+				b(i,j)%xLoc(1)=j-1
+				b(i,j)%xLoc(2)=0
+				
+				if(j==1) then
+					b(i,j)%N => b(6,j+1)
+					b(i,j)%E => b(i,j+1)
+				else if (j==sideSizeSmall) then
+					b(i,j)%N => b(2,2)
+					b(i,j)%W => b(i,j-1)
+				else
+					b(i,j)%N => d(j-1)
+					b(i,j)%E => b(i,j+1)
+					b(i,j)%W => b(i,j-1)
+				end if
+			else if(i==2) then!First East Wall
+				b(i,j)%X(1)=(sideSizeSmall-1)*dx
+				b(i,j)%X(2)=(j-1)*dy
+				b(i,j)%xLoc(1)=sideSizeSmall-1
+				b(i,j)%xLoc(2)=j-1
+				
+				if(j==1) then
+					b(i,j)%N=>b(i,j+1)
+					b(i,j)%W=>b(1,sideSizeSmall-1)
+				else if (j==sideSizeSmall+1) then
+					b(i,j)%S=>b(i,j-1)
+					b(i,j)%E=>b(3,2)
+					b(i,j)%W=>d((sideSizeSmall-2)*sideSizeSmall)
+					b(i,j)%N=>d(((sideSizeSmall-2)*sideSizeSmall)+(sideSizeSmall-1))
+				else
+					b(i,j)%N=>b(i,j+1)
+					b(i,j)%S=>b(i,j-1)
+					b(i,j)%W=>d((sideSizeSmall-2)*(j-1))
+				end if
+			else if(i==3) then!2nd South Wall
+				b(i,j)%X(1)=((sideSizeSmall-1)+(j-1))*dx
+				b(i,j)%X(2)=(sideSizeSmall)*dy
+				b(i,j)%xLoc(1)=((sideSizeSmall-1)+(j-1))
+				b(i,j)%xLoc(2)=sideSizeSmall
+				
+				if(j==1) then
+					b(i,j)%S=>b(2,sideSizeSmall)
+					b(i,j)%E=>b(3,j+1)
+					b(i,j)%W=>d((sideSizeSmall-2)*sideSizeSmall)
+					b(i,j)%N=>d(((sideSizeSmall-2)*sideSizeSmall)+(sideSizeSmall-1))
+				else if(j==sideSizeSmall+1) then
+					b(i,j)%N => b(4,2)
+					b(i,j)%W => b(i,j-1)
+				else
+					b(i,j)%W => b(i,j-1)
+					b(i,j)%E => b(i,j+1)
+					b(i,j)%N => d( (((sideSizeSmall-2)*sideSizeSmall)+(sideSizeSmall-2))+j)
+				end if
+			else if(i==4) then!Most East Wall
+				b(i,j)%X(1)=(sideSize-1)*dx
+				b(i,j)%X(2)=(sideSizeSmall+(j-1))*dy
+				b(i,j)%xLoc(1)=sideSize-1
+				b(i,j)%xLoc(2)=sideSizeSmall+(j-1)
+				
+				if(j==1) then
+					b(i,j)%N=>b(i,j+1)
+					b(i,j)%W=>b(3,sideSizeSmall)
+				else if (j==sideSizeSmall) then
+					b(i,j)%S=>b(i,j-1)
+					b(i,j)%W=>b(5,sideSize-1)
+				else
+					b(i,j)%N=>b(i,j+1)
+					b(i,j)%S=>b(i,j-1)
+					b(i,j)%W=>d( ((sideSizeSmall-2)*sideSizeSmall) + (xSizeSol*(j-1)) )
+				end if
+			else if(i==5) then!North Most Wall
+				b(i,j)%X(1)=(j-1)*dx
+				b(i,j)%X(2)=(ySize-1)*dy
+				b(i,j)%xLoc(1)=j-1
+				b(i,j)%xLoc(2)=ySize-1
+				
+				if(j==1) then 
+					b(i,j)%S => b(6,sideSize-1)
+					b(i,j)%E => b(i,j+1)
+				else if(j==sideSize) then
+					b(i,j)%S => b(4,sideSizeSmall-1)
+					b(i,j)%W => b(i,j-1)
+				else
+					b(i,j)%W => b(i,j-1)
+					b(i,j)%E => b(i,j+1)
+					b(i,j)%S => d( ( ((sideSizeSmall-2)*sideSizeSmall) + (xSizeSol*(sideSizeSmall-3)) ) + (j-1)) 
+				end if
+			else if(i==6) then!West
+				b(i,j)%X(1)=0
+				b(i,j)%X(2)=(j-1)*dy
+			    b(i,j)%xLoc(1)=0
+				b(i,j)%xLoc(2)=(j-1)
+				
+				if(j==1) then
+					b(i,j)%N=>b(i,j+1)
+					b(i,j)%E=>b(1,2)
+				else if (j==sideSize) then
+					b(i,j)%S => b(i,j-1)
+					b(i,j)%E => b(5,2)
+				else 
+					b(i,j)%N => b(i,j+1)
+					b(i,j)%S => b(i,j-1)
+					if(j<sideSizeSmall+2) then
+						b(i,j)%E => d(((sideSizeSmall-2)*(j-2))+1)
+					else
+						b(i,j)%E =>d(  ( ((sideSizeSmall-2)*sideSizeSmall) + (xSizeSol*((j-sideSizeSmall)-2))  ) + 1)
+					end if
+				end if
+			end if
+			
+			b(i,j)%u  = 0.0d0
+	    	b(i,j)%v  = 0.0d0
+	    	b(i,j)%p  = 0.0d0
+	    	b(i,j)%Fn = 0.0d0
+	    	b(i,j)%Gn = 0.0d0
+	    	b(i,j)%Q  = 0.0d0
+		end do
+	end do
+	
+	!$end omp parallel do
+end subroutine initialConditionsComplexGeometry
+
+!>This subroutine populates the computational domain [0,0] to [1,1] with zeros in parallel
 subroutine initialConditionsForElement(d,b)
 	use omp_lib
 	use size

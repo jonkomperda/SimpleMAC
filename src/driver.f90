@@ -2,21 +2,24 @@ program simpleMAC
 	use omp_lib
 	use size
 	use domain 
-	implicit none!test comment for ubuntu git setup
+	implicit none
 	
 	integer						      :: timestep, t
 	type(element), allocatable, Target, dimension(:):: d!<solution domain
 	type(element), allocatable, Target, dimension(:,:):: b!<boundary domains
 	!allocate our host memory
 	allocate(  d(xSizeSol*ySizeSol) )!>multiply xSizeSol by ySizeSol to establish a one dimensional list able to hold all positions on the two dimensional grid
-	allocate(  b(sides,sideSize) )!>1=S,2=E,3=N,4=W 
-	
+	allocate(  b(sides,sideSize) )!>Counter Clockwise starting with South.
+	!allocate(  d(sizeSol) )
+	!allocate(  b(sides,sideSize) )
+
 	!> establish initial conditions on the host
 	call initialConditionsForElement(d,b) 
-	
+	!call initialConditionsComplexGeometry(d,b)
+
 	!> Our main computational loop
 	do t=1,maxSteps
-		!go to 49
+		!go to 52
 		!> Calculate our timestep
 		call calcTStepForElement(d,b,t,dt)
 		
@@ -46,7 +49,7 @@ program simpleMAC
 		
 		!> Moving lid boundary
 		call lidConditionForElement(b)
-		!49 continue
+		!52 continue
 		!> Plot to file
 		if(mod(t,pInterval)==0) then 
 			call writeVTKForElement(d,t)
