@@ -7,7 +7,7 @@ import pyvtk
 ############## Begin shapes
 class unstructShape:
     # Constructs an unstructured shape, usually the result of adding together other shapes
-    def __init__(self,points, old1='none', old2='none'):
+    def __init__(self, points, old1='none', old2='none', old1c = 'none', old2c = 'none'):
         print 'Shape: Creating an unstructured shape...'
         
         self.points = points
@@ -15,40 +15,37 @@ class unstructShape:
         if( old1 == 'none' and old2 == 'none' ):
             self.old1 = 0
             self.old2 = 0
+            self.old1c = 0
+            self.old2c = 0
         else:
             self.old1 = old1
             self.old2 = old2
+            self.old1c = old1c
+            self.old2c = old2c
         
         self.connect= self.connections(self.points)
     
     # Finds the element connections (*Needs to be improved, issues with gaps)
     def connections(self,points):
-        connection = ()
-        for i in range(0,len(points)-1):
-            here    = points[i]
-            next    = points[i+1]
-            #see if the next point is the right point
-            if (next[0] > here[0]) and (next[1] == here[1]):
-                #print i
-                for j in range(i+1,len(points)-1):
-                    other   = points[j]
-                    rightO  = points[j+1]
-                    if ((other[0] == here[0]) and (rightO[0] > here[0]) and (rightO[1] > here[1])):
-                        temp        = (i,i+1,j+1,j)
-                        connection  = connection + temp
-                        break
-        #conList     = list(self.chopper(connection,4))
         
-        # This condition is if we are making the shape for the first time
-        if(self.old1 == 0 and self.old2 == 0):
-            conList     = list(self.chopper(connection,4))
-            return conList
-        # This condition is if we have added two shapes and need to check for messed up connections
-        else:
-            conList     = list(self.chopper(connection,4))
-            conList = self.cleanConnects(conList)
-            conList     = list(self.chopper(conList,4))
-            return conList
+        conlist = []
+        conlist.append(self.old1c)
+        conlist.append(self.old2c)
+        
+        pList = []
+        pList.append(self.old1)
+        pList.append(self.old2)
+        
+        newcon = []
+        
+        for k in range(len(conlist)):
+            for i in conlist[k]:
+                for j in i:
+                    p = pList[k][j]
+                    newcon.append(points.index(p))
+        
+        newcon = list(self.chopper(newcon,4))
+        return newcon
     
     # Checks if the connection is supposed to exist or if it was added by mistake
     def cleanConnects(self,cons):
@@ -88,7 +85,7 @@ class unstructShape:
         del_points  = list(set(temp))
         new_points  = self.sort(del_points)
         
-        out         = unstructShape(new_points, old1 = self.points, old2 = other.points)
+        out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect)
         return out
     
     # Sorts a list of tuples (like our grid points)
@@ -125,7 +122,7 @@ class rectangle:
         
         new_totP    = len(new_points)                       #calculate the new number of total points
         
-        out         = unstructShape(new_points, old1 = self.points, old2 = other.points)
+        out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect)
         return out
     
     # Sorts a list of tuples (like our grid points)
@@ -138,7 +135,7 @@ class rectangle:
         for i in xrange(0, len(list), size):
             yield list[i:i+size]
     
-    # Calculates element connections (*needs to be improved to better handle gaps)
+    # Calculates element connections
     def connections(self,points):
         connection = ()
         for i in range(0,len(points)-1):
@@ -176,10 +173,11 @@ def square(xMin,yMin,leng,npx,npy):
 a = [0,0,0,0,0]
 
 # we create a backward facing step
-a[0] = rectangle(0.0,1.0,2.0,1.0,41,21)
-a[1] = rectangle(0.0,2.0,2.0,1.0,41,21)
-a[2] = rectangle(2.0,0.0,6.0,1.0,123,21)
-a[3] = rectangle(2.0,1.0,6.0,2.0,123,41)
+a[0] = rectangle(0.0,0.0,4.0,1.0,5,2)
+a[1] = rectangle(0.0,1.0,1.0,3.0,2,4)
+a[2] = rectangle(3.0,1.0,1.0,3.0,2,4)
+a[3] = rectangle(1.0,3.0,2.0,1.0,3,2)
+
 
 z = a[0] + a[1] + a[2] + a[3]
 
