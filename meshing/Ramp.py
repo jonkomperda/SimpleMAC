@@ -39,7 +39,6 @@ class rampquad():
 		"""it calculates the angle of the ramp"""
 		
 		theta = math.atan((self.p4[0]-self.p2[0])/(self.p4[1]-self.p2[1]))
-		
 		return theta
 
 	def lengths(self):
@@ -48,9 +47,10 @@ class rampquad():
 		self.l1 = self.p2[0]-self.p1[0]
 		self.l2 = self.p4[0]-self.p3[0]
 		self.h = self.p3[1]-self.p1[1]
-		self.l0 = self.l1*math.tan(self.theta)
+		self.l0 = self.l1/math.tan(self.theta)
 		self.r0 = self.l1/math.sin(self.theta)
 		self.Lv = self.h + self.l0
+		print 'l0: ' + str(self.l0)
 		
 		self.p0 = (self.p1[0] , self.p1[1]-self.l0 , 0.0)
 		
@@ -76,7 +76,7 @@ class rampquad():
 				self.points.append((x_ij_rounded,y_ij,0.0))						#prints the list of points created
 				i=i+1
 			j=j+1
-		
+	
 		print 'list of points: ' + str(self.points)		
 	
 	def chopper(self,list,size):							# Chops a list into 'size' tuples
@@ -118,6 +118,10 @@ if __name__ == '__main__':
 #	vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( a.points, quad=a.connect))
 #	vtk.tofile('lalala')
 
-	s3=rampquad([0.0,4.0,0.0],[4.0,4.0,0.0],[0.0,8.0,0.0],[8.0,8.0,0.0],5,3)
-	vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s3.points, quad=s3.connect))
-	vtk.tofile('s3rounded')
+#	s3=rampquad([0.0,4.0,0.0],[4.0,4.0,0.0],[0.0,8.0,0.0],[8.0,8.0,0.0],5,3)
+#	vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s3.points, quad=s3.connect))
+#	vtk.tofile('s3rounded')
+
+	test=rampquad([0.0,0.0,0.0],[1.0,0.0,0.0],[0.0,1.0,0.0],[4.0,1.0,0.0],5,3)
+	vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( test.points, quad=test.connect))
+	vtk.tofile('ramptest')
