@@ -52,7 +52,7 @@ class rampquad():
 		self.l1 = self.p2[0]-self.p1[0]
 		self.l2 = self.p4[0]-self.p3[0]
 		self.h = self.p3[1]-self.p1[1]
-		self.l0 = self.l1*math.tan(self.theta)
+		self.l0 = self.l1/math.tan(self.theta)
 		self.r0 = self.l1/math.sin(self.theta)
 		self.Lv = self.h + self.l0
 		
