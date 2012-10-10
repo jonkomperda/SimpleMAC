@@ -6,10 +6,14 @@ import pyvtk
 import math
 
 ############## Begin shapes
+
 class rampquad():
 	"""creates a quad with a ramp on one side"""
 	def __init__(self, p1, p2, p3, p4, npx, npy):
+		
 		print 'Shape: Creating a rampquad...'
+		print
+		
 		self.p1 = p1
 		self.p2 = p2
 		self.p3 = p3
@@ -38,17 +42,16 @@ class rampquad():
 		l = len(self.points)
 				
 		self.connect = self.connections(self.points)
-		
+	
 	def calctheta(self):
 		"""it calculates the angle of the ramp"""
 		
 		theta = math.atan((self.p4[0]-self.p2[0])/(self.p4[1]-self.p2[1]))
 		
 		return theta
-
+	
 	def lengths(self):
 		"""it calculates the length of the increments in x and y directions"""
-		
 		self.l1 = self.p2[0]-self.p1[0]
 		self.l2 = self.p4[0]-self.p3[0]
 		self.h = self.p3[1]-self.p1[1]
@@ -62,22 +65,20 @@ class rampquad():
 		dy = self.h/(self.npy-1)
 		
 		return (dx,dy)
-		
+	
 	def coordinates(self):
 		#find the x coordinates for the points at various y in the mesh and enlists them
 		
 		j = 0
 		self.points = []
-		dec_place = 7
 		
 		for yp in self.y:		
 			i = 0										
 			for xp in self.x:			
 				L_v = self.l0 + self.dy * j									#length of the left side of the j-th triangle
 				x_ij = self.p1[0] + L_v * i * self.dx / self.Lv			#x coordinate of top right corner of j-th triangle
-				x_ij_rounded = round(x_ij, dec_place)
 				y_ij = self.p1[1] + self.dy * j							#y coordinate of top left corner of i-th triangle
-				self.points.append((x_ij_rounded,y_ij,0.0))						#prints the list of points created
+				self.points.append((x_ij,y_ij,0.0))						#prints the list of points created
 				i=i+1
 			j=j+1
 		
@@ -108,82 +109,66 @@ class rampquad():
 						connection  = connection + temp
 						break
 		conList     = list(self.chopper(connection,4))
-		#print
-		#print '*'
-		#print
-		#print conList
-		#print
+		print
+		#print 'Connections: ' + str(conList)
 		return conList
+	
+
 
 class unstructShape:
     # Constructs an unstructured shape, usually the result of adding together other shapes
-    def __init__(self, points, old1='none', old2='none', old1c = 'none', old2c = 'none'):
+    def __init__(self,points, connections, old1p='none', old2p='none', old1c='none', old2c='none'):
         print 'Shape: Creating an unstructured shape...'
         
         self.points = points
-        
-        if( old1 == 'none' and old2 == 'none' ):
-            self.old1 = 0
-            self.old2 = 0
-            self.old1c = 0
-            self.old2c = 0
+        self.connections= connections
+
+        if( old1p == 'none' and old2p == 'none' ):
+            self.old1p = 0
+            self.old2p = 0
+			self.old1c = 0
+			self.old2c = 0
+			
         else:
-            self.old1 = old1
-            self.old2 = old2
-            self.old1c = old1c
-            self.old2c = old2c
-        
-        self.connect= self.connections(self.points)
-    
-    # Finds the element connections (*Needs to be improved, issues with gaps)
-    def connections(self,points):
-        
-        conlist = []
-        conlist.append(self.old1c)
-        conlist.append(self.old2c)
-        
-        pList = []
-        pList.append(self.old1)
-        pList.append(self.old2)
-        
-        newcon = []
-        
-        for k in range(len(conlist)):
-            for i in conlist[k]:
-                for j in i:
-                    p = pList[k][j]
-                    newcon.append(points.index(p))
-        
-        newcon = list(self.chopper(newcon,4))
-        return newcon
-    
-    # Checks if the connection is supposed to exist or if it was added by mistake
-    def cleanConnects(self,cons):
-        connection  = ()
-        for item in cons:
-            point1  = self.points[item[0]]
-            point2  = self.points[item[1]]
-            point3  = self.points[item[2]]
-            point4  = self.points[item[3]]
-            cond1   = False
-            cond2   = False
-            exists  = False
-            
-            if point1 in self.old1:
-                if point2 in self.old1:
-                    if point3 in self.old1:
-                        if point4 in self.old1:
-                            cond1 = True
-            if point1 in self.old2:
-                if point2 in self.old2:
-                    if point3 in self.old2:
-                        if point4 in self.old2:
-                            cond2 = True
-            
-            if (cond1 == True or cond2 == True):
-                connection = connection + item
-        return connection
-    
+            self.old1p = old1p
+            self.old2p = old2p
+			self.old1c = old1c
+			self.old2c = old2c
+		
+	"""reads the connections from the previous connection lists"""
+	#conlist = []
+	#conlist.append([0,1,3,2])
+	#conlist.append([0,1,3,2])
+
+	self.pList = []
+	#pList.append([(0,0,0),(1,0,0),(0,1,0),(1,1,0)])
+	#pList.append([(1,0,0),(2,0,0),(1,1,0),(2,1,0)])
+
+	self.pList = set(self.old1p + self.old2p)
+	self.pList = sort(self.pList)
+
+	print 'self.pList'
+	print self.pList
+
+	self.conList = []
+	self.conList = self.old1c + self.old2c
+		
+	newcon = []
+		
+	for k in range(len(self.conList)):
+	    for i in self.conList[k]:
+	        p = self.pList[k][i]
+	        newcon.append(self.pList.index(p))
+
+	print 'newcon'
+	print newcon
+
+	newconlist = []
+	self.newconlist = list(self.chopper(newcon,4))
+
+	print 'newconlist'
+	print self.newconlist
+	
     # Chops a list into 'size' tuples
     def chopper(self,list,size):
         for i in xrange(0, len(list), size):
@@ -191,17 +176,21 @@ class unstructShape:
     
     # Overloading of addition
     def __add__(self,other):
-        temp        = self.points + other.points
-        del_points  = list(set(temp))
-        new_points  = self.sort(del_points)
+        self.totpoints = self.points + other.points
+        self.del_points  = list(set(self.totpoints))
+        self.new_points  = self.sort(del_points)
+		
+		self.totconn = []
+		self.totconn = self.connections + other.connections 
         
-        out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect)
+        out         = unstructShape(self.new_points, self.totconn, old1p = self.points, old2p = other.points, old1c = self.connections, old2c = other.connections)
         return out
     
     # Sorts a list of tuples (like our grid points)
     def sort(self,val):
         out     = sorted(val, key=operator.itemgetter(2,1,0))
         return  out
+	
 
 class rectangle:
     # Overload init with empty shape
@@ -232,7 +221,7 @@ class rectangle:
         
         new_totP    = len(new_points)                       #calculate the new number of total points
         
-        out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect)
+        out         = unstructShape(new_points, old1 = self.points, old2 = other.points)
         return out
     
     # Sorts a list of tuples (like our grid points)
@@ -245,7 +234,7 @@ class rectangle:
         for i in xrange(0, len(list), size):
             yield list[i:i+size]
     
-    # Calculates element connections
+    # Calculates element connections (*needs to be improved to better handle gaps)
     def connections(self,points):
         connection = ()
         for i in range(0,len(points)-1):
@@ -269,7 +258,9 @@ class rectangle:
 def square(xMin,yMin,leng,npx,npy):
         out = rectangle(xMin,yMin,leng,leng,npx,npy)
         return out
-	
+
+
+
 ############## Global Dictionaries
 # this needs to be fixed
 #elemType = {    'rectangle' :   rectangle,      \
@@ -277,26 +268,42 @@ def square(xMin,yMin,leng,npx,npy):
 #                'unstruct'  :   unstructShape   }
 #
 
-############## Program loop (for testing)
-# put a conditional statement to run this or not
-#a = [0,0,0,0,0]
+if __name__ == '__main__':
+	
+#	s1=rectangle(0.0,0.0,4.0,4.0,5,3)
+#	vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s1.points, quad=s1.connect))
+#	vtk.tofile('s1')
+	
+#	s2=rectangle(-4.0,4.0,4.0,4.0,5,3)
+#	vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s2.points, quad=s2.connect))
+#	vtk.tofile('s2')
 
-# we create a backward facing step
+#	s3=rampquad([0.0,4.0,0.0],[4.0,4.0,0.0],[0.0,8.0,0.0],[8.0,8.0,0.0],5,3)
+#	vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s3.points, quad=s3.connect))
+#	vtk.tofile('s3')
+	
+#	s4=rectangle(0.0,8.0,8.0,4.0,5,3)
+#	vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s4.points, quad=s4.connect))
+#	vtk.tofile('s4')
+
+#	s124 = s1 + s2 + s4
+#	vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s124.points, quad=s124.connect))
+#	vtk.tofile('s124')
+
+#CASE A
+	aa=rectangle(0.0,0.0,2.0,1.0,3,3)
+	ba=rectangle(1.0,1.0,2.0,2.0,3,3)
+	ca=aa+ba
+
+	vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( ca.points, quad=ca.connect))
+	vtk.tofile('casea')
+
 """
-s1=rectangle(0.0,0.0,4.0,4.0,5,3)
-s2=rectangle(-4.0,4.0,4.0,4.0,5,3)
-s3=rampquad([0.0,4.0,0.0],[4.0,4.0,0.0],[0.0,8.0,0.0],[8.0,8.0,0.0],5,3)
-s4=rectangle(0.0,8.0,8.0,4.0,5,3)
-
-s1234 = s1 + s2 + s3 + s4
-vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s1234.points, quad=s1234.connect))
-vtk.tofile('s1234')
-
+#CASE B
+	ab=rectangle(0.0,0.0,7.0,2.0,8,5)
+	bb=rectangle(5.0,2.0,5.0,3.0,6,3)
+	cb=ab+bb
+	
+	vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( cb.points, quad=cb.connect))
+	vtk.tofile('caseb')
 """
-shape1=rectangle(1.0,-1.0,1.0,1.0,5,8)
-shape2=rampquad([2.0,-1.0,0.0],[3.0,-1.0,0.0],[2.0,0.0,0.0],[5.0,0.0,0.0],13,8)
-shape3=rectangle(0.0,0.0,6.0,1.0,25,8)
-
-completeshape = shape1 + shape2 + shape3
-vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( completeshape.points, quad=completeshape.connect))
-vtk.tofile('completeshape')

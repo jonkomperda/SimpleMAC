@@ -6,3 +6,19 @@ run_SimpleMAC
 data/*
 
 *.pyc
+
+*.vtk
+
+meshing/py tests/test4.py
+
+meshing/py tests/test3.py
+
+meshing/py tests/Test2.py
+
+meshing/py tests/Test.py
+
+meshing/meshIn20121007 single element.py
+
+meshing/Tests/quadrotated2.vtk copia
+
+meshing/Backups/meshIn20121007.py
