@@ -173,63 +173,63 @@ class rampquad():
         self.p4 = p4
         self.npx = npx
         self.npy = npy
-
+        
         self.theta = self.calctheta()
         self.dx = self.lengths()[0]
         self.dy = self.lengths()[1]
-
+        
         self.xSize = self.p1[0] + self.l2 + 0.1*self.dx
         self.ySize = self.p1[0] + self.h + 0.1*self.dy
-
+        
         self.x = ar.arange(self.p1[0],self.xSize,self.dx)       # x coordinates of top points
         self.y = ar.arange(self.p1[0],self.ySize,self.dy)       # y coordinates of left points
-
+        
         #print 'theta: ' + str(self.theta)
         #print 'dx: ' + str(self.dx) + '  dy: '+ str(self.dy)
         #print 'self.x:  ' + str(self.x)
         #print 'self.y:  ' + str(self.y)
         #print
-
+        
         self.coordinates()
-
+        
         l = len(self.points)
-
+        
         self.connect = self.connections(self.points)
-
-
+    
+    
     def calctheta(self):
         """it calculates the angle of the ramp"""
-
+        
         theta = math.atan((self.p4[0]-self.p2[0])/(self.p4[1]-self.p2[1]))
-
+        
         return theta
-
-
+    
+    
     def lengths(self):
         """it calculates the length of the increments in x and y directions"""
-
+        
         self.l1 = self.p2[0]-self.p1[0]
         self.l2 = self.p4[0]-self.p3[0]
         self.h = self.p3[1]-self.p1[1]
         self.l0 = self.l1/math.tan(self.theta)
         self.r0 = self.l1/math.sin(self.theta)
         self.Lv = self.h + self.l0
-
+        
         self.p0 = (self.p1[0] , self.p1[1]-self.l0 , 0.0)
-
+        
         dx = self.l2/(self.npx-1)
         dy = self.h/(self.npy-1)
-
+        
         return (dx,dy)
-
-
+    
+    
     def coordinates(self):
         #find the x coordinates for the points at various y in the mesh and enlists them
-
+        
         j = 0
         self.points = []
         dec_place = 7
-
+        
         for yp in self.y:       
             i = 0                                       
             for xp in self.x:           
@@ -240,15 +240,15 @@ class rampquad():
                 self.points.append((x_ij_rounded,y_ij,0.0))                     #prints the list of points created
                 i=i+1
             j=j+1
-
+            
         #print 'list of points: ' + str(self.points)        
-
-
+    
+    
     def chopper(self,list,size):                            # Chops a list into 'size' tuples
         for i in xrange(0, len(list), size):
             yield list[i:i+size]
-
-
+    
+    
     def connections(self,points):                           # Calculates element connections (*needs to be improved to better handle gaps)
         connection = ()
         i = 0
@@ -276,20 +276,23 @@ class rampquad():
         #print conList
         #print
         return conList
-
-
+    
+    
     def __add__(self,other):                                #overloading of addition
         temp        = self.points + other.points
         del_points  = list(set(temp))
         new_points  = self.sort(del_points)
-
+        
         out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect)
         return out
-
-
+    
+    
     def sort(self,val):
         out     = sorted(val, key=operator.itemgetter(2,1,0))
         return  out
+    
+    
+
 
 
 ############## Global Dictionaries
