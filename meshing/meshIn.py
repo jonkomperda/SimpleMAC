@@ -167,10 +167,18 @@ class rampquad():
     """creates a quad with a ramp on the right side"""
     def __init__(self, p1, p2, p3, p4, npx, npy):
         print 'Shape: Creating a rampquad...'
-        self.p1 = p1
-        self.p2 = p2
-        self.p3 = p3
-        self.p4 = p4
+        
+        if(p1[0]==p3[0]):
+            self.p1 = p1
+            self.p2 = p2
+            self.p3 = p3
+            self.p4 = p4
+        else:
+            self.p1 = p2
+            self.p2 = p1
+            self.p3 = p4
+            self.p4 = p3
+        
         self.npx = npx
         self.npy = npy
         
@@ -240,7 +248,8 @@ class rampquad():
                 self.points.append((x_ij_rounded,y_ij,0.0))                     #prints the list of points created
                 i=i+1
             j=j+1
-            
+        
+        self.points = self.sort(self.points)                            #needed because points would be generated from right to left for left-ramped quad
         #print 'list of points: ' + str(self.points)        
     
     
