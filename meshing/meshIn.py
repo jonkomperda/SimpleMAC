@@ -320,8 +320,9 @@ vtk.tofile('s1234')
 """
 #shape1=rectangle(1.0,-1.0,1.0,1.0,5,8)
 #shape2=rampquad([2.0,-1.0,0.0],[3.0,-1.0,0.0],[2.0,0.0,0.0],[5.0,0.0,0.0],13,8)
-shape2=rampquad([1.0,-1.0,0.0],[3.0,-1.0,0.0],[1.0,0.0,0.0],[5.0,0.0,0.0],17,8)
-shape3=rectangle(0.0,0.0,6.0,1.0,25,8)
-completeshape = shape2 + shape3
-vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( completeshape.points, quad=completeshape.connect))
-vtk.tofile('completeshape')
+#shape2=rampquad([1.0,-1.0,0.0],[3.0,-1.0,0.0],[1.0,0.0,0.0],[5.0,0.0,0.0],17,8)
+#shape3=rectangle(0.0,0.0,6.0,1.0,25,8)
+#completeshape = shape2 + shape3
+test = rampquad([0.0,0.0],[1.0,0.0],[0.0,1.0],[5.0,1.0],5,5)
+vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( test.points, quad=test.connect))
+vtk.tofile('test')
