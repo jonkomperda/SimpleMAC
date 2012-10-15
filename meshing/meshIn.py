@@ -302,6 +302,15 @@ class rampquad():
     
     
 
+class diamond():
+    """it's basically the shape that fill the hole in the geometry, given a set of points as input"""
+    def __init__(self,p1,p2,p3,p4):
+        
+        self.p1 = p1
+        self.p2 = p2
+        self.p3 = p3
+        self.p4 = p4
+
 
 
 ############## Global Dictionaries
@@ -317,14 +326,14 @@ class rampquad():
 
 # we create a backward facing step
 
-s1=rectangle(-4.0,0.0,4.0,4.0,17,17)
-s2=rectangle(0.0,2.0,8.0,2.0,33,9)
-s3=rampquad([0.0,0.0],[2.0,0.0],[0.0,2.0],[4.0,2.0],17,9)
-s4=rampquad([0.0,-2.0],[3.0,-2.0],[0.0,0.0],[2.0,0.0],17,9)
-s5=rampquad([5.0,0.0],[8.0,0.0],[4.5,2.0],[8.0,2.0],15,9)
-
+#s1=rectangle(-4.0,0.0,4.0,4.0,17,17)
+#s2=rectangle(0.0,2.0,8.0,2.0,33,9)
+#s3=rampquad([0.0,0.0],[2.0,0.0],[0.0,2.0],[4.0,2.0],17,9)
+#s4=rampquad([0.0,-2.0],[3.0,-2.0],[0.0,0.0],[2.0,0.0],17,9)
+#s5=rampquad([5.0,0.0],[8.0,0.0],[4.0,2.0],[8.0,2.0],17,9)
+s6=rampquad([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],9,9)
 #s4=rectangle(0.0,8.0,8.0,4.0,5,3)
 
-s1234 = s1 + s2 + s3 + s4 + s5
+s1234 = s6
 vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s1234.points, quad=s1234.connect))
 vtk.tofile('test')
