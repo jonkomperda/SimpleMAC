@@ -11,7 +11,8 @@
             character(len=32)                 :: filename
             character(len=5)                  :: filePath = 'data/'
             integer                           :: i, ios, j, n
-                  double precision                  :: x, y
+            double precision                  :: x, y
+            integer                           :: cellCount
 
 !     ------Format definitions
             character(len=*), parameter     :: textLine = "(A)"
@@ -33,23 +34,30 @@
 !     ------Write out Points
                   write(unit=51, fmt=textIntText) 'POINTS',sizeSol,' float'
             do n=1,sizeSol
-                        write(unit=51, fmt=*) d(n)%X(1),  d(n)%X(2), '0'
+                  write(unit=51, fmt=*) d(n)%xLoc(1),  d(n)%xLoc(2), '0'
             end do
             
 !     ------Write out Cells
-            write(unit=51, fmt=*) 'Cells',(xSizeSol-1) * (ySizeSol-1), (xSizeSol-1)*(ySizeSol-1)*5
+            cellCount = (boundSideSmall*(solSideSmall-1))+((solSideBig-1)*(solSideSmall-1))
+            write(unit=51, fmt=*) 'Cells',cellCount, cellCount*5
             do n=1,sizeSol
-                  if(d(n)%xLoc(1)<xSizeSol .and. d(n)%xLoc(2)<ySizeSol) then
-                        write(unit=51, fmt=*) 4,n-1,n,n-1+xSizeSol+1,n-1+xSizeSol
+                  if(d(n)%xLoc(2)<= boundSideSmall) then
+                        if(d(n)%xLoc(1)<solSideSmall) then
+                              write(unit=51, fmt=*) 4,n-1,n,n-1+solSideSmall+1,n-1+solSideSmall
+                        end if
+                  else
+                        if(d(n)%xLoc(1)<solSideBig .and. d(n)%xLoc(2)<solSideBig) then
+                              write(unit=51, fmt=*) 4,n-1,n,n-1+solSideBig+1,n-1+solSideBig
+                        end if
                   end if
             end do
             
 !     ------Write out Cell Types
-            write(unit=51, fmt=*) 'CELL_TYPES',(xSizeSol-1) * (ySizeSol-1)
-            do n=1,(xSizeSol-1) * (ySizeSol-1)
+            write(unit=51, fmt=*) 'CELL_TYPES',cellCount
+            do n=1, cellCount
                         write(unit=51, fmt=*) 9
             end do
-            
+            go to 84
 !     ------write particle data out
             write(unit=51, fmt=textInt) 'POINT_DATA ',xSizeSol*ySizeSol
 
@@ -70,9 +78,10 @@
             
                   write(unit=51, fmt=textLine) 'SCALARS p float'
                   write(unit=51, fmt=textLine) 'LOOKUP_TABLE default'
-                  do j=n, xSizeSol*ySizeSol
+                  do n=1, xSizeSol*ySizeSol
                         write(unit=51, fmt=*) d(n)%p
                   end do
+                  84 continue
                   write(unit=51, fmt=*)
                   close(51)
             
@@ -150,7 +159,7 @@
 		
 			write(unit=51, fmt=textLine) 'SCALARS p float'
 			write(unit=51, fmt=textLine) 'LOOKUP_TABLE default'
-			do j=n, xSizeSol*ySizeSol
+			do n=1, xSizeSol*ySizeSol
 				write(unit=51, fmt=*) d(n)%p
 			end do
 			write(unit=51, fmt=*)

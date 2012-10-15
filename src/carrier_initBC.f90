@@ -5,9 +5,9 @@ subroutine initialConditionsComplexGeometry(d,b)
 	use domain
 	implicit none
 	double precision:: firstX
-	integer							:: n,y,x,i,j,e,xLimit, boundSize!<n,i and j are counter variables. x and y keep track of position
+	integer				:: n,y,x,i,j,e,xLimit, boundSize!<n,i and j are counter variables. x and y keep track of position
 	type(element), Target, dimension(sizeSol), intent(inout) :: d
-	type(element), Target, dimension(sides, sideSize), intent(inout) :: b
+	type(element), Target, dimension(sides, boundSideBig), intent(inout) :: b
 	y = 0
 
 	!populate the domain with zeros
@@ -15,24 +15,24 @@ subroutine initialConditionsComplexGeometry(d,b)
 	
 	!loop through solution domain
 	e = 0
-	xLimit = sideSizeSmall - 2
+	xLimit = solSideSmall
 	do n=1,sizeSol
 		e = e + 1
 		x = (mod(e-1,xLimit)+1.0)
 		d(n)%xLoc(1) = x
 	    d(n)%X(1) =  x * dx
 	    
-		if(n>1 .and. xLimit == xSize/2 - 2) then
-			if(d(1)%X(1) == d(n)%X(1) .and. d(n-1)%xLoc(2) == sideSizeSmall) then
+		if(n>1 .and. xLimit == solSideSmall) then
+			if(e == (solSideSmall*boundSideSmall) + 1) then
 				e = 1
-				xLimit = xSizeSol
-				x = (mod(e-1,xLimit)+1.0)
+				xLimit = solSideBig
+				x = (mod(e-1,xLimit)+1.0) 
 				d(n)%xLoc(1) = x
 	    		d(n)%X(1) =  x * dx
 			end if
 		end if
 		
-	    if(d(1)%X(1)==d(n)%X(1)) then!<if we see the same x value again we have entered a new row, so update y value
+	    if(d(1)%xLoc(1)==d(n)%xLoc(1)) then!<if we see the same x value again we have entered a new row, so update y value
 	        y = y + 1
 	    end if
 	    d(n)%xLoc(2) = y
@@ -49,11 +49,11 @@ subroutine initialConditionsComplexGeometry(d,b)
 	    if(x==1) then!At west boundary
 	    	d(n)%W=>b(6,y+1)
 	    	d(n)%E=>d(n+1)
-	    else if(x==(sideSizeSmall - 2) .and. y<=sideSizeSmall) then!At 1st East boundary
+	    else if(x==solSideSmall .and. y<=boundSideSmall) then!At 1st East boundary
 	    	d(n)%E=>b(2,y+1)
 	    	d(n)%W=>d(n-1)
-	    else if(x==xSizeSol .and. y>sideSizeSmall) then
-	    	d(n)%E=>b(4,y+1)
+	    else if(x==solSideBig .and. y>boundSideSmall) then
+	    	d(n)%E=>b(4,(y-boundSideSmall)+1)
 	    	d(n)%W=>d(n-1)
 	    else
 	    	d(n)%E=>d(n+1)
@@ -62,22 +62,22 @@ subroutine initialConditionsComplexGeometry(d,b)
 	    
 	    if(y==1) then!At South boundary
 	    	d(n)%S=>b(1,x+1)
-	    	d(n)%N=>d(n+(sideSizeSmall-2))
-	    else if (y==(sideSizeSmall+1) .and. x>(sideSizeSmall-2)) then
-	    	d(n)%S=>b(3,x - (sideSizeSmall-2))
-	    	d(n)%N=>d(n+xSizeSol)
-	    else if (y==ySizeSol) then
+	    	d(n)%N=>d(n+solSideSmall)
+	    else if (y==(boundSideSmall+1) .and. x>solSideSmall) then
+	    	d(n)%S=>b(3,x - solSideSmall)
+	    	d(n)%N=>d(n+solSideBig)
+	    else if (y==solSideBig) then
 	    	d(n)%N=>b(5,x+1)
-	    	d(n)%S=>d(n-xSizeSol)
-	    else if (y<=sideSizeSmall .and. y>1) then
-	    	d(n)%N=>d(n+(sideSizeSmall-2))
-	    	d(n)%S=>d(n-(sideSizeSmall-2))
-		else if (y== (sideSizeSmall+1) .and. x<=(sideSizeSmall-2)) then
-	    	d(n)%N=>d(n+xSizeSol)
-	    	d(n)%S=>d(n-(sideSizeSmall-2))
-	    else if (y>(sideSizeSmall+1) .and. y<ySizeSol) then
-	    	d(n)%N=>d(n+xSizeSol)
-	    	d(n)%S=>d(n-xSizeSol)
+	    	d(n)%S=>d(n-solSideBig)
+	    else if (y<=boundSideSmall .and. y>1) then
+	    	d(n)%N=>d(n+solSideSmall)
+	    	d(n)%S=>d(n-solSideSmall)
+	    else if (y==(boundSideSmall+1) .and. x<=solSideSmall) then
+	    	d(n)%N=>d(n+solSideBig)
+	    	d(n)%S=>d(n-solSideSmall)
+	    else if (y>(boundSideSmall+1) .and. y<ySizeSol) then
+	    	d(n)%N=>d(n+solSideBig)
+	    	d(n)%S=>d(n-solSideBig)
 	    end if	 
 	    
 	end do
@@ -85,11 +85,11 @@ subroutine initialConditionsComplexGeometry(d,b)
 	!loop though boundary domain
 	do i=1,sides
 		if (i == 1 .or. i == 4) then
-			boundSize = sideSizeSmall
+			boundSize = boundSideSmall
 		else if (i == 2 .or. i == 3) then
-			boundSize = sideSizeSmall + 1
+			boundSize = boundSideSmall + 1
 		else if (i==5 .or. i==6) then
-			boundSize = sideSize
+			boundSize = boundSideBig
 		end if
 		
 		do j=1, boundSize
@@ -102,7 +102,7 @@ subroutine initialConditionsComplexGeometry(d,b)
 				if(j==1) then
 					b(i,j)%N => b(6,j+1)
 					b(i,j)%E => b(i,j+1)
-				else if (j==sideSizeSmall) then
+				else if (j==boundSideSmall) then
 					b(i,j)%N => b(2,2)
 					b(i,j)%W => b(i,j-1)
 				else
@@ -111,59 +111,59 @@ subroutine initialConditionsComplexGeometry(d,b)
 					b(i,j)%W => b(i,j-1)
 				end if
 			else if(i==2) then!First East Wall
-				b(i,j)%X(1)=(sideSizeSmall-1)*dx
+				b(i,j)%X(1)=(boundSideSmall-1)*dx
 				b(i,j)%X(2)=(j-1)*dy
-				b(i,j)%xLoc(1)=sideSizeSmall-1
+				b(i,j)%xLoc(1)=boundSideSmall-1
 				b(i,j)%xLoc(2)=j-1
 				
 				if(j==1) then
 					b(i,j)%N=>b(i,j+1)
-					b(i,j)%W=>b(1,sideSizeSmall-1)
-				else if (j==sideSizeSmall+1) then
+					b(i,j)%W=>b(1,boundSideSmall-1)
+				else if (j==boundSideSmall+1) then
 					b(i,j)%S=>b(i,j-1)
 					b(i,j)%E=>b(3,2)
-					b(i,j)%W=>d((sideSizeSmall-2)*sideSizeSmall)
-					b(i,j)%N=>d(((sideSizeSmall-2)*sideSizeSmall)+(sideSizeSmall-1))
+					b(i,j)%W=>d(boundSideSmall*solSideSmall)
+					b(i,j)%N=>d((boundSideSmall*solSideSmall) + solSideSmall + 1)
 				else
 					b(i,j)%N=>b(i,j+1)
 					b(i,j)%S=>b(i,j-1)
-					b(i,j)%W=>d((sideSizeSmall-2)*(j-1))
+					b(i,j)%W=>d(solSideSmall*(j-1))
 				end if
 			else if(i==3) then!2nd South Wall
-				b(i,j)%X(1)=((sideSizeSmall-1)+(j-1))*dx
-				b(i,j)%X(2)=(sideSizeSmall)*dy
-				b(i,j)%xLoc(1)=((sideSizeSmall-1)+(j-1))
-				b(i,j)%xLoc(2)=sideSizeSmall
+				b(i,j)%X(1)=(solSideSmall+j)*dx
+				b(i,j)%X(2)=boundSideSmall*dy
+				b(i,j)%xLoc(1)=solSideSmall+j
+				b(i,j)%xLoc(2)=boundSideSmall
 				
 				if(j==1) then
-					b(i,j)%S=>b(2,sideSizeSmall)
+					b(i,j)%S=>b(2,boundSideSmall)
 					b(i,j)%E=>b(3,j+1)
-					b(i,j)%W=>d((sideSizeSmall-2)*sideSizeSmall)
-					b(i,j)%N=>d(((sideSizeSmall-2)*sideSizeSmall)+(sideSizeSmall-1))
-				else if(j==sideSizeSmall+1) then
+					b(i,j)%W=>d(solSideSmall * boundSideSmall)
+					b(i,j)%N=>d((solSideSmall * boundSideSmall) + solSideSmall + 1)
+				else if(j==boundSideSmall+1) then
 					b(i,j)%N => b(4,2)
 					b(i,j)%W => b(i,j-1)
 				else
 					b(i,j)%W => b(i,j-1)
 					b(i,j)%E => b(i,j+1)
-					b(i,j)%N => d( (((sideSizeSmall-2)*sideSizeSmall)+(sideSizeSmall-2))+j)
+					b(i,j)%N => d((solSideSmall * boundSideSmall) + solSideSmall + j)
 				end if
 			else if(i==4) then!Most East Wall
-				b(i,j)%X(1)=(sideSize-1)*dx
-				b(i,j)%X(2)=(sideSizeSmall+(j-1))*dy
-				b(i,j)%xLoc(1)=sideSize-1
-				b(i,j)%xLoc(2)=sideSizeSmall+(j-1)
+				b(i,j)%X(1)=(boundSideBig-1)*dx
+				b(i,j)%X(2)=(boundSideSmall+(j-1))*dy
+				b(i,j)%xLoc(1)=boundSideBig-1
+				b(i,j)%xLoc(2)=boundSideSmall+(j-1)
 				
 				if(j==1) then
 					b(i,j)%N=>b(i,j+1)
-					b(i,j)%W=>b(3,sideSizeSmall)
-				else if (j==sideSizeSmall) then
+					b(i,j)%W=>b(3,boundSideSmall)
+				else if (j==boundSideSmall) then
 					b(i,j)%S=>b(i,j-1)
-					b(i,j)%W=>b(5,sideSize-1)
+					b(i,j)%W=>b(5,boundSideBig-1)
 				else
 					b(i,j)%N=>b(i,j+1)
 					b(i,j)%S=>b(i,j-1)
-					b(i,j)%W=>d( ((sideSizeSmall-2)*sideSizeSmall) + (xSizeSol*(j-1)) )
+					b(i,j)%W=>d((solSideSmall * boundSideSmall) + (solSideBig*(j-1)) )
 				end if
 			else if(i==5) then!North Most Wall
 				b(i,j)%X(1)=(j-1)*dx
@@ -172,15 +172,15 @@ subroutine initialConditionsComplexGeometry(d,b)
 				b(i,j)%xLoc(2)=ySize-1
 				
 				if(j==1) then 
-					b(i,j)%S => b(6,sideSize-1)
+					b(i,j)%S => b(6,boundSideBig-1)
 					b(i,j)%E => b(i,j+1)
-				else if(j==sideSize) then
-					b(i,j)%S => b(4,sideSizeSmall-1)
+				else if(j==boundSideBig) then
+					b(i,j)%S => b(4,boundSideSmall-1)
 					b(i,j)%W => b(i,j-1)
 				else
 					b(i,j)%W => b(i,j-1)
 					b(i,j)%E => b(i,j+1)
-					b(i,j)%S => d( ( ((sideSizeSmall-2)*sideSizeSmall) + (xSizeSol*(sideSizeSmall-3)) ) + (j-1)) 
+					b(i,j)%S => d((solSideSmall * boundSideSmall) + (solSideBig * (solSideSmall-1)) + (j-1) ) 
 				end if
 			else if(i==6) then!West
 				b(i,j)%X(1)=0
@@ -191,16 +191,16 @@ subroutine initialConditionsComplexGeometry(d,b)
 				if(j==1) then
 					b(i,j)%N=>b(i,j+1)
 					b(i,j)%E=>b(1,2)
-				else if (j==sideSize) then
+				else if (j==boundSideBig) then
 					b(i,j)%S => b(i,j-1)
 					b(i,j)%E => b(5,2)
 				else 
 					b(i,j)%N => b(i,j+1)
 					b(i,j)%S => b(i,j-1)
-					if(j<sideSizeSmall+2) then
-						b(i,j)%E => d(((sideSizeSmall-2)*(j-2))+1)
+					if(j<boundSideSmall+2) then
+						b(i,j)%E => d( (solSideSmall * (j-2)) + 1)
 					else
-						b(i,j)%E =>d(  ( ((sideSizeSmall-2)*sideSizeSmall) + (xSizeSol*((j-sideSizeSmall)-2))  ) + 1)
+						b(i,j)%E =>d((solSideSmall * boundSideSmall) + (solSideBig * (j-(boundSideSmall+2)) + 1 ) )
 					end if
 				end if
 			end if
