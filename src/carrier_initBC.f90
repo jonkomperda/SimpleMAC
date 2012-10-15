@@ -438,7 +438,7 @@ subroutine lidConditionComplexGeometry(b)
 				b(i,j)%v = -b(i,j)%W%v			
 			end if
 			if (i==5) then!North
-				b(i,j)%u = 2.0d0 - b(i,j)%S%u
+				b(i,j)%u = -2.0d0 - b(i,j)%S%u
 			end if
 			if (i==6) then!West
 				b(i,j)%v = -b(i,j)%E%v

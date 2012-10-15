@@ -1,6 +1,6 @@
 f90		=	gfortran
 
-flags		=	-g			\
+flags		=	-O3			\
 				
 libs		=
 

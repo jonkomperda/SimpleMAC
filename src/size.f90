@@ -11,8 +11,8 @@
 !! @param conv Convergence criteria for Poisson solver
 !! @param pInterval Print interval
 module size
-	integer, parameter             :: xSize      = 64
-	integer, parameter             :: ySize      = 64
+	integer, parameter             :: xSize      = 160
+	integer, parameter             :: ySize      = 160
 	integer, parameter             :: xSizeSol      = xSize - 2!size of solution part of grid
 	integer, parameter             :: ySizeSol      = ySize - 2!size of solution part of grid
 	!integer, parameter             :: sides      = 4
@@ -29,12 +29,12 @@ module size
 	double precision, parameter    :: Lz         = 0.10d0
 	
 	!Time Step sizes
-	integer, parameter          :: maxSteps      = 30000
+	integer, parameter          :: maxSteps      = 300000
 	double precision, parameter :: r             = 0.11d0
 	integer, parameter          :: itmax         = 1000
 	
 	!Fluid domain parameters
-	double precision, parameter :: re            = 5000.0d0
+	double precision, parameter :: re            = 10000.0d0
 	double precision, parameter :: conv          = 1.0d-5
 	integer, parameter          :: pInterval     = 1000
 	
