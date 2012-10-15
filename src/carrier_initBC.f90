@@ -364,6 +364,34 @@ subroutine initialConditionsForElement(d,b)
 end subroutine initialConditionsForElement
 
 !>This subroutine applies the ghost cell boundary condition
+subroutine ghostConditionComplexGeometry(b)
+	use omp_lib
+	use size
+	use domain
+	implicit none
+	integer							:: i,j,boundSize
+	type(element), Target, dimension(sides, boundSideBig), intent(inout) :: b
+	!$omp parallel do shared(b) private(i,j)
+	do i=1,sides
+		if (i == 1 .or. i == 4) then
+			boundSize = boundSideSmall
+		else if (i == 2 .or. i == 3) then
+			boundSize = boundSideSmall + 1
+		else if (i==5 .or. i==6) then
+			boundSize = boundSideBig
+		end if
+		do j=1,boundSize
+			if(i==1 .or. i==3 .or. i==5) then!North south
+				b(i,j)%v = 0.0d0
+			else if(i==2 .or. i==4 .or. i==6) then
+				b(i,j)%u = 0.0d0
+			end if
+		end do
+	end do
+	!$end omp parallel do
+end subroutine ghostConditionComplexGeometry
+
+!>This subroutine applies the ghost cell boundary condition
 subroutine ghostConditionForElement(b)
 	use omp_lib
 	use size
@@ -383,6 +411,44 @@ subroutine ghostConditionForElement(b)
 	end do
 	!$end omp parallel do
 end subroutine ghostConditionForElement
+
+!>our moving lid condition
+subroutine lidConditionComplexGeometry(b)
+	use omp_lib
+	use size
+	use domain
+	implicit none
+	type(element), Target, dimension(sides, boundSideBig), intent(inout) :: b
+	integer							:: i,j,boundSize
+	!U and V velocity condition
+	!$omp parallel do private(i,j) shared(b) schedule(dynamic)
+	do i=1,sides
+		if (i == 1 .or. i == 4) then
+			boundSize = boundSideSmall
+		else if (i == 2 .or. i == 3) then
+			boundSize = boundSideSmall + 1
+		else if (i==5 .or. i==6) then
+			boundSize = boundSideBig
+		end if
+		do j=2, boundSize 
+			if(i==1 .or. i==3) then!South
+				b(i,j)%u = -b(i,j)%N%u
+			end if
+			if (i==2 .or. i==4) then!East
+				b(i,j)%v = -b(i,j)%W%v			
+			end if
+			if (i==5) then!North
+				b(i,j)%u = 2.0d0 - b(i,j)%S%u
+			end if
+			if (i==6) then!West
+				b(i,j)%v = -b(i,j)%E%v
+			end if
+		end do
+	end do
+
+	
+	!$omp end parallel do
+end subroutine lidConditionComplexGeometry
 
 !>our moving lid condition
 subroutine lidConditionForElement(b)

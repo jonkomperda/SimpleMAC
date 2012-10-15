@@ -57,31 +57,31 @@
             do n=1, cellCount
                         write(unit=51, fmt=*) 9
             end do
-            go to 84
+            !go to 84
 !     ------write particle data out
-            write(unit=51, fmt=textInt) 'POINT_DATA ',xSizeSol*ySizeSol
+            write(unit=51, fmt=textInt) 'POINT_DATA ',sizeSol
 
 !       -----begin with scalars
             write(unit=51, fmt=textLine) 'SCALARS u float'
             write(unit=51, fmt=textLine) 'LOOKUP_TABLE default'
-                  do n = 1, ySizeSol*xSizeSol
+                  do n = 1, sizeSol
                   write(unit=51, fmt=*) d(n)%u
                   end do
             write(unit=51, fmt=*)
 
                   write(unit=51, fmt=textLine) 'SCALARS v float'
                   write(unit=51, fmt=textLine) 'LOOKUP_TABLE default'
-                  do n=1, xSizeSol*ySizeSol
+                  do n=1, sizeSol
                         write(unit=51, fmt=*) d(n)%v
                   end do
                   write(unit=51, fmt=*)
             
                   write(unit=51, fmt=textLine) 'SCALARS p float'
                   write(unit=51, fmt=textLine) 'LOOKUP_TABLE default'
-                  do n=1, xSizeSol*ySizeSol
+                  do n=1, sizeSol
                         write(unit=51, fmt=*) d(n)%p
                   end do
-                  84 continue
+                  !84 continue
                   write(unit=51, fmt=*)
                   close(51)
             

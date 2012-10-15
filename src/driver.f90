@@ -19,27 +19,27 @@ program simpleMAC
 	!call debugBoundPointConnections(d,b)
 	!> Our main computational loop
 	do t=1,maxSteps
-		goto 54
+		!goto 54
 		!> Calculate our timestep
-		call calcTStepForElement(d,b,t,dt)
+		call calcTStepComplexGeometry(d,b,t,dt)
 		
 		!> Print the timestep to screen / gotta know what's going on
 		write(*,*) 'Timestep: ',t,'dt: ',dt
 		
 		!> First boundary condition
-		call ghostConditionForElement(b)
+		call ghostConditionComplexGeometry(b)
 		
 		!> calculate Fn and Gn
-		call calcFnGnForElement(d)
+		call calcFnGnComplexGeometry(d)
 		
 		!> calculate Qn
-		call calcQnForElement(d)
+		call calcQnComplexGeometry(d)
 		
 		!> calculate the pressure field
-		call poissonForElement(d,b,t)
+		call poissonComplexGeometry(d,b,t)
 		
 		!> calculate u-vel and v-vel
-		call calcVelForElement(d)
+		call calcVelComplexGeometry(d)
 		
 		!> Check NaN if case blew up (>.<)
 		!if( isnan(u(int(xSize/2),int(ySize/2))) ) then
@@ -48,10 +48,10 @@ program simpleMAC
 		!end if
 		
 		!> Moving lid boundary
-		call lidConditionForElement(b)
+		call lidConditionComplexGeometry(b)
 		
 		!> Plot to file
-		54 continue
+		!54 continue
 		if(mod(t,pInterval)==0) then 
 			call writeVTKComplexGeometry(d,t)
 		end if
