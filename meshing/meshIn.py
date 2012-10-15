@@ -316,22 +316,15 @@ class rampquad():
 #a = [0,0,0,0,0]
 
 # we create a backward facing step
-"""
-s1=rectangle(0.0,0.0,4.0,4.0,5,3)
-s2=rectangle(-4.0,4.0,4.0,4.0,5,3)
-s3=rampquad([0.0,4.0,0.0],[4.0,4.0,0.0],[0.0,8.0,0.0],[8.0,8.0,0.0],5,3)
-s4=rectangle(0.0,8.0,8.0,4.0,5,3)
 
-s1234 = s1 + s2 + s3 + s4
+s1=rectangle(-4.0,0.0,4.0,4.0,17,17)
+s2=rectangle(0.0,2.0,8.0,2.0,33,9)
+s3=rampquad([0.0,0.0],[2.0,0.0],[0.0,2.0],[4.0,2.0],17,9)
+s4=rampquad([0.0,-2.0],[3.0,-2.0],[0.0,0.0],[2.0,0.0],17,9)
+s5=rampquad([5.0,0.0],[8.0,0.0],[4.5,2.0],[8.0,2.0],15,9)
+
+#s4=rectangle(0.0,8.0,8.0,4.0,5,3)
+
+s1234 = s1 + s2 + s3 + s4 + s5
 vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s1234.points, quad=s1234.connect))
-vtk.tofile('s1234')
-
-"""
-#shape1=rectangle(1.0,-1.0,1.0,1.0,5,8)
-#shape2=rampquad([2.0,-1.0,0.0],[3.0,-1.0,0.0],[2.0,0.0,0.0],[5.0,0.0,0.0],13,8)
-#shape2=rampquad([1.0,-1.0,0.0],[3.0,-1.0,0.0],[1.0,0.0,0.0],[5.0,0.0,0.0],17,8)
-#shape3=rectangle(0.0,0.0,6.0,1.0,25,8)
-#completeshape = shape2 + shape3
-test = rampquad([0.0,0.0],[1.0,0.0],[0.0,1.0],[5.0,1.0],5,5)
-vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( test.points, quad=test.connect))
 vtk.tofile('test')
