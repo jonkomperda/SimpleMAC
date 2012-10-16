@@ -33,8 +33,8 @@ newcon = []
 for k in range(len(conlist)):
     for i in conlist[k]:
         print i
-        p = pList[k][i]
-        newcon.append(newlist.index(p))			#searches for element p position in the new list
+		#p = pList[k][i]
+        #newcon.append(newlist.index(p))			#searches for element p position in the new list
         
 print 'newcon'
 print newcon

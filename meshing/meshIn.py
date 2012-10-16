@@ -280,6 +280,8 @@ class rampquad():
                         break
         conList     = list(self.chopper(connection,4))
         #print
+        #print '*'
+        #print
         #print conList
         #print
         return conList
@@ -300,160 +302,15 @@ class rampquad():
     
     
 
+class diamond():
+    """it's basically the shape that fill the hole in the geometry, given a set of points as input"""
+    def __init__(self,p1,p2,p3,p4):
+        
+        self.p1 = p1
+        self.p2 = p2
+        self.p3 = p3
+        self.p4 = p4
 
-class genshape():
-    """creates a generic quad where you specifiy just the corners"""
-    def __init__(self, p1, p2, p3, p4, npx, npy):
-        print 'Shape: Creating a generic shape...'
-        
-        self.p1 = (p1[0],p1[1],0.0)
-        self.p2 = (p2[0],p2[1],0.0)
-        self.p3 = (p3[0],p3[1],0.0)
-        self.p4 = (p4[0],p4[1],0.0)
-        
-        self.npx = npx
-        self.npy = npy
-        
-        self.a = (((p1[0]-p2[0])**2)+((p1[1]-p2[1])**2))**0.5
-        self.b = (((p3[0]-p4[0])**2)+((p3[1]-p4[1])**2))**0.5
-        self.l1 = (((p1[0]-p3[0])**2)+((p1[1]-p3[1])**2))**0.5
-        self.l2 = (((p4[0]-p2[0])**2)+((p4[1]-p2[1])**2))**0.5
-        
-        self.da = self.a/(npx-1)
-        self.db = self.b/(npx-1)
-        self.dl1 = self.l1/(npy-1)
-        self.dl2 = self.l2/(npy-1)
-        
-        self.l1_pts = self.ver_pts(self.p1,self.p3,self.dl1,self.npy)
-        self.l2_pts = self.ver_pts(self.p2,self.p4,self.dl2,self.npy)
-        #self.a_pts = self.hor_pts(self.p1,self.p2,self.da,self.npx)
-        #self.b_pts = self.hor_pts(self.p3,self.p4,self.db,self.npx)
-        
-        self.points = []
-        
-        for k in range(npy):
-            startpt = ()
-            finalpt = ()
-            startpt = self.l1_pts[k]
-            finalpt = self.l2_pts[k]
-            
-            length = (((startpt[0]-finalpt[0])**2)+((startpt[1]-finalpt[1])**2))**0.5
-            dl = length/(self.npx-1)
-            
-            for z in range(npx):
-                row = self.hor_pts(startpt,finalpt,dl,self.npx)
-                self.points.append(row[z])
-            
-        
-        self.connect = self.connections(self.points)
-    
-    def ver_pts(self,startpoint,finishpoint,increment,np):
-        """calculates points on the vertical sides of the shape"""
-        
-        verpts = []
-        verpts.append(startpoint)
-        dec_place = 7
-        i = 0
-        beta = self.calcbeta(startpoint,finishpoint)
-        dx = increment * math.cos(beta)
-        dy = increment * math.sin(beta)
-        
-        for i in range (0,np-2):
-            x_next = verpts[i][0] + increment * math.sin(beta)
-            y_next = verpts[i][1] + increment * math.cos(beta)
-            nextpoint = (round(x_next , dec_place) , round(y_next , dec_place), 0.0)
-            verpts.append(nextpoint)
-            
-        verpts.append(finishpoint)
-        return(verpts)
-    
-    
-    def hor_pts(self,startpoint,finishpoint,increment,np):
-        """calculates points on the horizontal lines of the shape"""
-        
-        horpts = []
-        horpts.append(startpoint)
-        dec_place = 7
-        i = 0
-        alpha = self.calcalpha(startpoint,finishpoint)
-        dx = increment * math.cos(alpha)
-        dy = increment * math.sin(alpha)
-        
-        for i in range (0,np-2):
-            x_next = horpts[i][0] + dx
-            y_next = horpts[i][1] + dy
-            nextpoint = (round(x_next , dec_place) , round(y_next , dec_place), 0.0)
-            horpts.append(nextpoint)
-        
-        horpts.append(finishpoint)
-        return(horpts)
-    
-    
-    def calcalpha(self,A,B):
-        """it calculates the angle among two vertices with respect to x axis"""
-        alpha = math.atan((B[1]-A[1])/(B[0]-A[0]))
-        return alpha
-    
-    
-    def calcbeta(self,A,B):
-        """it calculates the angle among two vertices with respect to y axis"""
-        beta = math.atan((B[0]-A[0])/(B[1]-A[1]))
-        return beta
-    
-    
-    def chopper(self,list,size):                            # Chops a list into 'size' tuples
-        for i in xrange(0, len(list), size):
-            yield list[i:i+size]
-    
-    
-    def connections(self,points):                           # Calculates element connections (*needs to be improved to better handle gaps)
-        conList = []
-        i = 0
-        j = 0
-        k = -1
-        for i in range(0,self.npx-1):
-            here    = points[i]
-            next    = points[i+1]
-            k = k+1
-            for j in range(0,self.npy-1):
-                conList.append((k,k+1,k+self.npx+1,k+self.npx))
-                #connection.append(k)
-                #connection.append(k+1)
-                #connection.append(k+self.npx+1)
-                #connection.append(k+self.npx)
-                k=k+1
-            """if (next[0] > here[0]):
-                #print i
-                for j in range(i+1,len(points)-1):
-                    other   = points[j]
-                    tan_other = (other[0] - self.p1[0])/(other[1] - self.p0[1])
-                    tan_here = (here[0] - self.p1[0])/(here[1] - self.p0[1])
-                    if (tan_other < (tan_here + error)) and (tan_other > (tan_here - error)):
-                        #print (i,i+1,j+1,j)
-                        temp        = (i,i+1,j+1,j)
-                        connection  = connection + temp
-                        break
-            for j in range(0,self.npy-1):
-                print i
-                print j"""
-        
-        return conList
-    
-    
-    def __add__(self,other):                                #overloading of addition
-        temp        = self.points + other.points
-        del_points  = list(set(temp))
-        new_points  = self.sort(del_points)
-        
-        out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect)
-        return out
-    
-    
-    def sort(self,val):
-        out     = sorted(val, key=operator.itemgetter(2,1,0))
-        return  out
-    
-    
 
 
 ############## Global Dictionaries
@@ -474,14 +331,9 @@ class genshape():
 #s3=rampquad([0.0,0.0],[2.0,0.0],[0.0,2.0],[4.0,2.0],17,9)
 #s4=rampquad([0.0,-2.0],[3.0,-2.0],[0.0,0.0],[2.0,0.0],17,9)
 #s5=rampquad([5.0,0.0],[8.0,0.0],[4.0,2.0],[8.0,2.0],17,9)
-#s6=rampquad([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],9,9)
+s6=rampquad([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],9,9)
 #s4=rectangle(0.0,8.0,8.0,4.0,5,3)
 
-
-#s1234 = genshape([0.0,0.0],[2.0,1.0],[-2.0,2.0],[5.0,3.0],31,31)
-#s1234 = genshape([0.0,0.0],[1.0,1.0],[-2.0,2.0],[3.0,5.0],21,21)
-
-s1234 = genshape([-2.0,2.0],[3.0,2.0],[-4.0,4.0],[10.0,7.0],31,31)
-
+s1234 = s6
 vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s1234.points, quad=s1234.connect))
-vtk.tofile('genshape')
+vtk.tofile('test')
