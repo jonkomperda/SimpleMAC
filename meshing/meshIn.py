@@ -416,7 +416,6 @@ class genshape():
             next    = points[i+1]
             k = k+1
             for j in range(0,self.npx-1):
-                print str(i) + '  ' + str(k) + '  ' + str(j)
                 conList.append((k,k+1,k+self.npx+1,k+self.npx))
                 #connection.append(k)
                 #connection.append(k+1)
@@ -437,7 +436,6 @@ class genshape():
             for j in range(0,self.npy-1):
                 print i
                 print j"""
-        print conList
         return conList
     
     
@@ -470,19 +468,20 @@ class genshape():
 
 # we create a backward facing step
 
-#s1=rectangle(-4.0,0.0,4.0,4.0,17,17)
-#s2=rectangle(0.0,2.0,8.0,2.0,33,9)
-s1234=genshape([0.0,0.0],[2.0,0.0],[0.0,2.0],[4.0,2.0],3,5)
-#s4=rampquad([0.0,-2.0],[3.0,-2.0],[0.0,0.0],[2.0,0.0],17,9)
-#s5=rampquad([5.0,0.0],[8.0,0.0],[4.0,2.0],[8.0,2.0],17,9)
-#s6=rampquad([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],9,9)
+s1=rectangle(-4.0,0.0,6.0,4.0,25,17)
+s2=rectangle(4.0,2.0,4.0,2.0,17,17)
+#s3=rampquad([0.0,0.0],[2.0,0.0],[0.0,2.0],[4.0,2.0],17,17)
+s4=rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],17,17)
+s3=genshape([2.0,0.0],[4.0,2.0],[2.0,4.0],[4.0,4.0],17,17)
+s5=rampquad([5.0,0.0],[8.0,0.0],[4.0,2.0],[8.0,2.0],17,17)
+s6=genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],17,17)
 #s4=rectangle(0.0,8.0,8.0,4.0,5,3)
-
 
 #s1234 = genshape([0.0,0.0],[2.0,1.0],[-2.0,2.0],[5.0,3.0],31,31)
 #s1234 = genshape([0.0,0.0],[1.0,1.0],[-2.0,2.0],[3.0,5.0],21,21)
 
 #s1234 = genshape([-2.0,2.0],[3.0,2.0],[-4.0,4.0],[10.0,7.0],31,31)
 
-vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s1234.points, quad=s1234.connect))
-vtk.tofile('genshape')
+s = s1 + s2 + s3 + s4 + s5 + s6
+vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
+vtk.tofile('completeuniformmesh')
