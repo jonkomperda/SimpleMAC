@@ -29,14 +29,14 @@ module size
 	double precision, parameter    :: Lz         = 0.10d0
 	
 	!Time Step sizes
-	integer, parameter          :: maxSteps      = 300000
+	integer, parameter          :: maxSteps      = 160000
 	double precision, parameter :: r             = 0.11d0
 	integer, parameter          :: itmax         = 1000
 	
 	!Fluid domain parameters
-	double precision, parameter :: re            = 10000.0d0
+	double precision, parameter :: re            = 6000.0d0
 	double precision, parameter :: conv          = 1.0d-5
-	integer, parameter          :: pInterval     = 1000
+	integer, parameter          :: pInterval     = 500
 	
 	!Calculated values
 	double precision, parameter :: dx            = (1/(dble(xSize)-2.0d0))
