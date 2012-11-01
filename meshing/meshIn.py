@@ -4,6 +4,7 @@ import numpy as ar
 import operator
 import pyvtk
 import math
+import simplemesh
 
 ############## Begin shapes
 
@@ -26,6 +27,7 @@ class unstructShape:
             self.old2c = old2c
         
         self.connect= self.connections(self.points)
+        
     
     # Finds the element connections (*Needs to be improved, issues with gaps)
     def connections(self,points):
@@ -490,7 +492,8 @@ if __name__ == '__main__':
     s2=genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],3,3)
     
     s = s1 + s2
-    vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
-    vtk.tofile('test')
+    simplemesh.simplemesh(s.points,s.connections)
+    #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
+    #vtk.tofile('test')
     
 
