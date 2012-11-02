@@ -9,12 +9,14 @@ class simplemesh():
         self.connect = connect
         self.bc = bc
         
+        k=0
         
         for i in self.points:
-            p_x = str(i[0])
-            p_y = str(i[1])
-            p_z = str(i[2])
-            #print p_x + '  ' + p_y + '  ' + p_z
+            k = k + 1
+            p_x = str('%.14f'%i[0])
+            p_y = str('%.14f'%i[1])
+            p_z = str('%.14f'%i[2])
+            print str(k) + '      ' + p_x + '      ' + p_y + '      ' + p_z
         
         """for j in self.connect:
             p0 = str(j[0])
@@ -44,7 +46,6 @@ class depth():
                 self.points.append((self.points[j][0],self.points[j][1],self.z_pos))
                 
             
-        print self.points
         #print '%.14f'%self.points[0][1]
     
 
@@ -56,7 +57,7 @@ if __name__ == '__main__':
     s2=meshIn.genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],3,3)
     
     s = s1 + s2
-    sfinal = depth(s.points,s.connect,16.0,33)
+    sfinal = depth(s.points,s.connect,2.0,2)
     
-    #simplemesh(s.points,s.connect)
+    simplemesh(sfinal.points,sfinal.connect)
     
