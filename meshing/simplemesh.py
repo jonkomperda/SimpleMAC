@@ -24,7 +24,7 @@ class simplemesh():
             #print p1 + '  ' + p2 + '  ' + p3 + '  ' + p4"""
 
 class depth():
-    """it repeats the intial mesh along the z axis"""
+    """it repeats the intial mesh along the z axis, lz=total depth, npz=no. of points along z direction"""
     def __init__(self, points, connect, lz, npz):
         
         self.points = points
@@ -33,18 +33,20 @@ class depth():
         self.npz = npz
         
         self.dz = self.lz/(self.npz-1)
-        self.z_pos = 0
-                
-        self.points.append((self.points[0][0],self.points[0][1],self.dz))
+        self.z_pos = self.points[0][2]
         
-        for i in range(npz):
+        self.no_points = len(self.points)
+        
+        for i in range(npz-1):
             self.z_pos = self.z_pos + self.dz
-            for j in range(len(self.points)):
-                self.points.append((self.points[j][0],self.points[j][1],self.dz))
+            for j in range(self.no_points):
+                #print str(i) + '   ' + str(j)
+                self.points.append((self.points[j][0],self.points[j][1],self.z_pos))
                 
-            print str(i) + '  ' + str(j)
-        
+            
         print self.points
+        #print '%.14f'%self.points[0][1]
+    
 
 
 
@@ -54,7 +56,7 @@ if __name__ == '__main__':
     s2=meshIn.genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],3,3)
     
     s = s1 + s2
-    sfinal = depth(s.points,s.connect,1.0,2)
+    sfinal = depth(s.points,s.connect,16.0,33)
     
     #simplemesh(s.points,s.connect)
     
