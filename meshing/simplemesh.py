@@ -9,6 +9,17 @@ class simplemesh():
         self.connect = connect
         self.bc = bc
         
+        self.f = open('final.mesh','w')
+        
+        self.f.write('simple mesh format version = 1.1')
+        
+        self.nodes()
+        
+    def nodes(self):
+        """it prints out the nodes in the right format"""
+        
+        self.f.write('\nnodes')
+        
         k=0
         
         for i in self.points:
@@ -16,7 +27,14 @@ class simplemesh():
             p_x = str('%.14f'%i[0])
             p_y = str('%.14f'%i[1])
             p_z = str('%.14f'%i[2])
-            print str(k) + '      ' + p_x + '      ' + p_y + '      ' + p_z
+            self.f.write('\n' + str(k))
+            #print str(k) + '      ' + p_x + '      ' + p_y + '      ' + p_z
+        
+        self.f.write('\nend nodes')
+    
+    def connections(self):
+        """it prints out the connections in the right format"""        
+        #print self.connect
         
         """for j in self.connect:
             p0 = str(j[0])
@@ -24,6 +42,10 @@ class simplemesh():
             p2 = str(j[2])
             p3 = str(j[3])
             #print p1 + '  ' + p2 + '  ' + p3 + '  ' + p4"""
+        
+    
+    
+
 
 class depth():
     """it repeats the intial mesh along the z axis, lz=total depth, npz=no. of points along z direction"""
