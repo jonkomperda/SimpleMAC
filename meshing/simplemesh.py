@@ -67,19 +67,31 @@ class depth():
         
         if self.npz > 1:
             threeDimcase = True
+            self.coordinates()
+            self.connections()
+            
         
-        #print '3D: ' + str(threeDimcase)
+
+    
+    
+    def coordinates(self):
+        """calculates all the new points (repeats the same points for different z coordinates)"""
         
         self.dz = self.lz/(self.npz-1)
         self.z_pos = self.points[0][2]
         
         self.no_points = len(self.points)
         
-        for i in range(npz-1):
+        for i in range(self.npz-1):
             self.z_pos = self.z_pos + self.dz
             for j in range(self.no_points):
                 #print str(i) + '   ' + str(j)
                 self.points.append((self.points[j][0],self.points[j][1],self.z_pos))
+    
+    
+    def connections(self):
+        """calculates the new connection list adding all the new points"""
+        
         
 
 
