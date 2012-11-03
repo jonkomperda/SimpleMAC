@@ -49,7 +49,6 @@ class simplemesh():
             p3 = str(j[3])
             #print p0 + '  ' + p1 + '  ' + p2 + '  ' + p3
             self.f.write('\n\t' + str(k) + '\t' + str(p0) + '\t' + str(p1) +'\t' + str(p2) +'\t' + str(p3))
-        
     
     
 
@@ -63,15 +62,10 @@ class depth():
         self.lz = lz
         self.npz = npz
         
-        threeDimcase = False
         
-        if self.npz > 1:
-            threeDimcase = True
-            self.coordinates()
-            self.connections()
+        self.coordinates()
+        self.connections()
             
-        
-
     
     
     def coordinates(self):
@@ -92,7 +86,43 @@ class depth():
     def connections(self):
         """calculates the new connection list adding all the new points"""
         
+        self.no_connections = len(self.connect)
         
+        layer = -1
+        self.tempcon = []
+        
+        #calculates the connections for the other layers and stores them in tempcon (simply adds the number of points in order to find the new points)
+        for i in range(self.npz):
+            layer = layer + 1
+            for j in range(self.no_connections):
+                p0 = self.connect[j][0]+1+layer*self.no_points
+                p1 = self.connect[j][1]+1+layer*self.no_points
+                p2 = self.connect[j][2]+1+layer*self.no_points
+                p3 = self.connect[j][3]+1+layer*self.no_points
+                self.tempcon.append((p0,p1,p2,p3))
+                        
+        self.newcon = []
+        
+        #calculates the new tuples, constituted by 8 elements each instead of 4
+        for i in range(layer):
+            for j in range(self.no_connections):
+                #print str(i) + '   ' + str(j)
+                p0 = self.tempcon[j][0]+i*self.no_points
+                p1 = self.tempcon[j][1]+i*self.no_points
+                p2 = self.tempcon[j][2]+i*self.no_points
+                p3 = self.tempcon[j][3]+i*self.no_points
+                p4 = self.tempcon[j+self.no_connections][0]+i*self.no_points
+                p5 = self.tempcon[j+self.no_connections][1]+i*self.no_points
+                p6 = self.tempcon[j+self.no_connections][2]+i*self.no_points
+                p7 = self.tempcon[j+self.no_connections][3]+i*self.no_points
+                
+                self.newcon.append((p0,p1,p2,p3,p4,p5,p6,p7))
+        
+        print self.newcon
+        
+        
+    
+    
 
 
 if __name__ == '__main__':
