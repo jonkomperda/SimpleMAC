@@ -1,80 +1,6 @@
 import pyvtk
 import meshIn
 
-class simplemesh():
-    """it creates the file .mesh; px,py,pz are the polinomial orders"""
-    def __init__(self, points, connect, polx=6, poly=6, polz=None, bc=None):
-        
-        self.points = points
-        self.connect = connect
-        self.bc = bc
-        self.polx = polx
-        self.poly = poly
-        self.polz = polz
-        
-        
-        self.f = open('squaretest.mesh','w')
-        
-        self.f.write('simple mesh format version = 1.1')
-        
-        self.nodes()
-        self.connections()
-        
-    def nodes(self):
-        """it prints out the nodes in the right format"""
-        
-        self.f.write('\nnodes')
-        
-        k=0
-        
-        for i in self.points:
-            k = k + 1
-            p_x = str('%.14f'%i[0])
-            p_y = str('%.14f'%i[1])
-            p_z = str('%.14f'%i[2])
-            self.f.write('\n\t' + str(k) + '\t' + str(p_x) +'\t' + str(p_y) +'\t' + str(p_z))
-        
-        self.f.write('\nend nodes')
-    
-    def connections(self):
-        """it prints out the connections in the right format"""        
-                
-        self.f.write('\nelements')
-        
-        k=0
-        self.px = 16
-        self.py = 16
-        
-        if len(self.connect[0])==4:
-            print ' -- 2D Case -- '
-            for j in self.connect:
-                k=k+1
-                p0 = str(j[0]+1)
-                p1 = str(j[1]+1)
-                p2 = str(j[2]+1)
-                p3 = str(j[3]+1)
-                self.f.write('\n\t' + str(k) + '\tquad ' + str(len(self.connect[0])) + ' 0 '+ str(self.polx) + ' ' + str(self.poly) + ' 0')
-                self.f.write('\n\t\t' + str(p0) + '\t\t' + str(p1) + '\t\t'+ str(p2) + '\t\t'+ str(p3))
-            self.f.write('\nend elements')
-        
-        if len(self.connect[0])==8:
-            print ' -- 3D Case -- '
-            for j in self.connect:
-                k=k+1
-                p0 = str(j[0]+1)
-                p1 = str(j[1]+1)
-                p2 = str(j[2]+1)
-                p3 = str(j[3]+1)
-                p4 = str(j[4]+1)
-                p5 = str(j[5]+1)
-                p6 = str(j[6]+1)
-                p7 = str(j[7]+1)
-                self.f.write('\n\t' + str(k) + '\thex ' + str(len(self.connect[0])) + ' 0 '+ str(self.polx) + ' ' + str(self.poly) + ' ' + str(self.polz) + ' 0')
-                self.f.write('\n\t\t' + str(p0) + '\t\t' + str(p1) + '\t\t'+ str(p2) + '\t\t'+ str(p3) + '\t\t' + str(p4) + '\t\t' + str(p5) + '\t\t'+ str(p6) + '\t\t'+ str(p7))
-            self.f.write('\nend elements')
-    
-    
-
 
 class depth():
     """it repeats the intial mesh along the z axis, lz=total depth, npz=no. of points along z direction"""
@@ -159,6 +85,96 @@ class depth():
         
     
     
+
+
+class simplemesh():
+    """it creates the file .mesh; px,py,pz are the polinomial orders"""
+    def __init__(self, points, connect, polx=6, poly=6, polz=None, bc=None):
+        
+        self.points = points
+        self.connect = connect
+        self.bc = bc
+        self.polx = polx
+        self.poly = poly
+        self.polz = polz
+        
+        
+        self.f = open('squaretest.mesh','w')
+        
+        self.f.write('simple mesh format version = 1.1')
+        
+        self.nodes()
+        self.elements()
+        
+    def nodes(self):
+        """it prints out the nodes in the right format"""
+        
+        self.f.write('\nnodes')
+        
+        k=0
+        
+        for i in self.points:
+            k = k + 1
+            p_x = str('%.14f'%i[0])
+            p_y = str('%.14f'%i[1])
+            p_z = str('%.14f'%i[2])
+            self.f.write('\n\t' + str(k) + '\t' + str(p_x) +'\t' + str(p_y) +'\t' + str(p_z))
+        
+        self.f.write('\nend nodes')
+    
+    def elements(self):
+        """it prints out the connections in the right format"""        
+                
+        self.f.write('\nelements')
+        
+        k=0
+        self.px = 16
+        self.py = 16
+        
+        if len(self.connect[0])==4:
+            print ' -- 2D Case -- '
+            for j in self.connect:
+                k=k+1
+                p0 = str(j[0]+1)
+                p1 = str(j[1]+1)
+                p2 = str(j[2]+1)
+                p3 = str(j[3]+1)
+                self.f.write('\n\t' + str(k) + '\tquad ' + str(len(self.connect[0])) + ' 0 '+ str(self.polx) + ' ' + str(self.poly) + ' 0')
+                self.f.write('\n\t\t' + str(p0) + '\t\t' + str(p1) + '\t\t'+ str(p2) + '\t\t'+ str(p3))
+            self.f.write('\nend elements')
+        
+        if len(self.connect[0])==8:
+            print ' -- 3D Case -- '
+            for j in self.connect:
+                k=k+1
+                p0 = str(j[0]+1)
+                p1 = str(j[1]+1)
+                p2 = str(j[2]+1)
+                p3 = str(j[3]+1)
+                p4 = str(j[4]+1)
+                p5 = str(j[5]+1)
+                p6 = str(j[6]+1)
+                p7 = str(j[7]+1)
+                self.f.write('\n\t' + str(k) + '\thex ' + str(len(self.connect[0])) + ' 0 '+ str(self.polx) + ' ' + str(self.poly) + ' ' + str(self.polz) + ' 0')
+                self.f.write('\n\t\t' + str(p0) + '\t\t' + str(p1) + '\t\t'+ str(p2) + '\t\t'+ str(p3) + '\t\t' + str(p4) + '\t\t' + str(p5) + '\t\t'+ str(p6) + '\t\t'+ str(p7))
+            self.f.write('\nend elements')
+    
+    
+
+
+class boundary():
+    """it calculates the boundary conditions for all the elements in the mesh"""
+    def __init__(self, face1,face2,face3,face4,face5,face6):
+        
+        self.face1 = face1
+        self.face2 = face2
+        self.face3 = face3
+        self.face4 = face4
+        self.face5 = face5
+        self.face6 = face6
+        
+
+
 
 
 if __name__ == '__main__':
