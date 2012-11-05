@@ -2,12 +2,16 @@ import pyvtk
 import meshIn
 
 class simplemesh():
-    """it creates the file .mesh"""
-    def __init__(self, points, connect, bc=None,):
+    """it creates the file .mesh; px,py,pz are the polinomial orders"""
+    def __init__(self, points, connect, polx=6, poly=6, polz=None, bc=None):
         
         self.points = points
         self.connect = connect
         self.bc = bc
+        self.polx = polx
+        self.poly = poly
+        self.polz = polz
+        
         
         self.f = open('squaretest.mesh','w')
         
@@ -34,25 +38,40 @@ class simplemesh():
     
     def connections(self):
         """it prints out the connections in the right format"""        
-        
-        #print self.connect
-        
+                
         self.f.write('\nelements')
         
         k=0
+        self.px = 16
+        self.py = 16
         
-        for j in self.connect:
-            k=k+1
-            p0 = str(j[0])
-            p1 = str(j[1])
-            p2 = str(j[2])
-            p3 = str(j[3])
-            p4 = str(j[4])
-            p5 = str(j[5])
-            p6 = str(j[6])
-            p7 = str(j[7])
-            print p0 + '  ' + p1 + '  ' + p2 + '  ' + p3 + '   ' + p0 + '  ' + p1 + '  ' + p2 + '  ' + p3
-            #self.f.write('\n\t' + str(k) + '\t' + str(p0) + '\t' + str(p1) +'\t' + str(p2) +'\t' + str(p3))
+        if len(self.connect[0])==4:
+            print ' -- 2D Case -- '
+            for j in self.connect:
+                k=k+1
+                p0 = str(j[0]+1)
+                p1 = str(j[1]+1)
+                p2 = str(j[2]+1)
+                p3 = str(j[3]+1)
+                self.f.write('\n\t' + str(k) + '\tquad ' + str(len(self.connect[0])) + ' 0 '+ str(self.polx) + ' ' + str(self.poly) + ' 0')
+                self.f.write('\n\t\t' + str(p0) + '\t\t' + str(p1) + '\t\t'+ str(p2) + '\t\t'+ str(p3))
+            self.f.write('\nend elements')
+        
+        if len(self.connect[0])==8:
+            print ' -- 3D Case -- '
+            for j in self.connect:
+                k=k+1
+                p0 = str(j[0]+1)
+                p1 = str(j[1]+1)
+                p2 = str(j[2]+1)
+                p3 = str(j[3]+1)
+                p4 = str(j[4]+1)
+                p5 = str(j[5]+1)
+                p6 = str(j[6]+1)
+                p7 = str(j[7]+1)
+                self.f.write('\n\t' + str(k) + '\thex ' + str(len(self.connect[0])) + ' 0 '+ str(self.polx) + ' ' + str(self.poly) + ' ' + str(self.polz) + ' 0')
+                self.f.write('\n\t\t' + str(p0) + '\t\t' + str(p1) + '\t\t'+ str(p2) + '\t\t'+ str(p3) + '\t\t' + str(p4) + '\t\t' + str(p5) + '\t\t'+ str(p6) + '\t\t'+ str(p7))
+            self.f.write('\nend elements')
     
     
 
@@ -60,6 +79,7 @@ class simplemesh():
 class depth():
     """it repeats the intial mesh along the z axis, lz=total depth, npz=no. of points along z direction"""
     def __init__(self, points, connect, lz, npz):
+        print 'Extruding the shape...'
         
         self.points = points
         self.connect = connect
@@ -121,7 +141,22 @@ class depth():
                 p7 = self.tempcon[j+self.no_connections][3]+i*self.no_points
                 
                 self.newcon.append((p0,p1,p2,p3,p4,p5,p6,p7))
-        print self.newcon
+        
+        #write everything back into self.connect, in order to give the same input to simplemesh
+        self.connect = []
+        
+        for i in range(len(self.newcon)):
+            p0 = self.newcon[i][0]
+            p1 = self.newcon[i][1]
+            p2 = self.newcon[i][2]
+            p3 = self.newcon[i][3]
+            p4 = self.newcon[i][4]
+            p5 = self.newcon[i][5]
+            p6 = self.newcon[i][6]
+            p7 = self.newcon[i][7]
+            
+            self.connect.append((p0,p1,p2,p3,p4,p5,p6,p7))
+        
     
     
 
@@ -138,8 +173,8 @@ if __name__ == '__main__':
     #s=meshIn.rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],3,3)
     sfinal = depth(s.points,s.connect,2.0,3)
     
-    vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( sfinal.points, hexahedron=sfinal.newcon))
-    vtk.tofile('testthreed')
+    #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( sfinal.points, hexahedron=sfinal.newcon))
+    #vtk.tofile('testthreed')
     
-    #simplemesh(sfinal.points,sfinal.connect)
+    simplemesh(sfinal.points,sfinal.connect,6,6,6)
     
