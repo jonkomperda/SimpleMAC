@@ -2,20 +2,60 @@ import pyvtk
 import meshIn
 
 
+class boundary():
+    """it calculates boundary conditions for the shapes given as input - ELEMENTS ALREADY START FROM 1, NOT FROM 0"""
+    def __init__(self, points, connect, npx, npy, bottom=0, right=0, top=0, left=0):
+        
+        self.points = points
+        self.connect = connect
+        self.npx = npx
+        self.npy = npy
+        
+        self.face1 = bottom
+        self.face2 = right
+        self.face3 = top
+        self.face4 = left
+        
+        self.no_elements = len(self.connect)
+        
+        self.bc_sides()
+    
+    
+    def bc_sides(self):
+        """it calculates the bc on the bottom face"""
+        
+        self.bc = []
+        
+        for i in range(self.npx-1):
+            self.bc.append((i+1,1,self.face1))
+        
+        for i in range(self.npy-1):
+            self.bc.append(((self.npx-1)*(i+1),2,self.face2))
+        
+        for i in range(self.npx-1):
+            self.bc.append(((self.npy-2)*(self.npx-1)+i+1,3,self.face3))
+        
+        for i in range(self.npy-1):
+            self.bc.append(((i+1)+i*(self.npx-2),4,self.face4))
+    
+    
+
+
 class depth():
     """it repeats the intial mesh along the z axis, lz=total depth, npz=no. of points along z direction"""
-    def __init__(self, points, connect, lz, npz):
+    def __init__(self, points, connect, boundary, lz, npz):
         print 'Extruding the shape...'
         
         self.points = points
         self.connect = connect
+        self.boundary = boundary
         self.lz = lz
         self.npz = npz
         
-        
         self.coordinates()
         self.connections()
-            
+        self.bc_faces()
+        
     
     
     def coordinates(self):
@@ -82,18 +122,27 @@ class depth():
             p7 = self.newcon[i][7]
             
             self.connect.append((p0,p1,p2,p3,p4,p5,p6,p7))
-        
     
+    
+    def bc_faces(self):
+        """it calculates the boundary conditions along the z direction"""
+        
+        self.no_bc = len(self.boundary)
+        self.no_elements = self.no_connections
+        
+        for i in range(self.no_bc):
+            self.boundary.append((self.boundary[i][0]+self.no_elements,self.boundary[i][1],self.boundary[i][2]))
+        
     
 
 
 class simplemesh():
     """it creates the file .mesh; px,py,pz are the polinomial orders"""
-    def __init__(self, points, connect, polx=6, poly=6, polz=None, bc=None):
+    def __init__(self, points, connect, boundary, polx=6, poly=6, polz=None, bc=None):
         
         self.points = points
         self.connect = connect
-        self.bc = bc
+        self.boundary = boundary
         self.polx = polx
         self.poly = poly
         self.polz = polz
@@ -105,6 +154,9 @@ class simplemesh():
         
         self.nodes()
         self.elements()
+        
+        if len(self.connect[0])==8:
+            self.bc_complete()
         
     def nodes(self):
         """it prints out the nodes in the right format"""
@@ -160,19 +212,22 @@ class simplemesh():
             self.f.write('\nend elements')
     
     
+    def bc_complete(self):
+        """it calculates the connections on the complete shape, adding both front and back face - sides become 3456 from 1234"""
+        
+        self.temp_bc = []
+        for i in range(len(self.boundary)):
+            self.temp_bc.append((self.boundary[i][0],self.boundary[i][1]+2,self.boundary[i][2]))
+        
+        self.boundary = []
+        self.boundary = self.temp_bc
+        
+        print self.boundary
+            
+        
+        
 
 
-class boundary():
-    """it calculates the boundary conditions for all the elements in the mesh"""
-    def __init__(self, face1,face2,face3,face4,face5,face6):
-        
-        self.face1 = face1
-        self.face2 = face2
-        self.face3 = face3
-        self.face4 = face4
-        self.face5 = face5
-        self.face6 = face6
-        
 
 
 
@@ -186,11 +241,13 @@ if __name__ == '__main__':
     sfinal = depth(s.points,s.connect,2.0,2)"""
     
     s = meshIn.rectangle(0.0,0.0,2.0,2.0,3,3)
+    sint = boundary(s.points,s.connect,s.npx,s.npy,1,2,3,4)
+    
     #s=meshIn.rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],3,3)
-    sfinal = depth(s.points,s.connect,2.0,3)
+    sfinal = depth(sint.points,sint.connect,sint.bc,2.0,3)
     
     #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( sfinal.points, hexahedron=sfinal.newcon))
     #vtk.tofile('testthreed')
     
-    simplemesh(sfinal.points,sfinal.connect,6,6,6)
+    simplemesh(sfinal.points,sfinal.connect,sfinal.boundary,6,6,6)
     
