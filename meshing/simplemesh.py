@@ -47,8 +47,12 @@ class simplemesh():
             p1 = str(j[1])
             p2 = str(j[2])
             p3 = str(j[3])
-            #print p0 + '  ' + p1 + '  ' + p2 + '  ' + p3
-            self.f.write('\n\t' + str(k) + '\t' + str(p0) + '\t' + str(p1) +'\t' + str(p2) +'\t' + str(p3))
+            p4 = str(j[4])
+            p5 = str(j[5])
+            p6 = str(j[6])
+            p7 = str(j[7])
+            print p0 + '  ' + p1 + '  ' + p2 + '  ' + p3 + '   ' + p0 + '  ' + p1 + '  ' + p2 + '  ' + p3
+            #self.f.write('\n\t' + str(k) + '\t' + str(p0) + '\t' + str(p1) +'\t' + str(p2) +'\t' + str(p3))
     
     
 
@@ -95,10 +99,10 @@ class depth():
         for i in range(self.npz):
             layer = layer + 1
             for j in range(self.no_connections):
-                p0 = self.connect[j][0]+1+layer*self.no_points
-                p1 = self.connect[j][1]+1+layer*self.no_points
-                p2 = self.connect[j][2]+1+layer*self.no_points
-                p3 = self.connect[j][3]+1+layer*self.no_points
+                p0 = self.connect[j][0]+layer*self.no_points
+                p1 = self.connect[j][1]+layer*self.no_points
+                p2 = self.connect[j][2]+layer*self.no_points
+                p3 = self.connect[j][3]+layer*self.no_points
                 self.tempcon.append((p0,p1,p2,p3))
                         
         self.newcon = []
@@ -117,10 +121,7 @@ class depth():
                 p7 = self.tempcon[j+self.no_connections][3]+i*self.no_points
                 
                 self.newcon.append((p0,p1,p2,p3,p4,p5,p6,p7))
-        
         print self.newcon
-        
-        
     
     
 
@@ -134,7 +135,11 @@ if __name__ == '__main__':
     sfinal = depth(s.points,s.connect,2.0,2)"""
     
     s = meshIn.rectangle(0.0,0.0,2.0,2.0,3,3)
+    #s=meshIn.rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],3,3)
     sfinal = depth(s.points,s.connect,2.0,3)
     
-    simplemesh(sfinal.points,sfinal.connect)
+    vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( sfinal.points, hexahedron=sfinal.newcon))
+    vtk.tofile('testthreed')
+    
+    #simplemesh(sfinal.points,sfinal.connect)
     
