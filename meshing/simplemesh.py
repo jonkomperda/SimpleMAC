@@ -26,15 +26,19 @@ class boundary():
         
         self.bc = []
         
+        #bottom side (1)
         for i in range(self.npx-1):
             self.bc.append((i+1,1,self.face1))
         
+        #right side (2)
         for i in range(self.npy-1):
             self.bc.append(((self.npx-1)*(i+1),2,self.face2))
         
+        #top side (3)
         for i in range(self.npx-1):
             self.bc.append(((self.npy-2)*(self.npx-1)+i+1,3,self.face3))
         
+        #left side (4)
         for i in range(self.npy-1):
             self.bc.append(((i+1)+i*(self.npx-2),4,self.face4))
     
@@ -155,7 +159,7 @@ class depth():
             self.boundary.append((i+1,1,self.face1))
         
         for i in range(self.no_elements):
-            self.boundary.append(((i+1)+self.npz-1*self.no_elements,2,self.face2))
+            self.boundary.append(((i+1)+(self.npz-2)*self.no_elements,2,self.face2))
     
     
 
