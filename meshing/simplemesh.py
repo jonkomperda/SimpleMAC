@@ -43,34 +43,6 @@ class boundary():
             self.bc.append(((i+1)+i*(self.npx-2),4,self.face4))
     
     
-    def __add__(self,other):
-        """it calculates the boundary conditions when i add two shapes together, each one with its own BCs"""
-        
-        conlist = []
-        conlist.append(self.old1c)
-        conlist.append(self.old2c)
-        
-        pList = []
-        pList.append(self.old1)
-        pList.append(self.old2)
-        
-        newcon = []
-        
-        for k in range(len(conlist)):
-            for i in conlist[k]:
-                for j in i:
-                    p = pList[k][j]
-                    newcon.append(points.index(p))
-        
-        newcon = list(self.chopper(newcon,4))
-        return newcon
-        
-        temp        = self.points + other.points
-        del_points  = list(set(temp))
-        new_points  = self.sort(del_points)
-        
-        out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect)
-        return out
 
 
 class depth():
@@ -287,19 +259,19 @@ if __name__ == '__main__':
     s = sint1
     sfinal = depth(s.points,s.connect,s.bc,2.0,2)"""
     
-    #s1=meshIn.rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],17,17)
+    s1=meshIn.rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],17,17,(0,0,0,0))
     #sint1 = boundary(s1.points,s1.connect,s1.npx,s1.npy,3,0,0,3)
-    #s2=meshIn.genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],17,17)
+    s2=meshIn.genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],17,17)
     #sint2 = boundary(s2.points,s2.connect,s2.npx,s2.npy,3,0,0,0)
-    #s3=meshIn.rampquad([5.0,0.0],[8.0,0.0],[4.0,2.0],[8.0,2.0],17,17)
+    s3=meshIn.rampquad([5.0,0.0],[8.0,0.0],[4.0,2.0],[8.0,2.0],17,17,(0,0,0,0))
     #sint3 = boundary(s3.points,s3.connect,s3.npx,s3.npy,3,2,0,0)
-    #s4=meshIn.rectangle(-4.0,0.0,2.0,4.0,9,17)
+    s4=meshIn.rectangle(-4.0,0.0,2.0,4.0,9,17,(0,0,0,0))
     #sint = boundary(s4.points,s4.connect,s4.npx,s4.npy,3,0,3,1)
-    #s5=meshIn.rectangle(-2.0,0.0,4.0,4.0,17,17)
+    s5=meshIn.rectangle(-2.0,0.0,4.0,4.0,17,17,(0,0,0,0))
     #sint = boundary(s5.points,s5.connect,s5.npx,s5.npy,0,0,3,0)
-    #s6=meshIn.genshape([2.0,0.0],[4.0,2.0],[2.0,4.0],[4.0,4.0],17,17)
+    s6=meshIn.genshape([2.0,0.0],[4.0,2.0],[2.0,4.0],[4.0,4.0],17,17)
     #sint = boundary(s6.points,s6.connect,s6.npx,s6.npy,0,0,3,0)
-    #s7=meshIn.rectangle(4.0,2.0,4.0,2.0,17,17)
+    s7=meshIn.rectangle(4.0,2.0,4.0,2.0,17,17,(0,0,0,0))
     #sint = boundary(s7.points,s7.connect,s7.npx,s7.npy,0,2,3,0)
     
     #s2=meshIn.rampquad([0.0,0.0],[2.0,0.0],[0.0,2.0],[4.0,2.0],17,17)
@@ -310,18 +282,18 @@ if __name__ == '__main__':
     
     #s=meshIn.rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],3,3)
     
-    s1 = meshIn.square(0.0,0.0,2.0,3,3)
+    #s1 = meshIn.square(0.0,0.0,2.0,3,3)
     #sint1 = boundary(s1.points,s1.connect,s1.npx,s1.npy,3,0,3,1)
     
-    s2 = meshIn.square(2.0,0.0,2.0,3,3)
+    #s2 = meshIn.square(2.0,0.0,2.0,3,3)
     #sint2 = boundary(s2.points,s2.connect,s2.npx,s2.npy,3,2,3,0)
     
-    sint = s1 + s2
-    sfinal = depth(sint.points,sint.connect,(0,0,0),2.0,3,1,2)
+    sint = s1 + s2 + s3 + s4 + s5 + s6 + s7
+    sfinal = depth(sint.points,sint.connect,(0,0,0),10.0,29,1,2)
     
     #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( sfinal.points, hexahedron=sfinal.newcon))
     vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( sfinal.points, hexahedron=sfinal.connect))
-    vtk.tofile('test1')
+    vtk.tofile('completeduct')
     
     #simplemesh(sfinal.points,sfinal.connect,sfinal.boundary,6,6,6)
     
