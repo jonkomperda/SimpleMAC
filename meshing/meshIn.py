@@ -471,7 +471,7 @@ class genshape():
 
 
 if __name__ == '__main__':
-    """
+    
     s1=rectangle(-4.0,0.0,6.0,4.0,25,17)
     s2=rectangle(4.0,2.0,4.0,2.0,17,17)
     #s3=rampquad([0.0,0.0],[2.0,0.0],[0.0,2.0],[4.0,2.0],17,17)
@@ -487,13 +487,13 @@ if __name__ == '__main__':
     #s1234 = genshape([-2.0,2.0],[3.0,2.0],[-4.0,4.0],[10.0,7.0],31,31)
     
     s = s1 + s2 + s3 + s4 + s5 + s6
-    """
-    s1=rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],3,3)
-    s2=genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],3,3)
     
-    s = s1 + s2
-    simplemesh.simplemesh(s.points,s.connections)
-    #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
-    #vtk.tofile('test')
+    #s1=rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],3,3)
+    #s2=genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],3,3)
+    
+    #s = s1 + s2
+    #simplemesh.simplemesh(s.points,s.connections)
+    vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
+    vtk.tofile('compl')
     
 

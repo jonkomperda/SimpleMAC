@@ -43,6 +43,10 @@ class boundary():
             self.bc.append(((i+1)+i*(self.npx-2),4,self.face4))
     
     
+    def __add__(self):
+        """it calculates the boundary conditions when i add two shapes together, each one with its own BCs"""
+        
+        
 
 
 class depth():
@@ -61,11 +65,11 @@ class depth():
         
         self.coordinates()
         self.connections()
-        self.bc_faces()
+        """self.bc_faces()
         
         #frontback function is called only for three dimensional cases
         if self.npz > 1:
-            self.bc_frontback()
+            self.bc_frontback()"""
         
     
     
@@ -166,7 +170,7 @@ class depth():
 
 class simplemesh():
     """it creates the file .mesh; px,py,pz are the polinomial orders"""
-    def __init__(self, points, connect, boundary, polx=6, poly=6, polz=None, bc=None):
+    def __init__(self, points, connect, boundary=None, polx=6, poly=6, polz=None, bc=None):
         
         self.points = points
         self.connect = connect
@@ -253,19 +257,41 @@ class simplemesh():
 if __name__ == '__main__':
     
     """s1=meshIn.rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],3,3)
-    s2=meshIn.genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],3,3)
+    sint1 = boundary(s1.points,s1.connect,s1.npx,s1.npy,0,0,0,3)
+    #s2=meshIn.genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],3,3)
     
-    s = s1 + s2
-    sfinal = depth(s.points,s.connect,2.0,2)"""
+    s = sint1
+    sfinal = depth(s.points,s.connect,s.bc,2.0,2)"""
     
-    s = meshIn.rectangle(0.0,0.0,2.0,2.0,3,3)
-    sint = boundary(s.points,s.connect,s.npx,s.npy,1,2,3,4)
+    s1=meshIn.rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],17,17)
+    sint1 = boundary(s1.points,s1.connect,s1.npx,s1.npy,3,0,0,3)
+    #s2=meshIn.genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],17,17)
+    #sint2 = boundary(s2.points,s2.connect,s2.npx,s2.npy,3,0,0,0)
+    #s3=meshIn.rampquad([5.0,0.0],[8.0,0.0],[4.0,2.0],[8.0,2.0],17,17)
+    #sint3 = boundary(s3.points,s3.connect,s3.npx,s3.npy,3,2,0,0)
+    #s4=meshIn.rectangle(-4.0,0.0,2.0,4.0,9,17)
+    #sint = boundary(s4.points,s4.connect,s4.npx,s4.npy,3,0,3,1)
+    #s5=meshIn.rectangle(-2.0,0.0,4.0,4.0,17,17)
+    #sint = boundary(s5.points,s5.connect,s5.npx,s5.npy,0,0,3,0)
+    #s6=meshIn.genshape([2.0,0.0],[4.0,2.0],[2.0,4.0],[4.0,4.0],17,17)
+    #sint = boundary(s6.points,s6.connect,s6.npx,s6.npy,0,0,3,0)
+    #s7=meshIn.rectangle(4.0,2.0,4.0,2.0,17,17)
+    #sint = boundary(s7.points,s7.connect,s7.npx,s7.npy,0,2,3,0)
+    
+    #s2=meshIn.rampquad([0.0,0.0],[2.0,0.0],[0.0,2.0],[4.0,2.0],17,17)
+    #sint = boundary(s.points,s.connect,s.npx,s.npy,1,2,3,4)
+    
+    #s = meshIn.genshape([0.0,0.0],[1.0,1.0],[-2.0,2.0],[3.0,5.0],21,21)
+    #sint = boundary(s.points,s.connect,s.npx,s.npy,1,2,3,4)
     
     #s=meshIn.rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],3,3)
-    sfinal = depth(sint.points,sint.connect,sint.bc,2.0,3,1,2)
+    
+    sint = sint1 #+ sint2
+    sfinal = depth(sint.points,sint.connect,(0,0,0),2.0,9,1,2)
     
     #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( sfinal.points, hexahedron=sfinal.newcon))
-    #vtk.tofile('testthreed')
+    vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( sfinal.points, hexahedron=sfinal.connect))
+    vtk.tofile('test1')
     
-    simplemesh(sfinal.points,sfinal.connect,sfinal.boundary,6,6,6)
+    #simplemesh(sfinal.points,sfinal.connect,sfinal.boundary,6,6,6)
     
