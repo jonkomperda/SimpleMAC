@@ -10,7 +10,7 @@ import simplemesh
 
 class unstructShape:
     # Constructs an unstructured shape, usually the result of adding together other shapes
-    def __init__(self, points, old1='none', old2='none', old1c = 'none', old2c = 'none'):
+    def __init__(self, points, old1='none', old2='none', old1c = 'none', old2c = 'none', old1bc = 'none', old2bc = 'none', old1npx = 'none',old2npx = 'none',old1npy = 'none',old2npy = 'none',):
         print 'Shape: Creating an unstructured shape...'
         
         self.points = points
@@ -20,13 +20,32 @@ class unstructShape:
             self.old2 = 0
             self.old1c = 0
             self.old2c = 0
+            self.old1bc = 0
+            self.old2bc = 0
+            self.old1npx = 0
+            self.old2npx = 0
+            self.old1npy = 0
+            self.old2npy = 0
+            
         else:
             self.old1 = old1
             self.old2 = old2
             self.old1c = old1c
             self.old2c = old2c
+            self.old1bc = old1bc
+            self.old2bc = old2bc
+            self.old1npx = old1npx
+            self.old2npx = old2npx
+            self.old1npy = old1npy
+            self.old2npy = old2npy
         
         self.connect= self.connections(self.points)
+        
+        self.no_elements = len(self.connect)
+        
+        self.boundary()
+        
+        #print self.bc
         
     
     # Finds the element connections (*Needs to be improved, issues with gaps)
@@ -88,19 +107,45 @@ class unstructShape:
         temp        = self.points + other.points
         del_points  = list(set(temp))
         new_points  = self.sort(del_points)
-        out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect)
+        out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect, old1bc = self.bc, old2bc = other.bc)
         return out
     
     # Sorts a list of tuples (like our grid points)
     def sort(self,val):
         out     = sorted(val, key=operator.itemgetter(2,1,0))
         return  out
+    
+    
+    def boundary(self):
+        """it adds boundary conditions of different elements together, erases those with 0"""
+        bclist = []
+        bclist.append(self.old1bc)
+        bclist.append(self.old2bc)
+        
+        pList = []
+        pList.append(self.old1)
+        pList.append(self.old2)
+        
+        newcon = []
+        
+        for k in range(self.no_elements):
+            for i in bclist[k]:
+                print i
+                #for j in i:
+                    #temp = bclist[k][j]
+                    #newcon.append(points.index(p))
+        
+        #newcon = list(self.chopper(newcon,4))
+        #return newcon
+        
+    
+    
 
 class rectangle:
     # Overload init with empty shape
     
     # Constructor of a rectangle (or possibly square)
-    def __init__(self,xMin,yMin,xLeng,yLeng,npx,npy):
+    def __init__(self,xMin,yMin,xLeng,yLeng,npx,npy,(f1,f2,f3,f4)):
         print 'Shape: Creating a rectangle...'
         
         self.dx     = xLeng / (npx-1)
@@ -111,12 +156,24 @@ class rectangle:
         self.npx    = npx
         self.npy    = npy
         
+        self.face1 = f1
+        self.face2 = f2
+        self.face3 = f3
+        self.face4 = f4
+        
         self.x      = ar.arange(xMin,self.xSize,self.dx)
         self.y      = ar.arange(yMin,self.ySize,self.dy)
         
         self.points = [(xp,yp,zp) for yp in self.y for xp in self.x for zp in [0.0]]
         self.connect= self.connections(self.points)
         
+        self.no_elements = len(self.connect)
+        
+        self.bc_sides()
+        
+        print self.bc
+    
+    
     # Overloading of the addition operator
     def __add__(self,other):
         temp        = self.points + other.points            #add the lists
@@ -125,8 +182,9 @@ class rectangle:
         
         new_totP    = len(new_points)                       #calculate the new number of total points
         
-        out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect)
+        out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect, old1bc = self.bc, old2bc = other.bc)
         return out
+    
     
     # Sorts a list of tuples (like our grid points)
     def sort(self,val):
@@ -157,16 +215,40 @@ class rectangle:
                         break
         conList     = list(self.chopper(connection,4))
         return conList
+    
+    def bc_sides(self):
+        """it calculates boundary conditions for the shape - ELEMENTS ALREADY START FROM 1, NOT FROM 0"""
+        
+        self.bc = []
+        
+        #bottom side (1)
+        for i in range(self.npx-1):
+            self.bc.append((i+1,1,self.face1))
+            
+        #right side (2)
+        for i in range(self.npy-1):
+            self.bc.append(((self.npx-1)*(i+1),2,self.face2))
+            
+        #top side (3)
+        for i in range(self.npx-1):
+            self.bc.append(((self.npy-2)*(self.npx-1)+i+1,3,self.face3))
+            
+        #left side (4)
+        for i in range(self.npy-1):
+            self.bc.append(((i+1)+i*(self.npx-2),4,self.face4))
+    
+
+
 
 # A square is actually a rectangle
-def square(xMin,yMin,leng,npx,npy):
-        out = rectangle(xMin,yMin,leng,leng,npx,npy)
+def square(xMin,yMin,leng,npx,npy,(f1,f2,f3,f4)):
+        out = rectangle(xMin,yMin,leng,leng,npx,npy,(f1,f2,f3,f4))
         return out
 
 
 class rampquad():
     """creates a quad with a ramp on the right side"""
-    def __init__(self, p1, p2, p3, p4, npx, npy):
+    def __init__(self, p1, p2, p3, p4, npx, npy, (f1,f2,f3,f4)):
         print 'Shape: Creating a rampquad...'
         
         if(p1[0]==p3[0]):
@@ -174,11 +256,19 @@ class rampquad():
             self.p2 = p2
             self.p3 = p3
             self.p4 = p4
+            self.face1 = f1
+            self.face2 = f2
+            self.face3 = f3
+            self.face4 = f4
         else:
             self.p1 = p2
             self.p2 = p1
             self.p3 = p4
             self.p4 = p3
+            self.face1 = f2
+            self.face2 = f1
+            self.face3 = f4
+            self.face4 = f3
         
         self.npx = npx
         self.npy = npy
@@ -204,6 +294,10 @@ class rampquad():
         l = len(self.points)
         
         self.connect = self.connections(self.points)
+        
+        self.no_elements = len(self.connect)
+        
+        self.bc_sides()
     
     
     def calctheta(self):
@@ -286,12 +380,34 @@ class rampquad():
         return conList
     
     
+    def bc_sides(self):
+        """it calculates boundary conditions for the shape - ELEMENTS ALREADY START FROM 1, NOT FROM 0"""
+        
+        self.bc = []
+        
+        #bottom side (1)
+        for i in range(self.npx-1):
+            self.bc.append((i+1,1,self.face1))
+            
+        #right side (2)
+        for i in range(self.npy-1):
+            self.bc.append(((self.npx-1)*(i+1),2,self.face2))
+            
+        #top side (3)
+        for i in range(self.npx-1):
+            self.bc.append(((self.npy-2)*(self.npx-1)+i+1,3,self.face3))
+        
+        #left side (4)
+        for i in range(self.npy-1):
+            self.bc.append(((i+1)+i*(self.npx-2),4,self.face4))
+    
+    
     def __add__(self,other):                                #overloading of addition
         temp        = self.points + other.points
         del_points  = list(set(temp))
         new_points  = self.sort(del_points)
         
-        out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect)
+        out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect, old1bc = self.bc, old2bc = other.bc)
         return out
     
     
@@ -304,7 +420,7 @@ class rampquad():
 
 class genshape():
     """creates a generic quad where you specifiy just the corners"""
-    def __init__(self, p1, p2, p3, p4, npx, npy):
+    def __init__(self, p1, p2, p3, p4, npx, npy, (f1,f2,f3,f4)):
         print 'Shape: Creating a generic shape...'
         
         self.p1 = (p1[0],p1[1],0.0)
@@ -314,7 +430,12 @@ class genshape():
         
         self.npx = npx
         self.npy = npy
-                
+        
+        self.face1 = f1
+        self.face2 = f2
+        self.face3 = f3
+        self.face4 = f4
+        
         self.a = (((p1[0]-p2[0])**2)+((p1[1]-p2[1])**2))**0.5
         self.b = (((p3[0]-p4[0])**2)+((p3[1]-p4[1])**2))**0.5
         self.l1 = (((p1[0]-p3[0])**2)+((p1[1]-p3[1])**2))**0.5
@@ -347,6 +468,12 @@ class genshape():
             
         
         self.connect = self.connections(self.points)
+        
+        self.no_elements = len(self.connect)
+        
+        self.bc_sides()
+        
+        print self.bc
     
     def ver_pts(self,startpoint,finishpoint,increment,np):
         """calculates points on the vertical sides of the shape"""
@@ -440,12 +567,34 @@ class genshape():
         return conList
     
     
+    def bc_sides(self):
+        """it calculates boundary conditions for the shape - ELEMENTS ALREADY START FROM 1, NOT FROM 0"""
+        
+        self.bc = []
+        
+        #bottom side (1)
+        for i in range(self.npx-1):
+            self.bc.append((i+1,1,self.face1))
+        
+        #right side (2)
+        for i in range(self.npy-1):
+            self.bc.append(((self.npx-1)*(i+1),2,self.face2))
+        
+        #top side (3)
+        for i in range(self.npx-1):
+            self.bc.append(((self.npy-2)*(self.npx-1)+i+1,3,self.face3))
+        
+        #left side (4)
+        for i in range(self.npy-1):
+            self.bc.append(((i+1)+i*(self.npx-2),4,self.face4))    
+    
+    
     def __add__(self,other):                                #overloading of addition
         temp        = self.points + other.points
         del_points  = list(set(temp))
         new_points  = self.sort(del_points)
         
-        out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect)
+        out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect, old1bc = self.bc, old2bc = other.bc)
         return out
     
     
@@ -472,13 +621,21 @@ class genshape():
 
 if __name__ == '__main__':
     
-    s1=rectangle(-4.0,0.0,6.0,4.0,25,17)
-    s2=rectangle(4.0,2.0,4.0,2.0,17,17)
+    s1 = square(0.0,0.0,2.0,3,3,(0,1,2,3))
+    s2 = square(2.0,0.0,2.0,3,3,(0,1,2,3))
+    s = s1 + s2
+    
+    #s = rampquad([0.0,0.0],[2.0,0.0],[0.0,2.0],[4.0,2.0],3,3,(0,1,2,3))
+    
+    #s = genshape([1.0,0.0],[4.0,3.0],[-2.0,6.0],[3.0,8.0],3,3,(0,1,2,3))
+    
+    #s1=rectangle(-4.0,0.0,6.0,4.0,25,17)
+    #s2=rectangle(4.0,2.0,4.0,2.0,17,17)
     #s3=rampquad([0.0,0.0],[2.0,0.0],[0.0,2.0],[4.0,2.0],17,17)
-    s4=rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],17,17)
-    s3=genshape([2.0,0.0],[4.0,2.0],[2.0,4.0],[4.0,4.0],17,17)
-    s5=rampquad([5.0,0.0],[8.0,0.0],[4.0,2.0],[8.0,2.0],17,17)
-    s6=genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],17,17)
+    #s4=rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],17,17)
+    #s3=genshape([2.0,0.0],[4.0,2.0],[2.0,4.0],[4.0,4.0],17,17)
+    #s5=rampquad([5.0,0.0],[8.0,0.0],[4.0,2.0],[8.0,2.0],17,17)
+    #s6=genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],17,17)
     #s4=rectangle(0.0,8.0,8.0,4.0,5,3)
     
     #s1234 = genshape([0.0,0.0],[2.0,1.0],[-2.0,2.0],[5.0,3.0],31,31)
@@ -486,7 +643,7 @@ if __name__ == '__main__':
     
     #s1234 = genshape([-2.0,2.0],[3.0,2.0],[-4.0,4.0],[10.0,7.0],31,31)
     
-    s = s1 + s2 + s3 + s4 + s5 + s6
+    #s = s1 + s2 + s3 + s4 + s5 + s6
     
     #s1=rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],3,3)
     #s2=genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],3,3)
