@@ -4,9 +4,9 @@ program simpleMAC
     use domain 
     implicit none
     
-    integer                           :: timestep, t
-    type(element), allocatable, Target, dimension(:):: d!<solution domain
-    type(element), allocatable, Target, dimension(:,:):: b!<boundary domains
+    integer                                             :: timestep, t
+    type(element), allocatable, Target, dimension(:)    :: d!<solution domain
+    type(element), allocatable, Target, dimension(:,:)  :: b!<boundary domains
     
     !allocate our host memory
     allocate(  d(sizeSol) )
