@@ -43,10 +43,34 @@ class boundary():
             self.bc.append(((i+1)+i*(self.npx-2),4,self.face4))
     
     
-    def __add__(self):
+    def __add__(self,other):
         """it calculates the boundary conditions when i add two shapes together, each one with its own BCs"""
         
+        conlist = []
+        conlist.append(self.old1c)
+        conlist.append(self.old2c)
         
+        pList = []
+        pList.append(self.old1)
+        pList.append(self.old2)
+        
+        newcon = []
+        
+        for k in range(len(conlist)):
+            for i in conlist[k]:
+                for j in i:
+                    p = pList[k][j]
+                    newcon.append(points.index(p))
+        
+        newcon = list(self.chopper(newcon,4))
+        return newcon
+        
+        temp        = self.points + other.points
+        del_points  = list(set(temp))
+        new_points  = self.sort(del_points)
+        
+        out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect)
+        return out
 
 
 class depth():
@@ -263,8 +287,8 @@ if __name__ == '__main__':
     s = sint1
     sfinal = depth(s.points,s.connect,s.bc,2.0,2)"""
     
-    s1=meshIn.rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],17,17)
-    sint1 = boundary(s1.points,s1.connect,s1.npx,s1.npy,3,0,0,3)
+    #s1=meshIn.rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],17,17)
+    #sint1 = boundary(s1.points,s1.connect,s1.npx,s1.npy,3,0,0,3)
     #s2=meshIn.genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],17,17)
     #sint2 = boundary(s2.points,s2.connect,s2.npx,s2.npy,3,0,0,0)
     #s3=meshIn.rampquad([5.0,0.0],[8.0,0.0],[4.0,2.0],[8.0,2.0],17,17)
@@ -286,8 +310,14 @@ if __name__ == '__main__':
     
     #s=meshIn.rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],3,3)
     
-    sint = sint1 #+ sint2
-    sfinal = depth(sint.points,sint.connect,(0,0,0),2.0,9,1,2)
+    s1 = meshIn.square(0.0,0.0,2.0,3,3)
+    #sint1 = boundary(s1.points,s1.connect,s1.npx,s1.npy,3,0,3,1)
+    
+    s2 = meshIn.square(2.0,0.0,2.0,3,3)
+    #sint2 = boundary(s2.points,s2.connect,s2.npx,s2.npy,3,2,3,0)
+    
+    sint = s1 + s2
+    sfinal = depth(sint.points,sint.connect,(0,0,0),2.0,3,1,2)
     
     #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( sfinal.points, hexahedron=sfinal.newcon))
     vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( sfinal.points, hexahedron=sfinal.connect))
