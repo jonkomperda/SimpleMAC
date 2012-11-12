@@ -47,25 +47,25 @@ class boundary():
 
 class depth():
     """it repeats the intial mesh along the z axis, lz=total depth, npz=no. of points along z direction"""
-    def __init__(self, points, connect, boundary, lz, npz, front=0, back=0):
+    def __init__(self, points, connect, bc, lz, npz, threeD_bc):
         print 'Extruding the shape...'
         
         self.points = points
         self.connect = connect
-        self.boundary = boundary
+        self.bc = bc
         self.lz = lz
         self.npz = npz
-        
-        self.face1 = front
-        self.face2 = back
+                
+        self.face1 = threeD_bc[0]
+        self.face2 = threeD_bc[1]
         
         self.coordinates()
         self.connections()
-        """self.bc_faces()
+        """self.boundary_faces()
         
         #frontback function is called only for three dimensional cases
         if self.npz > 1:
-            self.bc_frontback()"""
+            self.boundary_frontback()"""
         
     
     
@@ -138,39 +138,39 @@ class depth():
     def bc_faces(self):
         """it calculates the boundary conditions along the faces parallel to the z direction"""
         
-        self.no_bc = len(self.boundary)
+        self.no_bc = len(self.bc)
         self.no_elements = self.no_connections
         
         for i in range(self.no_bc):
-            self.boundary.append((self.boundary[i][0]+self.no_elements,self.boundary[i][1],self.boundary[i][2]))
+            self.bc.append((self.bc[i][0]+self.no_elements,self.bc[i][1],self.bc[i][2]))
     
     
     def bc_frontback(self):
         """it calculates the boundary conditions on front and back faces"""
         
         self.temp_bc = []
-        for i in range(len(self.boundary)):
-            self.temp_bc.append((self.boundary[i][0],self.boundary[i][1]+2,self.boundary[i][2]))
+        for i in range(len(self.bc)):
+            self.temp_bc.append((self.bc[i][0],self.bc[i][1]+2,self.bc[i][2]))
         
-        self.boundary = []
-        self.boundary = self.temp_bc
-        
-        for i in range(self.no_elements):
-            self.boundary.append((i+1,1,self.face1))
+        self.bc = []
+        self.bc = self.temp_bc
         
         for i in range(self.no_elements):
-            self.boundary.append(((i+1)+(self.npz-2)*self.no_elements,2,self.face2))
+            self.bc.append((i+1,1,self.face1))
+        
+        for i in range(self.no_elements):
+            self.bc.append(((i+1)+(self.npz-2)*self.no_elements,2,self.face2))
     
     
 
 
 class simplemesh():
     """it creates the file .mesh; px,py,pz are the polinomial orders"""
-    def __init__(self, points, connect, boundary=None, polx=6, poly=6, polz=None, bc=None):
+    def __init__(self, points, connect, bc=None, polx=6, poly=6, polz=None):
         
         self.points = points
         self.connect = connect
-        self.boundary = boundary
+        self.bc = bc
         self.polx = polx
         self.poly = poly
         self.polz = polz
@@ -182,7 +182,7 @@ class simplemesh():
         
         self.nodes()
         self.elements()
-        self.bc()
+        self.boundary()
         
     def nodes(self):
         """it prints out the nodes in the right format"""
@@ -238,13 +238,13 @@ class simplemesh():
             self.f.write('\nend elements')
     
     
-    def bc(self):
+    def boundary(self):
         """it prints out the boundary conditions in the right format"""
         
         self.f.write('\nboundary')
         
-        for i in range(len(self.boundary)):
-            self.f.write('\n\t\t' + str(self.boundary[i][0]) + '\t\t' + str(self.boundary[i][1]) + '\t\t' + str(self.boundary[i][2]))
+        for i in range(len(self.bc)):
+            self.f.write('\n\t\t' + str(self.bc[i][0]) + '\t\t' + str(self.bc[i][1]) + '\t\t' + str(self.bc[i][2]))
         
         self.f.write('\nend boundary')
 
@@ -258,7 +258,7 @@ if __name__ == '__main__':
     
     s = sint1
     sfinal = depth(s.points,s.connect,s.bc,2.0,2)"""
-    
+    """
     s1=meshIn.rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],17,17,(0,0,0,0))
     #sint1 = boundary(s1.points,s1.connect,s1.npx,s1.npy,3,0,0,3)
     s2=meshIn.genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],17,17)
@@ -289,11 +289,16 @@ if __name__ == '__main__':
     #sint2 = boundary(s2.points,s2.connect,s2.npx,s2.npy,3,2,3,0)
     
     sint = s1 + s2 + s3 + s4 + s5 + s6 + s7
-    sfinal = depth(sint.points,sint.connect,(0,0,0),10.0,29,1,2)
+    sfinal = depth(sint.points,sint.connect,sint.boundary,10.0,29,1,2)
+    """
+    s = meshIn.square(0.0,0.0,2.0,3,3,(3,0,0,1))
+    simplemesh(s.points,s.connect,s.bc,6,6)
     
-    #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( sfinal.points, hexahedron=sfinal.newcon))
-    vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( sfinal.points, hexahedron=sfinal.connect))
-    vtk.tofile('completeduct')
+    #s = meshIn.rectangle(0.0,0.0,2.0,2.0,3,3,(0,0,0,0))
+    #sfinal = depth(s.points,s.connect,s.bc,2.0,3,(0,0))
+    #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( sfinal.points, hexahedron=sfinal.connect))
+    #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( sfinal.points, hexahedron=sfinal.connect))
+    #vtk.tofile('test2')
     
-    #simplemesh(sfinal.points,sfinal.connect,sfinal.boundary,6,6,6)
+    #simplemesh(sfinal.points,sfinal.connect,sfinal.bc,6,6,6)
     

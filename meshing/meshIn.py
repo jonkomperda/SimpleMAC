@@ -43,7 +43,11 @@ class unstructShape:
         
         self.no_elements = len(self.connect)
         
-        self.boundary()
+        self.bc = self.boundary()
+        
+        #self.newelements = self.renumber(self.connect)
+        
+        #self.boundary()
         
         #print self.bc
         
@@ -68,7 +72,17 @@ class unstructShape:
                     newcon.append(points.index(p))
         
         newcon = list(self.chopper(newcon,4))
-        return newcon
+        
+        temp = []
+        temp = self.sort(newcon)
+        conn = []
+        
+        #converts list of lists into list of tuples
+        for i in range(len(newcon)):
+            conn.append((temp[i][0],temp[i][1],temp[i][2],temp[i][3]))
+        
+        return conn
+    
     
     # Checks if the connection is supposed to exist or if it was added by mistake
     def cleanConnects(self,cons):
@@ -117,29 +131,54 @@ class unstructShape:
     
     
     def boundary(self):
-        """it adds boundary conditions of different elements together, erases those with 0"""
+        """it adds boundary conditions of different elements together, erases those with 0, updates elements numbers"""
+        
         bclist = []
         bclist.append(self.old1bc)
         bclist.append(self.old2bc)
+        
+        cList = []
+        cList.append(self.old1c)
+        cList.append(self.old2c)
         
         pList = []
         pList.append(self.old1)
         pList.append(self.old2)
         
-        newcon = []
+        newelbc = []
+        newpoint = []
         
-        for k in range(self.no_elements):
+        for k in range(len(bclist)):
             for i in bclist[k]:
-                print i
-                #for j in i:
-                    #temp = bclist[k][j]
-                    #newcon.append(points.index(p))
+                el_i = cList[k][i[0]-1]
+                p0 = self.points.index(pList[k][el_i[0]])
+                p1 = self.points.index(pList[k][el_i[1]])
+                p2 = self.points.index(pList[k][el_i[2]])
+                p3 = self.points.index(pList[k][el_i[3]])
+                newpoint.append((p0,p1,p2,p3))
         
-        #newcon = list(self.chopper(newcon,4))
-        #return newcon
+        for i in range(len(newpoint)):
+            new_el = self.connect.index(newpoint[i])
+            newelbc.append((new_el+1))
         
+        #it updates the boundary conditions list
+        tempbc = []
+        
+        for j in range(len(self.old1bc)):
+            tempbc.append(self.old1bc[j])
+        for j in range(len(self.old2bc)):
+            tempbc.append(self.old2bc[j])
+        
+        newbc = []
+        
+        for i in range(len(tempbc)):
+            
+        
+        print newelbc
+        print tempbc
     
     
+
 
 class rectangle:
     # Overload init with empty shape
@@ -171,7 +210,6 @@ class rectangle:
         
         self.bc_sides()
         
-        print self.bc
     
     
     # Overloading of the addition operator
@@ -621,8 +659,8 @@ class genshape():
 
 if __name__ == '__main__':
     
-    s1 = square(0.0,0.0,2.0,3,3,(0,1,2,3))
-    s2 = square(2.0,0.0,2.0,3,3,(0,1,2,3))
+    s1 = square(0.0,0.0,2.0,3,3,(3,0,0,1))
+    s2 = square(2.0,0.0,2.0,3,3,(3,2,0,0))
     s = s1 + s2
     
     #s = rampquad([0.0,0.0],[2.0,0.0],[0.0,2.0],[4.0,2.0],3,3,(0,1,2,3))
@@ -649,8 +687,9 @@ if __name__ == '__main__':
     #s2=genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],3,3)
     
     #s = s1 + s2
-    #simplemesh.simplemesh(s.points,s.connections)
-    vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
-    vtk.tofile('compl')
+    #simplemesh.simplemesh(s.points,s.connections,s.bc,6,6)
+    
+    #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
+    #vtk.tofile('compl')
     
 
