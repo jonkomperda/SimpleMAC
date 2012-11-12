@@ -45,11 +45,6 @@ class unstructShape:
         
         self.bc = self.boundary()
         
-        #self.newelements = self.renumber(self.connect)
-        
-        #self.boundary()
-        
-        #print self.bc
         
     
     # Finds the element connections (*Needs to be improved, issues with gaps)
@@ -116,6 +111,7 @@ class unstructShape:
         for i in xrange(0, len(list), size):
             yield list[i:i+size]
     
+    
     # Overloading of addition
     def __add__(self,other):
         temp        = self.points + other.points
@@ -124,9 +120,16 @@ class unstructShape:
         out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect, old1bc = self.bc, old2bc = other.bc)
         return out
     
+    
     # Sorts a list of tuples (like our grid points)
     def sort(self,val):
         out     = sorted(val, key=operator.itemgetter(2,1,0))
+        return  out
+    
+    
+    # Sorts a list of tuples (like our grid points)
+    def sortelements(self,val):
+        out     = sorted(val, key=operator.itemgetter(1,0,2))
         return  out
     
     
@@ -172,10 +175,17 @@ class unstructShape:
         newbc = []
         
         for i in range(len(tempbc)):
-            
+            newbc.append((newelbc[i],tempbc[i][1],tempbc[i][2]))
         
-        print newelbc
-        print tempbc
+        newbc = self.sortelements(newbc)
+        
+        bc = []
+        
+        for i in range(len(newbc)):
+            if newbc[i][2] != 0:
+                bc.append(newbc[i])
+        print bc
+        return bc
     
     
 
@@ -659,8 +669,8 @@ class genshape():
 
 if __name__ == '__main__':
     
-    s1 = square(0.0,0.0,2.0,3,3,(3,0,0,1))
-    s2 = square(2.0,0.0,2.0,3,3,(3,2,0,0))
+    s1 = square(0.0,0.0,2.0,5,5,(3,0,1,1))
+    s2 = square(2.0,0.0,2.0,5,5,(3,2,2,0))
     s = s1 + s2
     
     #s = rampquad([0.0,0.0],[2.0,0.0],[0.0,2.0],[4.0,2.0],3,3,(0,1,2,3))
