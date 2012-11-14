@@ -1,5 +1,6 @@
 import pyvtk
 import meshIn
+import operator
 
 
 class boundary():
@@ -61,11 +62,11 @@ class depth():
         
         self.coordinates()
         self.connections()
-        """self.boundary_faces()
         
         #frontback function is called only for three dimensional cases
         if self.npz > 1:
-            self.boundary_frontback()"""
+            self.bc_faces()
+            self.bc_frontback()
         
     
     
@@ -136,13 +137,15 @@ class depth():
     
     
     def bc_faces(self):
-        """it calculates the boundary conditions along the faces parallel to the z direction"""
+        """it calculates the boundary conditions along the faces on the 4 sides"""
         
         self.no_bc = len(self.bc)
         self.no_elements = self.no_connections
         
         for i in range(self.no_bc):
             self.bc.append((self.bc[i][0]+self.no_elements,self.bc[i][1],self.bc[i][2]))
+            
+        print self.bc
     
     
     def bc_frontback(self):
@@ -160,13 +163,21 @@ class depth():
         
         for i in range(self.no_elements):
             self.bc.append(((i+1)+(self.npz-2)*self.no_elements,2,self.face2))
+        
+        self.bc = self.sortelements(self.bc)
+        
+        print self.bc
     
     
+    # Sorts the elements checking the face they refer to
+    def sortelements(self,val):
+        out     = sorted(val, key=operator.itemgetter(1,0,2))
+        return  out
 
 
 class simplemesh():
     """it creates the file .mesh; px,py,pz are the polinomial orders"""
-    def __init__(self, points, connect, bc=None, polx=6, poly=6, polz=None):
+    def __init__(self, points, connect, bc=None, polx=6, poly=6, polz=0):
         
         self.points = points
         self.connect = connect
@@ -292,17 +303,20 @@ if __name__ == '__main__':
     sfinal = depth(sint.points,sint.connect,sint.boundary,10.0,29,1,2)
     """
     s1 = meshIn.square(0.0,0.0,2.0,3,3,(3,0,0,1))
-    s2 = meshIn.square(2.0,0.0,2.0,3,3,(3,2,0,0))
+    #s2 = meshIn.rampquad([2.0,0.0],[4.0,0.0],[2.0,2.0],[6.0,2.0],3,3,(0,3,0,0))
+    #s2 = meshIn.square(2.0,0.0,2.0,3,3,(3,2,0,0))
     
-    s = s1 + s2
+    sint = s1
     
-    simplemesh(s.points,s.connect,s.bc,6,6)
+    s = depth(sint.points,sint.connect,sint.bc,4.0,3,(3,3))
+    
+    simplemesh(s.points,s.connect,s.bc,6,6,6)
     
     #s = meshIn.rectangle(0.0,0.0,2.0,2.0,3,3,(0,0,0,0))
     #sfinal = depth(s.points,s.connect,s.bc,2.0,3,(0,0))
     #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( sfinal.points, hexahedron=sfinal.connect))
-    #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( sfinal.points, hexahedron=sfinal.connect))
-    #vtk.tofile('test2')
+    vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, hexahedron=s.connect))
+    vtk.tofile('test3')
     
     #simplemesh(sfinal.points,sfinal.connect,sfinal.bc,6,6,6)
     

@@ -127,7 +127,7 @@ class unstructShape:
         return  out
     
     
-    # Sorts a list of tuples (like our grid points)
+    # Sorts the elements checking the face they refer to
     def sortelements(self,val):
         out     = sorted(val, key=operator.itemgetter(1,0,2))
         return  out
@@ -184,7 +184,6 @@ class unstructShape:
         for i in range(len(newbc)):
             if newbc[i][2] != 0:
                 bc.append(newbc[i])
-        print bc
         return bc
     
     
