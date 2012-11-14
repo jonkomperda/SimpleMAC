@@ -291,7 +291,11 @@ if __name__ == '__main__':
     sint = s1 + s2 + s3 + s4 + s5 + s6 + s7
     sfinal = depth(sint.points,sint.connect,sint.boundary,10.0,29,1,2)
     """
-    s = meshIn.square(0.0,0.0,2.0,3,3,(3,0,0,1))
+    s1 = meshIn.square(0.0,0.0,2.0,3,3,(3,0,0,1))
+    s2 = meshIn.square(2.0,0.0,2.0,3,3,(3,2,0,0))
+    
+    s = s1 + s2
+    
     simplemesh(s.points,s.connect,s.bc,6,6)
     
     #s = meshIn.rectangle(0.0,0.0,2.0,2.0,3,3,(0,0,0,0))
