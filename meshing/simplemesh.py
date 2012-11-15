@@ -224,16 +224,21 @@ if __name__ == '__main__':
     s = sint1
     sfinal = depth(s.points,s.connect,s.bc,2.0,2)"""
     
-    s1 = meshIn.square(0.0,0.0,2.0,3,3,(2,2,2,1))
+    #s1 = meshIn.square(0.0,0.0,2.0,3,3,(2,2,2,1))
     #s2 = meshIn.rampquad([2.0,0.0],[4.0,0.0],[2.0,2.0],[6.0,2.0],3,3,(3,2,0,0))
     #s2 = meshIn.square(2.0,0.0,2.0,3,3,(3,2,0,0))
     
-    sint = s1
+    s1 = meshIn.rectangle(0.0,0.0,4.0,1.0,17,5,(3,0,3,1))
+    s2 = meshIn.rampquad([4.0,0.0],[5.0,0.0],[4.0,1.0],[8.0,1.0],17,5,(3,3,0,0))
+    s3 = meshIn.rampquad([4.0,1.0],[8.0,1.0],[5.0,1.5],[8.0,1.5],17,5,(0,0,3,3))    
+    s4 = meshIn.rectangle(8.0,1.0,4.0,0.5,17,5,(3,2,3,0))    
     
-    s = depth(sint.points,sint.connect,sint.bc,2.0,3,(2,2))
+    sint = s1 + s2 + s3 + s4
     
-    simplemesh('squaretest',s.points,s.connect,s.bc,6,6,6)
+    s = depth(sint.points,sint.connect,sint.bc,2.0,9,(3,3))
+    
+    simplemesh('speeduptest',s.points,s.connect,s.bc,6,6,6)
     
     vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, hexahedron=s.connect))
-    vtk.tofile('squaretest')
+    vtk.tofile('speeduptest')
     
