@@ -3,48 +3,6 @@ import meshIn
 import operator
 
 
-class boundary():
-    """it calculates boundary conditions for the shapes given as input - ELEMENTS ALREADY START FROM 1, NOT FROM 0"""
-    def __init__(self, points, connect, npx, npy, bottom=0, right=0, top=0, left=0):
-        
-        self.points = points
-        self.connect = connect
-        self.npx = npx
-        self.npy = npy
-        
-        self.face1 = bottom
-        self.face2 = right
-        self.face3 = top
-        self.face4 = left
-        
-        self.no_elements = len(self.connect)
-        
-        self.bc_sides()
-    
-    
-    def bc_sides(self):
-        """it calculates the bc on the bottom face"""
-        
-        self.bc = []
-        
-        #bottom side (1)
-        for i in range(self.npx-1):
-            self.bc.append((i+1,1,self.face1))
-        
-        #right side (2)
-        for i in range(self.npy-1):
-            self.bc.append(((self.npx-1)*(i+1),2,self.face2))
-        
-        #top side (3)
-        for i in range(self.npx-1):
-            self.bc.append(((self.npy-2)*(self.npx-1)+i+1,3,self.face3))
-        
-        #left side (4)
-        for i in range(self.npy-1):
-            self.bc.append(((i+1)+i*(self.npx-2),4,self.face4))
-    
-    
-
 
 class depth():
     """it repeats the intial mesh along the z axis, lz=total depth, npz=no. of points along z direction"""
@@ -144,8 +102,6 @@ class depth():
         
         for i in range(self.no_bc):
             self.bc.append((self.bc[i][0]+self.no_elements,self.bc[i][1],self.bc[i][2]))
-            
-        print self.bc
     
     
     def bc_frontback(self):
@@ -165,8 +121,6 @@ class depth():
             self.bc.append(((i+1)+(self.npz-2)*self.no_elements,2,self.face2))
         
         self.bc = self.sortelements(self.bc)
-        
-        print self.bc
     
     
     # Sorts the elements checking the face they refer to
@@ -303,20 +257,15 @@ if __name__ == '__main__':
     sfinal = depth(sint.points,sint.connect,sint.boundary,10.0,29,1,2)
     """
     s1 = meshIn.square(0.0,0.0,2.0,3,3,(3,0,0,1))
-    #s2 = meshIn.rampquad([2.0,0.0],[4.0,0.0],[2.0,2.0],[6.0,2.0],3,3,(0,3,0,0))
+    s2 = meshIn.rampquad([2.0,0.0],[4.0,0.0],[2.0,2.0],[6.0,2.0],3,3,(3,3,0,0))
     #s2 = meshIn.square(2.0,0.0,2.0,3,3,(3,2,0,0))
     
-    sint = s1
+    sint = s1 + s2
     
-    s = depth(sint.points,sint.connect,sint.bc,4.0,3,(3,3))
+    s = depth(sint.points,sint.connect,sint.bc,4.0,2,(3,3))
     
     simplemesh(s.points,s.connect,s.bc,6,6,6)
     
-    #s = meshIn.rectangle(0.0,0.0,2.0,2.0,3,3,(0,0,0,0))
-    #sfinal = depth(s.points,s.connect,s.bc,2.0,3,(0,0))
-    #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( sfinal.points, hexahedron=sfinal.connect))
     vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, hexahedron=s.connect))
     vtk.tofile('test3')
-    
-    #simplemesh(sfinal.points,sfinal.connect,sfinal.bc,6,6,6)
     
