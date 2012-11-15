@@ -519,8 +519,7 @@ class genshape():
         self.no_elements = len(self.connect)
         
         self.bc_sides()
-        
-        print self.bc
+    
     
     def ver_pts(self,startpoint,finishpoint,increment,np):
         """calculates points on the vertical sides of the shape"""

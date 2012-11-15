@@ -131,8 +131,9 @@ class depth():
 
 class simplemesh():
     """it creates the file .mesh; px,py,pz are the polinomial orders"""
-    def __init__(self, points, connect, bc=None, polx=6, poly=6, polz=0):
+    def __init__(self, string, points, connect, bc=None, polx=6, poly=6, polz=0):
         
+        self.string = string
         self.points = points
         self.connect = connect
         self.bc = bc
@@ -141,7 +142,7 @@ class simplemesh():
         self.polz = polz
         
         
-        self.f = open('squaretest.mesh','w')
+        self.f = open(string+'.mesh','w')
         
         self.f.write('simple mesh format version = 1.1')
         
@@ -218,54 +219,41 @@ class simplemesh():
 if __name__ == '__main__':
     
     """s1=meshIn.rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],3,3)
-    sint1 = boundary(s1.points,s1.connect,s1.npx,s1.npy,0,0,0,3)
     #s2=meshIn.genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],3,3)
     
     s = sint1
     sfinal = depth(s.points,s.connect,s.bc,2.0,2)"""
     """
-    s1=meshIn.rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],17,17,(0,0,0,0))
-    #sint1 = boundary(s1.points,s1.connect,s1.npx,s1.npy,3,0,0,3)
-    s2=meshIn.genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],17,17)
-    #sint2 = boundary(s2.points,s2.connect,s2.npx,s2.npy,3,0,0,0)
-    s3=meshIn.rampquad([5.0,0.0],[8.0,0.0],[4.0,2.0],[8.0,2.0],17,17,(0,0,0,0))
-    #sint3 = boundary(s3.points,s3.connect,s3.npx,s3.npy,3,2,0,0)
-    s4=meshIn.rectangle(-4.0,0.0,2.0,4.0,9,17,(0,0,0,0))
-    #sint = boundary(s4.points,s4.connect,s4.npx,s4.npy,3,0,3,1)
-    s5=meshIn.rectangle(-2.0,0.0,4.0,4.0,17,17,(0,0,0,0))
-    #sint = boundary(s5.points,s5.connect,s5.npx,s5.npy,0,0,3,0)
-    s6=meshIn.genshape([2.0,0.0],[4.0,2.0],[2.0,4.0],[4.0,4.0],17,17)
-    #sint = boundary(s6.points,s6.connect,s6.npx,s6.npy,0,0,3,0)
-    s7=meshIn.rectangle(4.0,2.0,4.0,2.0,17,17,(0,0,0,0))
-    #sint = boundary(s7.points,s7.connect,s7.npx,s7.npy,0,2,3,0)
+    s1=meshIn.rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],17,17,(3,3,0,0))
+    s2=meshIn.genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],17,17,(3,0,0,0))
+    s3=meshIn.rampquad([5.0,0.0],[8.0,0.0],[4.0,2.0],[8.0,2.0],17,17,(3,2,0,0))
+    s4=meshIn.rectangle(-4.0,0.0,2.0,4.0,9,17,(3,0,3,1))
+    s5=meshIn.rectangle(-2.0,0.0,4.0,4.0,17,17,(0,0,3,0))
+    s6=meshIn.genshape([2.0,0.0],[4.0,2.0],[2.0,4.0],[4.0,4.0],17,17,(0,0,3,0))
+    s7=meshIn.rectangle(4.0,2.0,4.0,2.0,17,17,(0,2,3,0))
     
     #s2=meshIn.rampquad([0.0,0.0],[2.0,0.0],[0.0,2.0],[4.0,2.0],17,17)
-    #sint = boundary(s.points,s.connect,s.npx,s.npy,1,2,3,4)
     
     #s = meshIn.genshape([0.0,0.0],[1.0,1.0],[-2.0,2.0],[3.0,5.0],21,21)
-    #sint = boundary(s.points,s.connect,s.npx,s.npy,1,2,3,4)
     
     #s=meshIn.rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],3,3)
     
     #s1 = meshIn.square(0.0,0.0,2.0,3,3)
-    #sint1 = boundary(s1.points,s1.connect,s1.npx,s1.npy,3,0,3,1)
     
     #s2 = meshIn.square(2.0,0.0,2.0,3,3)
-    #sint2 = boundary(s2.points,s2.connect,s2.npx,s2.npy,3,2,3,0)
     
     sint = s1 + s2 + s3 + s4 + s5 + s6 + s7
-    sfinal = depth(sint.points,sint.connect,sint.boundary,10.0,29,1,2)
     """
-    s1 = meshIn.square(0.0,0.0,2.0,3,3,(3,0,0,1))
-    s2 = meshIn.rampquad([2.0,0.0],[4.0,0.0],[2.0,2.0],[6.0,2.0],3,3,(3,3,0,0))
+    s1 = meshIn.square(0.0,0.0,2.0,3,3,(2,2,2,1))
+    #s2 = meshIn.rampquad([2.0,0.0],[4.0,0.0],[2.0,2.0],[6.0,2.0],3,3,(3,2,0,0))
     #s2 = meshIn.square(2.0,0.0,2.0,3,3,(3,2,0,0))
     
-    sint = s1 + s2
+    sint = s1
     
-    s = depth(sint.points,sint.connect,sint.bc,4.0,2,(3,3))
+    s = depth(sint.points,sint.connect,sint.bc,2.0,3,(2,2))
     
-    simplemesh(s.points,s.connect,s.bc,6,6,6)
+    simplemesh('squaretest',s.points,s.connect,s.bc,6,6,6)
     
     vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, hexahedron=s.connect))
-    vtk.tofile('test3')
+    vtk.tofile('squaretest')
     
