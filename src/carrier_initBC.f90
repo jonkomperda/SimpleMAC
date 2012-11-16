@@ -1,3 +1,70 @@
+subroutine initialConditionsMeshReader(d)
+    use omp_lib
+    use size
+    use domain
+    implicit none
+    type(element), Target, dimension(numPoints), intent(inout) :: d
+    integer :: n
+
+    do n=1,numPoints
+        d(n)%u  = 0.0d0
+        d(n)%v  = 0.0d0
+        d(n)%p  = 0.0d0
+        d(n)%Fn = 0.0d0
+        d(n)%Gn = 0.0d0
+        d(n)%Q  = 0.0d0
+    end do
+end subroutine initialConditionsMeshReader
+
+!>This subroutine applies the ghost cell boundary condition
+subroutine ghostConditionMeshReader(d)
+    use omp_lib
+    use size
+    use domain
+    implicit none
+    integer                         :: n
+    type(element), Target, dimension(numPoints), intent(inout) :: d
+
+    do n=1,numPoints
+
+        if(d(n)%isBoundary .eqv. .true.) then
+             if((associated(d(n)%N) .eqv. .false.).or.(associated(d(n)%S) .eqv. .false.) )then!North south
+                d(n)%v = 0.0d0
+            else if((associated(d(n)%E) .eqv. .false.).or.(associated(d(n)%W).eqv. .false.) )then!East West
+                d(n)%u = 0.0d0
+            end if
+        end if
+
+    end do
+
+end subroutine ghostConditionMeshReader
+
+!>our moving lid condition
+subroutine lidConditionMeshReader(d)
+    use size
+    use domain
+    implicit none
+    type(element), Target, dimension(numPoints), intent(inout) :: d
+    integer                         :: n
+    !U and V velocity condition
+
+    do n=1,numPoints
+        if(d(n)%isBoundary .eqv. .true.) then
+            if(associated(d(n)%S) .eqv. .false.) then
+                d(n)%u = -d(n)%N%u
+            else if(associated(d(n)%E) .eqv. .false.) then
+                d(n)%v = -d(n)%W%v 
+            else if(associated(d(n)%N) .eqv. .false.) then
+                d(n)%u = -2.0d0 - d(n)%S%u
+            else if(associated(d(n)%W) .eqv. .false.) then
+                 d(n)%v = -d(n)%E%v
+            end if
+        end if
+    end do
+    
+end subroutine lidConditionMeshReader
+
+
 !>This subroutine populates the computational domain [0,0] to [1,1] with zeros in parallel
 subroutine initialConditionsComplexGeometry(d,b)
     use omp_lib

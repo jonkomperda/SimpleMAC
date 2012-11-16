@@ -17,7 +17,7 @@ program simpleMAC
 
     !> Our main computational loop
     do t=1,maxSteps
-
+        go to 50
         !> Calculate our timestep
         call calcTStepComplexGeometry(d,b,t,dt)
         
@@ -47,7 +47,7 @@ program simpleMAC
         
         !> Moving lid boundary
         call lidConditionComplexGeometry(b)
-        
+        50 continue
         !> Plot to file
         if(mod(t,pInterval)==0) then 
             call writeVTKComplexGeometry(d,t)
