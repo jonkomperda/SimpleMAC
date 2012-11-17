@@ -1,4 +1,4 @@
-subroutine readInMesh(d)
+subroutine readInMesh(d,c)
     use omp_lib
     use size
     use domain
@@ -7,7 +7,7 @@ subroutine readInMesh(d)
     logical :: readError
     integer :: n
     type(element), allocatable, Target, intent(inout), dimension(:)    :: d!<solution domain
-
+    integer, allocatable, Target, intent(inout), dimension(:,:)        :: c
     readError = .false.
     open(10,file='inputMesh.vtk')
 
@@ -28,7 +28,7 @@ subroutine readInMesh(d)
     if( (.not.(inputText .EQ. 'POINTS')) .or. (numPoints < 0)) readError = .true.
 
     if(readError .EQV. .FALSE.) then
-          allocate(  d(numPoints) )
+        allocate(  d(numPoints) )
         do n=1,numPoints
             read(10,*) d(n)%xLoc(1), d(n)%xLoc(2)
             d(n)%X(1) = d(n)%xLoc(1)*dx
@@ -40,9 +40,22 @@ subroutine readInMesh(d)
             d(n)%isBoundary = .false.
         end do
     else
-        write(*,*) 'READ ERROR: FILE NOT FORMATTED CORRECTLY'
+        write(*,*) 'READ ERROR: FILE NOT FORMATTED CORRECTLY FOR MAIN HEADER OR POINTS HEADER'
     end if
 
+
+    read(10,*) inputText, numCells, numCellConnections
+    if( (.not.(inputText .EQ. 'Cells')) .or. (numCells < 0) .or. (numCellConnections<0)) readError = .true.
+    if(readError .EQV. .FALSE.) then
+        allocate( c(numCells,5))
+        do n=1,numCells
+            read(10,*) c(n,1),c(n,2),c(n,3),c(n,4),c(n,5)
+        end do
+    else
+         write(*,*) 'READ ERROR: FILE NOT FORMATTED CORRECTLY FOR CELLS'
+    end if
+
+    close(10)
 end subroutine readInMesh
 
 subroutine assignConnectivities(d)

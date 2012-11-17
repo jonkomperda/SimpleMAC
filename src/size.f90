@@ -14,6 +14,8 @@ module size
     integer, parameter             :: xSize         = 32
     integer, parameter             :: ySize         = 32
     integer                        :: numPoints     = 0
+    integer                        :: numCells      = 0
+    integer                        :: numCellConnections = 0
     integer, parameter             :: xSizeSol      = xSize - 2!size of solution part of grid
     integer, parameter             :: ySizeSol      = ySize - 2!size of solution part of grid
     integer, parameter             :: sideSize      = xSize
