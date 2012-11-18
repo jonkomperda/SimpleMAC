@@ -11,8 +11,8 @@
 !! @param conv Convergence criteria for Poisson solver
 !! @param pInterval Print interval
 module size
-    integer, parameter             :: xSize         = 32
-    integer, parameter             :: ySize         = 32
+    integer, parameter             :: xSize         = 64
+    integer, parameter             :: ySize         = 64
     integer                        :: numPoints     = 0
     integer                        :: numCells      = 0
     integer                        :: numCellConnections = 0
@@ -29,15 +29,16 @@ module size
     double precision, parameter    :: Ly            = 1.0d0
     double precision, parameter    :: Lz            = 0.10d0
     
+    
     !Time Step sizes
-    integer, parameter          :: maxSteps         = 160000
+    integer, parameter          :: maxSteps         = 30000
     double precision, parameter :: r                = 0.11d0
     integer, parameter          :: itmax            = 1000
     
     !Fluid domain parameters
-    double precision, parameter :: re               = 6000.0d0
+    double precision, parameter :: re               = 5000.0d0
     double precision, parameter :: conv             = 1.0d-5
-    integer, parameter          :: pInterval        = 500
+    integer, parameter          :: pInterval        = 1000
     
     !Calculated values
     double precision, parameter :: dx               = (1/(dble(xSize)-2.0d0))

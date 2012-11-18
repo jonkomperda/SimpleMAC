@@ -22,7 +22,7 @@
                 maxValU = d(1)%u
                 maxValV = d(1)%v
                 
-                do n=2,sizeSol
+                do n=2,numPoints
                    if(maxValU .lt. d(n)%u) maxValU = d(n)%u
                    if(maxValV .lt. d(n)%v) maxValV = d(n)%v
                 end do

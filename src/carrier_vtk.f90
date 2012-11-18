@@ -36,22 +36,22 @@
             write(unit=51, fmt=textIntText) 'POINTS',numPoints,' float'
 
             do n=1,numPoints
-                  write(unit=51, fmt=*) d(n)%X(1),  d(n)%X(2), '0'
+                  write(unit=51, fmt=*) d(n)%xLoc(1),  d(n)%xLoc(2), '0'
             end do
             
 !     ------Write out Cells
             write(unit=51, fmt=*) 'Cells',numCells, numCellConnections
-            do n=1,sizeSol
+            do n=1,numCells
                   write(unit=51, fmt=*) c(n,1),c(n,2),c(n,3),c(n,4),c(n,5)
             end do
             
 !     ------Write out Cell Types
-            write(unit=51, fmt=*) 'CELL_TYPES',cellCount
+            write(unit=51, fmt=*) 'CELL_TYPES',numCells
             do n=1, numCells
-                        write(unit=51, fmt=*) 9
+                  write(unit=51, fmt=*) 9
             end do
 !     ------write particle data out
-            write(unit=51, fmt=textInt) 'POINT_DATA ',sizeSol
+            write(unit=51, fmt=textInt) 'POINT_DATA ',numPoints
 
 !       -----begin with scalars
             write(unit=51, fmt=textLine) 'SCALARS u float'
@@ -72,7 +72,7 @@
             do n=1, numPoints
                   write(unit=51, fmt=*) d(n)%p
             end do
-                  84 continue
+
                   write(unit=51, fmt=*)
                   close(51)
             
@@ -138,7 +138,7 @@
             do n=1, cellCount
                         write(unit=51, fmt=*) 9
             end do
-            go to 84
+            
 !     ------write particle data out
             write(unit=51, fmt=textInt) 'POINT_DATA ',sizeSol
 
@@ -162,7 +162,6 @@
                   do n=1, sizeSol
                         write(unit=51, fmt=*) d(n)%p
                   end do
-                  84 continue
                   write(unit=51, fmt=*)
                   close(51)
             

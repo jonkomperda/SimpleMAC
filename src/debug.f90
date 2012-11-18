@@ -28,34 +28,47 @@ subroutine debugPointLocations(d,b)
 
 end subroutine debugPointLocations
 
-subroutine debugSolPointConnections(d,b)
+subroutine debugSolPointConnections(d)
     use omp_lib
     use size
     use domain
     implicit none
-    type(element), Target, dimension(sizeSol), intent(inout) :: d
-    type(element), Target, dimension(sides, boundSideBig), intent(inout) :: b
+    type(element), Target, dimension(numPoints), intent(inout) :: d
+    logical :: test
+    !type(element), Target, dimension(sides, boundSideBig), intent(inout) :: b
     integer             :: n,i,j
 
-    do n=1,sizeSol
+    do n=1,numPoints
+        if(d(n)%isBoundary .eqv. .false.) then
+            if(d(n)%xLoc(1) + 1 /= d(n)%E%xLoc(1) .or.  d(n)%xLoc(1)-1 /= d(n)%W%xLoc(1)) then
+                write(*,*) 'East or West has wrong X cord at: ', n
+            end if
 
-        if(d(n)%xLoc(1) + 1 /= d(n)%E%xLoc(1) .or.  d(n)%xLoc(1)-1 /= d(n)%W%xLoc(1)) then
-            write(*,*) 'East or West has wrong X cord at: ', n
-        end if
+            if(d(n)%xLoc(2) /= d(n)%E%xLoc(2) .or.  d(n)%xLoc(2) /= d(n)%W%xLoc(2)) then
+                write(*,*) 'East or West has wrong Y cord at: ', n
+            end if
 
-        if(d(n)%xLoc(2) /= d(n)%E%xLoc(2) .or.  d(n)%xLoc(2) /= d(n)%W%xLoc(2)) then
-            write(*,*) 'East or West has wrong Y cord at: ', n
-        end if
+            if(d(n)%xLoc(1) /= d(n)%N%xLoc(1) .or.  d(n)%xLoc(1) /= d(n)%S%xLoc(1)) then
+                write(*,*) 'North or South has wrong X cord at: ', n
+            end if
 
-        if(d(n)%xLoc(1) /= d(n)%N%xLoc(1) .or.  d(n)%xLoc(1) /= d(n)%S%xLoc(1)) then
-            write(*,*) 'North or South has wrong X cord at: ', n
-        end if
-
-        if(d(n)%xLoc(2)+1 /= d(n)%N%xLoc(2) .or.  d(n)%xLoc(2)-1 /= d(n)%S%xLoc(2)) then
-            write(*,*) 'North or South has wrong Y cord at: ', n
+            if(d(n)%xLoc(2)+1 /= d(n)%N%xLoc(2) .or.  d(n)%xLoc(2)-1 /= d(n)%S%xLoc(2)) then
+                write(*,*) 'North or South has wrong Y cord at: ', n
+            end if
         end if
 
     end do
+    test = .true.
+    do n=1, numPoints
+        if(d(n)%isBoundary .eqv. .true.) then
+            if(associated(d(n)%S) .eqv. .false.) test = .false.
+            if(associated(d(n)%E) .eqv. .false.) test = .false.
+            if(associated(d(n)%N) .eqv. .false.) test = .false.
+            if(associated(d(n)%W) .eqv. .false.) test = .false.
+            if(test .eqv. .true.) write(*,*) 'Something wrong with bounds'
+        end if
+    end do
+    write(*,*) 'All points connected ok'
 
 end subroutine debugSolPointConnections
 

@@ -9,18 +9,22 @@ program simpleMAC
     type(element), allocatable, Target, dimension(:,:)  :: b!<boundary domains
     integer, allocatable, Target, dimension(:,:)        :: c!<cells
     !allocate our host memory
-    allocate(  d(sizeSol) )
-    allocate(  b(sides,boundSideBig) )
+    !allocate(  b(sides,boundSideBig) )
 
     !> establish initial conditions on the host
-    call readInMesh(d,c)
+    call readHeader()
+    allocate(  d(numPoints) )
+    call readPoints(d)
+    allocate( c(numCells,5))
+    call readCells(c)
     call assignConnectivities(d)
     call initialConditionsMeshReader(d)
-
+    !call debugSolPointConnections(d)
+    !go to 59
     !> Our main computational loop
     do t=1,maxSteps
         !> Calculate our timestep
-        call calcTStepMeshReader(d,b,t,dt)
+        call calcTStepMeshReader(d,t,dt)
         
         !> Print the timestep to screen / gotta know what's going on
         write(*,*) 'Timestep: ',t,'dt: ',dt
@@ -54,7 +58,7 @@ program simpleMAC
         end if
 
     end do
-
+    !59 continue
     !> free up our memory
     deallocate(  d )
     deallocate(  c )

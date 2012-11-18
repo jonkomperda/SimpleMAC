@@ -65,19 +65,15 @@
         
         do n=1, numPoints
             if(d(n)%isBoundary .eqv. .false.) then
-
-                if(associated(d(n)%E) .eqv. .true.) then
-                    if(associated(d(n)%E%E) .eqv. .true.) then
+                if(d(n)%E%isBoundary .eqv. .false.) then
                         d(n)%u = d(n)%Fn - ( d(n)%E%p - d(n)%p ) * (dt/dx)
-                    end if
                 end if
+            end if
 
-                if(associated(d(n)%N) .eqv. .true.) then
-                    if(associated(d(n)%N%N) .eqv. .true.) then
+            if(d(n)%isBoundary .eqv. .false.) then
+                 if(d(n)%N%isBoundary .eqv. .false.) then
                        d(n)%v = d(n)%Gn - ( d(n)%N%p - d(n)%p ) * (dt/dy)
-                    end if
                 end if
-
             end if
         end do
 
