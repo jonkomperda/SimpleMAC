@@ -193,7 +193,7 @@ class rectangle:
     # Overload init with empty shape
     
     # Constructor of a rectangle (or possibly square)
-    def __init__(self,xMin,yMin,xLeng,yLeng,npx,npy,(f1,f2,f3,f4)):
+    def __init__(self,xMin,yMin,xLeng,yLeng,npx,npy,(f1,f4,f2,f6)):
         print 'Shape: Creating a rectangle...'
         
         self.dx     = xLeng / (npx-1)
@@ -205,9 +205,9 @@ class rectangle:
         self.npy    = npy
         
         self.face1 = f1
-        self.face2 = f2
-        self.face3 = f3
         self.face4 = f4
+        self.face2 = f2
+        self.face6 = f6
         
         self.x      = ar.arange(xMin,self.xSize,self.dx)
         self.y      = ar.arange(yMin,self.ySize,self.dy)
@@ -272,17 +272,17 @@ class rectangle:
         for i in range(self.npx-1):
             self.bc.append((i+1,1,self.face1))
             
-        #right side (2)
+        #right side (4)
         for i in range(self.npy-1):
-            self.bc.append(((self.npx-1)*(i+1),2,self.face2))
+            self.bc.append(((self.npx-1)*(i+1),4,self.face4))
             
-        #top side (3)
+        #top side (2)
         for i in range(self.npx-1):
-            self.bc.append(((self.npy-2)*(self.npx-1)+i+1,3,self.face3))
+            self.bc.append(((self.npy-2)*(self.npx-1)+i+1,2,self.face2))
             
-        #left side (4)
+        #left side (6)
         for i in range(self.npy-1):
-            self.bc.append(((i+1)+i*(self.npx-2),4,self.face4))
+            self.bc.append(((i+1)+i*(self.npx-2),6,self.face6))
     
 
 
@@ -295,7 +295,7 @@ def square(xMin,yMin,leng,npx,npy,(f1,f2,f3,f4)):
 
 class rampquad():
     """creates a quad with a ramp on the right side"""
-    def __init__(self, p1, p2, p3, p4, npx, npy, (f1,f2,f3,f4)):
+    def __init__(self, p1, p2, p3, p4, npx, npy, (f1,f4,f2,f6)):
         print 'Shape: Creating a rampquad...'
         
         if(p1[0]==p3[0]):
@@ -304,9 +304,9 @@ class rampquad():
             self.p3 = p3
             self.p4 = p4
             self.face1 = f1
-            self.face2 = f2
-            self.face3 = f3
             self.face4 = f4
+            self.face2 = f2
+            self.face6 = f6
         else:
             self.p1 = p2
             self.p2 = p1
@@ -436,17 +436,17 @@ class rampquad():
         for i in range(self.npx-1):
             self.bc.append((i+1,1,self.face1))
             
-        #right side (2)
+        #right side (4)
         for i in range(self.npy-1):
-            self.bc.append(((self.npx-1)*(i+1),2,self.face2))
+            self.bc.append(((self.npx-1)*(i+1),4,self.face4))
             
-        #top side (3)
+        #top side (2)
         for i in range(self.npx-1):
-            self.bc.append(((self.npy-2)*(self.npx-1)+i+1,3,self.face3))
+            self.bc.append(((self.npy-2)*(self.npx-1)+i+1,2,self.face2))
         
-        #left side (4)
+        #left side (6)
         for i in range(self.npy-1):
-            self.bc.append(((i+1)+i*(self.npx-2),4,self.face4))
+            self.bc.append(((i+1)+i*(self.npx-2),6,self.face6))
     
     
     def __add__(self,other):                                #overloading of addition
@@ -479,9 +479,9 @@ class genshape():
         self.npy = npy
         
         self.face1 = f1
-        self.face2 = f2
-        self.face3 = f3
         self.face4 = f4
+        self.face2 = f2
+        self.face6 = f6
         
         self.a = (((p1[0]-p2[0])**2)+((p1[1]-p2[1])**2))**0.5
         self.b = (((p3[0]-p4[0])**2)+((p3[1]-p4[1])**2))**0.5
@@ -622,17 +622,17 @@ class genshape():
         for i in range(self.npx-1):
             self.bc.append((i+1,1,self.face1))
         
-        #right side (2)
+        #right side (4)
         for i in range(self.npy-1):
-            self.bc.append(((self.npx-1)*(i+1),2,self.face2))
+            self.bc.append(((self.npx-1)*(i+1),4,self.face4))
         
-        #top side (3)
+        #top side (2)
         for i in range(self.npx-1):
-            self.bc.append(((self.npy-2)*(self.npx-1)+i+1,3,self.face3))
+            self.bc.append(((self.npy-2)*(self.npx-1)+i+1,2,self.face2))
         
-        #left side (4)
+        #left side (6)
         for i in range(self.npy-1):
-            self.bc.append(((i+1)+i*(self.npx-2),4,self.face4))    
+            self.bc.append(((i+1)+i*(self.npx-2),6,self.face6))    
     
     
     def __add__(self,other):                                #overloading of addition

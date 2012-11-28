@@ -15,19 +15,18 @@ class depth():
         self.lz = lz
         self.npz = npz
                 
-        self.face1 = threeD_bc[0]
-        self.face2 = threeD_bc[1]
+        self.face5 = threeD_bc[0]
+        self.face3 = threeD_bc[1]
         
         self.coordinates()
         self.connections()
         
-        #frontback function is called only for three dimensional cases
+        #faces function is called only for three dimensional cases
         
-        if self.npz > 2:
+        if self.npz > 1:
             self.bc_faces()
         
         self.bc_frontback()
-        
     
     
     def coordinates(self):
@@ -113,16 +112,16 @@ class depth():
         self.temp_bc = []
         
         for i in range(len(self.bc)):
-            self.temp_bc.append((self.bc[i][0],self.bc[i][1]+2,self.bc[i][2]))
+            self.temp_bc.append((self.bc[i][0],self.bc[i][1],self.bc[i][2]))
         
         self.bc = []
         self.bc = self.temp_bc
         
         for i in range(self.no_elements):
-            self.bc.append((i+1,1,self.face1))
+            self.bc.append((i+1,3,self.face3))
         
         for i in range(self.no_elements):
-            self.bc.append(((i+1)+(self.npz-2)*self.no_elements,2,self.face2))
+            self.bc.append(((i+1)+(self.npz-2)*self.no_elements,5,self.face5))
         
         self.bc = self.sortelements(self.bc)
     
@@ -265,7 +264,7 @@ if __name__ == '__main__':
     
     s = depth(sint.points,sint.connect,sint.bc,2.0,3,(2,2))
     
-    simplemesh('square',s.points,s.connect,s.bc,1,1,1)
+    simplemesh('square',s.points,s.connect,s.bc,6,6,6)
     
     vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, hexahedron=s.connect))
     vtk.tofile('square')
