@@ -21,16 +21,11 @@ class depth():
         self.coordinates()
         self.connections()
         
-        #faces function is called only for three dimensional cases
-        
-        print self.bc
-        
-        if self.npz > 1:
+        #faces function is called only for three dimensional cases (it replicates bc on the side faces)
+        if self.npz > 2:
             self.bc_faces()
         
         self.bc_frontback()
-        
-        print self.bc
     
     
     def coordinates(self):
@@ -105,8 +100,12 @@ class depth():
         self.no_bc = len(self.bc)
         self.no_elements = self.no_connections
         
+        print self.bc
+        
         for i in range(self.no_bc):
             self.bc.append((self.bc[i][0]+self.no_elements,self.bc[i][1],self.bc[i][2]))
+        
+        print self.bc
     
     
     def bc_frontback(self):
