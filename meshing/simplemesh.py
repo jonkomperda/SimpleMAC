@@ -100,12 +100,8 @@ class depth():
         self.no_bc = len(self.bc)
         self.no_elements = self.no_connections
         
-        print self.bc
-        
         for i in range(self.no_bc):
             self.bc.append((self.bc[i][0]+self.no_elements,self.bc[i][1],self.bc[i][2]))
-        
-        print self.bc
     
     
     def bc_frontback(self):
@@ -262,16 +258,9 @@ if __name__ == '__main__':
     s6 = meshIn.rectangle(0.875,1.15,0.25,0.85,2,2,(3,0,2,0))
     s7 = meshIn.rectangle(0.0,1.15,0.875,0.85,2,2,(0,0,2,2))
     s8 = meshIn.rectangle(0.0,0.85,0.875,0.3,2,2,(0,3,0,2))"""
-    #testshape with 24 elements
-    s1 = meshIn.rectangle(0.0,0.0,0.875,0.85,3,3,(2,0,0,2))
-    s2 = meshIn.rectangle(0.875,0.0,0.25,0.85,2,3,(2,0,3,0))
-    s3 = meshIn.rectangle(1.125,0.0,0.875,0.85,3,3,(2,2,0,0))
-    s4 = meshIn.rectangle(1.125,0.85,0.875,0.3,3,2,(0,2,0,3))
-    s5 = meshIn.rectangle(1.125,1.15,0.875,0.85,3,3,(0,2,2,0))
-    s6 = meshIn.rectangle(0.875,1.15,0.25,0.85,2,3,(3,0,2,0))
-    s7 = meshIn.rectangle(0.0,1.15,0.875,0.85,3,3,(0,0,2,2))
-    s8 = meshIn.rectangle(0.0,0.85,0.875,0.3,3,2,(0,3,0,2))
     
+    #backwardstep
+    s1 = meshIn.rectangle(0.0,0.0,)
     
     sint = s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8
     
@@ -279,8 +268,8 @@ if __name__ == '__main__':
     
     s = depth(sint.points,sint.connect,sint.bc,0.1,2,(2,2))
     
-    simplemesh('pipewithholev2',s.points,s.connect,s.bc,6,6,6)
+    simplemesh('pipewithholefine',s.points,s.connect,s.bc,6,6,6)
     
     vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, hexahedron=s.connect))
-    vtk.tofile('pipewithholev2')
+    vtk.tofile('pipewithholefine')
     
