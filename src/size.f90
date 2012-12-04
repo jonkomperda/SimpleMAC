@@ -11,8 +11,8 @@
 !! @param conv Convergence criteria for Poisson solver
 !! @param pInterval Print interval
 module size
-    integer, parameter             :: xSize         = 64
-    integer, parameter             :: ySize         = 64
+    integer, parameter             :: xSize         = 62
+    integer, parameter             :: ySize         = 62
     integer                        :: numPoints     = 0
     integer                        :: numCells      = 0
     integer                        :: numCellConnections = 0

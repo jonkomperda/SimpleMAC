@@ -61,6 +61,68 @@ subroutine readCells(c)
     end do
 end subroutine readCells
 
+subroutine assignConnectivitiesUsingCells(d,c)
+    use omp_lib
+    use size
+    use domain
+    implicit none
+    type(element), Target, dimension(numPoints), intent(inout) :: d
+    integer, Target, intent(inout), dimension(numCells,5)        :: c
+    integer :: n,currPoint,currPointNorth,currPointEast,currPointNorthEast
+    do n=1,numCells
+        currPoint = c(n,2) + 1
+        currPointEast = c(n,3) + 1
+        currPointNorthEast = c(n,4) + 1
+        currPointNorth = c(n,5) + 1
+
+        if(associated(d(currPoint)%E) .eqv. .false.) then
+            d(currPoint)%E => d(currPointEast)
+        end if
+        
+        if(associated(d(currPoint)%N) .eqv. .false.) then
+            d(currPoint)%N => d(currPointNorth)
+        end if
+
+        if(associated(d(currPointEast)%W) .eqv. .false.) then
+            d(currPointEast)%W => d(currPoint)
+        end if
+
+        if(associated(d(currPointEast)%N) .eqv. .false.) then
+            d(currPointEast)%N=> d(currPointNorthEast)
+        end if
+        
+        if(associated(d(currPointNorth)%S) .eqv. .false.) then
+            d(currPointNorth)%S => d(currPoint)
+        end if
+
+        if(associated(d(currPointNorth)%E) .eqv. .false.) then
+            d(currPointNorth)%E => d(currPointNorthEast)
+        end if
+
+        if(associated(d(currPointNorthEast)%W) .eqv. .false.) then
+            d(currPointNorthEast)%W => d(currPointNorth)
+        end if
+
+        if(associated(d(currPointNorthEast)%S) .eqv. .false.) then
+            d(currPointNorthEast)%S => d(currPointEast)
+        end if
+
+
+    end do
+
+    do n=1,numPoints
+        if(associated(d(n)%N) .eqv. .false.)  then
+            d(n)%isBoundary = .true.
+        else if (associated(d(n)%S) .eqv. .false.) then
+            d(n)%isBoundary = .true.
+        else if (associated(d(n)%E) .eqv. .false.) then
+            d(n)%isBoundary = .true.
+        else if (associated(d(n)%W) .eqv. .false.) then
+            d(n)%isBoundary = .true.
+        end if
+    end do
+end subroutine assignConnectivitiesUsingCells
+
 subroutine assignConnectivities(d)
     use omp_lib
     use size

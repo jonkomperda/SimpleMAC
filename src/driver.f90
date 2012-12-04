@@ -17,7 +17,7 @@ program simpleMAC
     call readPoints(d)
     allocate( c(numCells,5))
     call readCells(c)
-    call assignConnectivities(d)
+    call assignConnectivitiesUsingCells(d,c)
     call initialConditionsMeshReader(d)
     !call debugSolPointConnections(d)
     !go to 59
@@ -34,7 +34,7 @@ program simpleMAC
         
         !> calculate Fn and Gn
         call calcFnGnMeshReader(d)
-        
+         
         !> calculate Qn
         call calcQnMeshReader(d)
         
