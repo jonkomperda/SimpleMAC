@@ -16,15 +16,6 @@ module size
     integer                        :: numPoints     = 0
     integer                        :: numCells      = 0
     integer                        :: numCellConnections = 0
-    integer, parameter             :: xSizeSol      = xSize - 2!size of solution part of grid
-    integer, parameter             :: ySizeSol      = ySize - 2!size of solution part of grid
-    integer, parameter             :: sideSize      = xSize
-    integer, parameter             :: sides         = 6
-    integer, parameter             :: boundSideBig  = xSize 
-    integer, parameter             :: boundSideSmall= xSize/2 
-    integer, parameter             :: solSideBig    = xSizeSol 
-    integer, parameter             :: solSideSmall  = boundSideSmall - 2 
-    integer, parameter             :: sizeSol = (solSideSmall*boundSideSmall) + (solSideSmall*solSideBig)
     double precision, parameter    :: Lx            = 1.0d0
     double precision, parameter    :: Ly            = 1.0d0
     double precision, parameter    :: Lz            = 0.10d0

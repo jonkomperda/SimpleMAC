@@ -18,31 +18,31 @@ program simpleMAC
     allocate( c(numCells,5))
     call readCells(c)
     call assignConnectivitiesUsingCells(d,c)
-    call initialConditionsMeshReader(d)
+    call initialConditions(d)
     !call debugSolPointConnections(d)
     !go to 59
     !> Our main computational loop
     do t=1,maxSteps
         !> Calculate our timestep
-        call calcTStepMeshReader(d,t,dt)
+        call calcTStep(d,t,dt)
         
         !> Print the timestep to screen / gotta know what's going on
         write(*,*) 'Timestep: ',t,'dt: ',dt
         
         !> First boundary condition
-        call ghostConditionMeshReader(d)
+        call ghostCondition(d)
         
         !> calculate Fn and Gn
-        call calcFnGnMeshReader(d)
+        call calcFnGn(d)
          
         !> calculate Qn
-        call calcQnMeshReader(d)
+        call calcQn(d)
         
         !> calculate the pressure field
-        call poissonMeshReader(d,t)
+        call poisson(d,t)
         
         !> calculate u-vel and v-vel
-        call calcVelMeshReader(d)
+        call calcVel(d)
         
         !> Check NaN if case blew up (>.<)
         !if( isnan(u(int(xSize/2),int(ySize/2))) ) then
@@ -51,10 +51,10 @@ program simpleMAC
         !end if
         
         !> Moving lid boundary
-        call lidConditionMeshReader(d)
+        call lidCondition(d)
         !> Plot to file
         if(mod(t,pInterval)==0) then 
-            call writeVTKMeshReader(d,c,t)
+            call writeVTK(d,c,t)
         end if
 
     end do
