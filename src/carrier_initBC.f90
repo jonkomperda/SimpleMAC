@@ -27,7 +27,7 @@ subroutine ghostCondition(d)
 
     do n=1,numPoints
 
-        if(d(n)%isBoundary .eqv. .true.) then
+        if(d(n)%b > 0) then
             if((associated(d(n)%N) .eqv. .false.).or.(associated(d(n)%S) .eqv. .false.) )then!North south
                 d(n)%v = 0.0d0
             else if((associated(d(n)%E) .eqv. .false.).or.(associated(d(n)%W).eqv. .false.) )then!East West
@@ -49,11 +49,28 @@ subroutine lidCondition(d)
     !U and V velocity condition
 
     do n=1,numPoints
-        if(d(n)%isBoundary .eqv. .true.) then
-            if(associated(d(n)%S) .eqv. .false.) d(n)%u = -d(n)%N%u
-            if(associated(d(n)%E) .eqv. .false.) d(n)%v = -d(n)%W%v 
-            if(associated(d(n)%N) .eqv. .false.) d(n)%u = 2.0d0 - d(n)%S%u
-            if(associated(d(n)%W) .eqv. .false.) d(n)%v = -d(n)%E%v
+        if(d(n)%b > 0) then
+            if(d(n)%b == 1) then
+                if(associated(d(n)%S) .eqv. .false.) then
+                    d(n)%u = -d(n)%N%u
+                else if(associated(d(n)%E) .eqv. .false.) then
+                    d(n)%v = -d(n)%W%v 
+                else if(associated(d(n)%W) .eqv. .false.) then
+                    d(n)%v = -d(n)%E%v
+                else if(associated(d(n)%N) .eqv. .false.) then
+                    d(n)%u = -d(n)%S%u
+                end if
+            else if(d(n)%b == 2) then
+                if(associated(d(n)%N) .eqv. .false.) then
+                    d(n)%u = 2.0d0 - d(n)%S%u
+                else if(associated(d(n)%S) .eqv. .false.) then
+                    d(n)%u = 2.0d0 - d(n)%N%u
+                else if(associated(d(n)%E) .eqv. .false.) then
+                    d(n)%v = 2.0d0 - d(n)%W%v
+                else if(associated(d(n)%W) .eqv. .false.) then
+                    d(n)%v = 2.0d0 - d(n)%E%v
+                end if
+            end if
         end if
     end do
     

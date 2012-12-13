@@ -16,7 +16,7 @@
             iter = iter + 1
             change = 0.0d0
             do n=1,numPoints
-                if(d(n)%isBoundary .eqv. .false.) then
+                if(d(n)%b == 0) then
                     pold=d(n)%p
                     d(n)%p = 0.250d0*((d(n)%W%p+d(n)%S%p+d(n)%E%p+d(n)%N%p)-(d(n)%q*dx*dx))
                     d(n)%p = pold + rf*(d(n)%p-pold);
@@ -36,7 +36,7 @@
             
             !update boundaries on poisson solver
             do n=1,numPoints
-                if(d(n)%isBoundary .eqv. .true.) then
+                if(d(n)%b > 0) then
                     if(associated(d(n)%S) .eqv. .false.) then!Southern wall
                         d(n)%p= d(n)%N%p - ((2.0*d(n)%N%v) / (re*dx))!South
                     else if (associated(d(n)%N) .eqv. .false.) then!Northen wall

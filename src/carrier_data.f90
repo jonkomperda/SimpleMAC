@@ -4,8 +4,8 @@ module domain
     type element 
         ! Position variables
         double precision, dimension(2)  :: X    !< Position of knot in physical space
-        integer, dimension(2)           :: xLoc !< Position of knot in integer cartesian coordinates (i,j)
-        logical                         :: isBoundary !<Boolean that indicates if element is on mesh boundary
+        double precision, dimension(2)           :: xLoc !< Position of knot in cartesian coordinates (i,j)
+        integer                         :: b !<0: Interior Point 1: Normal Boundary 2: Boundary with Lid Condition 
         ! Solution variables
         double precision                :: u    !< Scalar velocity U in X(1) direction
         double precision                :: v    !< Scalar velocity V in X(2) direction

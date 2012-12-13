@@ -53,7 +53,14 @@
 !     ------write particle data out
             write(unit=51, fmt=textInt) 'POINT_DATA ',numPoints
 
-!       -----begin with scalars
+!     ------write boundary data first
+            write(unit=51, fmt=textLine) 'SCALARS boundary float'
+            write(unit=51, fmt=textLine) 'LOOKUP_TABLE default'
+            do n = 1, numPoints
+                  write(unit=51, fmt=*) d(n)%b
+            end do
+
+!       -----Then write scalars
             write(unit=51, fmt=textLine) 'SCALARS u float'
             write(unit=51, fmt=textLine) 'LOOKUP_TABLE default'
             do n = 1, numPoints

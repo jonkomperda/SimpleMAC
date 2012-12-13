@@ -45,7 +45,6 @@ subroutine readPoints(d)
         d(n)%S => null()
         d(n)%E => null()
         d(n)%W => null()
-        d(n)%isBoundary = .false.
     end do
     read(51,*) inputText, numCells, numCellConnections
 end subroutine readPoints
@@ -55,9 +54,23 @@ subroutine readCells(c)
     use domain
     implicit none
     integer, Target, intent(inout), dimension(numCells,5)        :: c
-    integer :: n
+    integer :: n, cell
+    character (len=40) :: inputText
     do n=1,numCells
         read(51,*) c(n,1),c(n,2),c(n,3),c(n,4),c(n,5)
+    end do
+
+    read(51,*) inputText, cell
+    if(numCells /= cell .or. .not.(inputText .EQ. 'CELL_TYPES')) then
+        write(*,*) 'READ ERROR: FILE NOT FORMATTED CORRECTLY FOR MAIN HEADER'
+        STOP
+    end if
+    do n=1,numCells
+        read(51,*) cell
+        if(cell /= 9) then
+            write(*,*) 'READ ERROR: FILE NOT FORMATTED CORRECTLY FOR MAIN HEADER'
+            STOP
+        end if
     end do
 end subroutine readCells
 
@@ -109,50 +122,40 @@ subroutine assignConnectivitiesUsingCells(d,c)
 
 
     end do
-
-    do n=1,numPoints
-        if(associated(d(n)%N) .eqv. .false.)  then
-            d(n)%isBoundary = .true.
-        else if (associated(d(n)%S) .eqv. .false.) then
-            d(n)%isBoundary = .true.
-        else if (associated(d(n)%E) .eqv. .false.) then
-            d(n)%isBoundary = .true.
-        else if (associated(d(n)%W) .eqv. .false.) then
-            d(n)%isBoundary = .true.
-        end if
-    end do
 end subroutine assignConnectivitiesUsingCells
 
-subroutine assignConnectivities(d)
+
+subroutine readBoundary(d)
     use omp_lib
     use size
     use domain
     implicit none
+    logical :: readError
+    character (len=40) :: inputText
     type(element), Target, dimension(numPoints), intent(inout) :: d
-    integer :: n,m
-    do n=1,numPoints
-        write(*,*)(n)
-        do m=1,numPoints
-            if((d(m)%xLoc(1) == d(n)%xLoc(1) + 1) .and. d(m)%xLoc(2) == d(n)%xLoc(2)) then
-                d(n)%E => d(m)
-            else if((d(m)%xLoc(1) == d(n)%xLoc(1) - 1) .and. d(m)%xLoc(2) == d(n)%xLoc(2)) then
-                d(n)%W => d(m)
-            else if((d(m)%xLoc(1) == d(n)%xLoc(1)) .and. d(m)%xLoc(2) == d(n)%xLoc(2) + 1) then
-                d(n)%N => d(m)
-            else if((d(m)%xLoc(1) == d(n)%xLoc(1)) .and. d(m)%xLoc(2) == d(n)%xLoc(2) - 1) then
-                d(n)%S => d(m)
-            end if
-        end do
+    integer :: n, points
 
-        if(associated(d(n)%N) .eqv. .false.)  then
-            d(n)%isBoundary = .true.
-        else if (associated(d(n)%S) .eqv. .false.) then
-            d(n)%isBoundary = .true.
-        else if (associated(d(n)%E) .eqv. .false.) then
-            d(n)%isBoundary = .true.
-        else if (associated(d(n)%W) .eqv. .false.) then
-            d(n)%isBoundary = .true.
-        end if
-        
+    readError = .false.
+    read(51,*) inputText, points
+    if(.not.(inputText .EQ. 'POINT_DATA')) then
+        readError = .true.
+    end if
+    if(numPoints /= points) readError = .true.
+
+    read(51,'(a)') inputText
+    if(.not.(inputText .EQ. 'SCALARS boundary float')) readError = .true.
+
+    read(51,'(a)') inputText
+    if(.not.(inputText .EQ. 'LOOKUP_TABLE default')) readError = .true.
+
+    if(readError .eqv. .true.) then
+        write(*,*) 'READ ERROR: FILE NOT FORMATTED CORRECTLY FOR MAIN HEADER'
+        STOP
+    end if
+
+    do n=1,numPoints
+        read(51,*) d(n)%b
     end do
-end subroutine assignConnectivities
+end subroutine readBoundary
+
+

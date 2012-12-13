@@ -11,7 +11,7 @@
         
         
         do n=1,numPoints
-            if(d(n)%isBoundary .eqv. .false.) then
+            if(d(n)%b == 0) then
                 uMiddle = d(n)%u
                 uSouth = d(n)%S%u
                 uEast = d(n)%E%u
@@ -48,7 +48,7 @@
         integer                                         :: n
         
         do n=1,numPoints
-            if(d(n)%isBoundary .eqv. .false.) then
+            if(d(n)%b == 0) then
                 d(n)%Q =((d(n)%Fn-d(n)%W%Fn+d(n)%Gn-d(n)%S%Gn)/(dt*dx))
             end if
         end do
@@ -64,14 +64,14 @@
         integer                                         :: n, err
         
         do n=1, numPoints
-            if(d(n)%isBoundary .eqv. .false.) then
-                if(d(n)%E%isBoundary .eqv. .false.) then
+            if(d(n)%b == 0) then
+                if(d(n)%E%b == 0) then
                         d(n)%u = d(n)%Fn - ( d(n)%E%p - d(n)%p ) * (dt/dx)
                 end if
             end if
 
-            if(d(n)%isBoundary .eqv. .false.) then
-                 if(d(n)%N%isBoundary .eqv. .false.) then
+            if(d(n)%b == 0) then
+                 if(d(n)%N%b == 0) then
                        d(n)%v = d(n)%Gn - ( d(n)%N%p - d(n)%p ) * (dt/dy)
                 end if
             end if
