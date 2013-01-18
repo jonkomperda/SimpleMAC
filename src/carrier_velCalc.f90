@@ -1,17 +1,19 @@
-        !> Calculates Fn and Gn used for calculating velocity
+    !> Calculates Fn and Gn used for calculating velocity
     subroutine calcFnGn(d)
         use size
         use domain
         use omp_lib
         implicit none
-        double precision:: uMiddle,uWest,uNorth,uEast,uSouth,uNorthWest
+        ! These doubles are not needed but created to make the equation easier to understand. 
+        double precision:: uMiddle,uWest,uNorth,uEast,uSouth,uNorthWest 
         double precision:: vMiddle,vWest,vNorth,vEast,vSouth,vSouthEast
         integer                                         :: n
         type(element), Target, dimension(numPoints), intent(inout) :: d
         
-        
+        !Main calculation loop to calculate Fn and Gn
         do n=1,numPoints
             if(d(n)%b == 0) then
+                !Initialize the variables that will be used to calculate Fn and Gn.
                 uMiddle = d(n)%u
                 uSouth = d(n)%S%u
                 uEast = d(n)%E%u
@@ -48,7 +50,7 @@
         integer                                         :: n
         
         do n=1,numPoints
-            if(d(n)%b == 0) then
+            if(d(n)%b == 0) then !If this is not a boundary point
                 d(n)%Q =((d(n)%Fn-d(n)%W%Fn+d(n)%Gn-d(n)%S%Gn)/(dt*dx))
             end if
         end do
@@ -64,14 +66,14 @@
         integer                                         :: n, err
         
         do n=1, numPoints
-            if(d(n)%b == 0) then
-                if(d(n)%E%b == 0) then
+            if(d(n)%b == 0) then !If this is is not a boundary point
+                if(d(n)%E%b == 0) then !If the point east of the current point is also not a boundary point
                         d(n)%u = d(n)%Fn - ( d(n)%E%p - d(n)%p ) * (dt/dx)
                 end if
             end if
 
-            if(d(n)%b == 0) then
-                 if(d(n)%N%b == 0) then
+            if(d(n)%b == 0) then !If this is not a boundary point
+                 if(d(n)%N%b == 0) then !If the point north of the current point is also not a boundary point
                        d(n)%v = d(n)%Gn - ( d(n)%N%p - d(n)%p ) * (dt/dy)
                 end if
             end if

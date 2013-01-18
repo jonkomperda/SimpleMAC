@@ -1,4 +1,4 @@
-        !> Poisson solver for the pressure field
+    !> Poisson solver for the pressure field
     subroutine poisson(d,tstep)
         use size
         use domain
@@ -16,7 +16,7 @@
             iter = iter + 1
             change = 0.0d0
             do n=1,numPoints
-                if(d(n)%b == 0) then
+                if(d(n)%b == 0) then !if this is not a boundary point
                     pold=d(n)%p
                     d(n)%p = 0.250d0*((d(n)%W%p+d(n)%S%p+d(n)%E%p+d(n)%N%p)-(d(n)%q*dx*dx))
                     d(n)%p = pold + rf*(d(n)%p-pold);
@@ -36,14 +36,14 @@
             
             !update boundaries on poisson solver
             do n=1,numPoints
-                if(d(n)%b > 0) then
-                    if(associated(d(n)%S) .eqv. .false.) then!Southern wall
-                        d(n)%p= d(n)%N%p - ((2.0*d(n)%N%v) / (re*dx))!South
-                    else if (associated(d(n)%N) .eqv. .false.) then!Northen wall
+                if(d(n)%b > 0) then !if the point is a boundary point
+                    if(associated(d(n)%S) .eqv. .false.) then!if this is a Southern wall boundary point
+                        d(n)%p= d(n)%N%p - ((2.0*d(n)%N%v) / (re*dx))
+                    else if (associated(d(n)%N) .eqv. .false.) then!if this is a Northen wall boundary point
                         d(n)%p = d(n)%S%p + ((2.0*d(n)%S%S%v) / (re*dx))
-                    else if (associated(d(n)%E) .eqv. .false.) then!Eastern walls
+                    else if (associated(d(n)%E) .eqv. .false.) then!if this is a Eastern wall boundary point
                         d(n)%p = d(n)%W%p + ((2.0*d(n)%W%W%u) / (re*dx))
-                    else if (associated(d(n)%W) .eqv. .false.) then!Western Wall
+                    else if (associated(d(n)%W) .eqv. .false.) then!if this is a Western Wall boundary point
                         d(n)%p = d(n)%E%p - ((2.0*d(n)%E%u) / (re*dx))
                     end if
                 end if

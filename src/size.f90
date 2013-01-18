@@ -1,35 +1,24 @@
 !> This module contains all size variables for the domain.
-!! @param xSize Number of cells in x direction
-!! @param ySize Number of cells in y direction
-!! @param Lx Length in x direction
-!! @param Ly Length in y direction
-!! @param Lz Length in z direction
-!! @param maxSteps Maximum number of timesteps to be taken for the code
-!! @param r Convergence criteria
-!! @param itmax Maximum number of steps for the Poisson solver to take before it gives up (it will be less than this if it converges)
-!! @param re Reynolds number of the flow
-!! @param conv Convergence criteria for Poisson solver
-!! @param pInterval Print interval
 module size
-    integer, parameter             :: xSize         = 62
-    integer, parameter             :: ySize         = 62
+    integer, parameter             :: xSize         = 62 !<Fixed integer used to calculate dx
+    integer, parameter             :: ySize         = 62 !<Fixed integer used to calculate dy
     integer                        :: numPoints     = 0
     integer                        :: numCells      = 0
     integer                        :: numCellConnections = 0
-    double precision, parameter    :: Lx            = 1.0d0
-    double precision, parameter    :: Ly            = 1.0d0
-    double precision, parameter    :: Lz            = 0.10d0
+    double precision, parameter    :: Lx            = 1.0d0 !<Lx Length in x direction
+    double precision, parameter    :: Ly            = 1.0d0 !<Ly Length in y direction
+    double precision, parameter    :: Lz            = 0.10d0 !<Lz Length in z direction
     
     
     !Time Step sizes
-    integer, parameter          :: maxSteps         = 30000
-    double precision, parameter :: r                = 0.11d0
-    integer, parameter          :: itmax            = 1000
+    integer, parameter          :: maxSteps         = 30000 !<maxSteps Maximum number of timesteps to be taken for the code
+    double precision, parameter :: r                = 0.11d0 !<Convergence criteria
+    integer, parameter          :: itmax            = 1000 !<Maximum number of steps for the Poisson solver to take before it gives up (it will be less than this if it converges)
     
     !Fluid domain parameters
-    double precision, parameter :: re               = 5000.0d0
-    double precision, parameter :: conv             = 1.0d-5
-    integer, parameter          :: pInterval        = 1000
+    double precision, parameter :: re               = 5000.0d0 !<Reynolds number of the flow
+    double precision, parameter :: conv             = 1.0d-5 !<Convergence criteria for Poisson solver
+    integer, parameter          :: pInterval        = 1000 !< Print interval
     
     !Calculated values
     double precision, parameter :: dx               = (1/(dble(xSize)-2.0d0))
