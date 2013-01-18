@@ -1,68 +1,57 @@
 program simpleMAC
-	use omp_lib
-	use size
-	
-	implicit none
-	
-	integer						      :: timestep, t
-	double precision, allocatable, dimension(:,:)	:: u, v, p, Fn, Gn, Q
-	
-	!allocate our host memory
-	allocate(  u(xSize,ySize) )
-	allocate(  v(xSize,ySize) )
-	allocate(  p(xSize,ySize) )
-	allocate( Fn(xSize,ySize) )
-	allocate( Gn(xSize,ySize) )
-	allocate(  Q(xSize,ySize) )
-	
-	!> establish initial conditions on the host
-	call initialConditions(u,v,p,Fn,Gn,Q)
-	
-	!> Our main computational loop
-	do t=1,maxSteps
-		!> Calculate our timestep
-		call calcTStep(u,v,t,dt)
-		
-		!> Print the timestep to screen / gotta know what's going on
-		write(*,*) 'Timestep: ',t,'dt: ',dt
-		
-		!> First boundary condition
-		call ghostCondition(u,v)
-		
-		!> calculate Fn and Gn
-		call calcFnGn(u,v,Fn,Gn)
-		
-		!> calculate Qn
-		call calcQn(Fn,Gn,Q)
-	
-		!> calculate the pressure field
-		!call poisson(Q,u,v,t,p)    !Serial Poisson solver (for testing)
-		call parPoisson(Q,u,v,t,p)
-		
-		!> calculate u-vel and v-vel
-		call calcVel(Fn,Gn,p,u,v)
-		
-		!> Check NaN if case blew up (>.<)
-		if( isnan(u(int(xSize/2),int(ySize/2))) ) then
-			write(*,*)'Case Blew UP!!!!!!!!!'
-			stop
-		end if
-		
-		!> Moving lid boundary
-		call lidCondition(u,v)
-		
-		!> Plot to file
-		if(mod(t,pInterval)==0) then 
-			call writeVTK(u,v,p,t)
-		end if
-	end do
-	
-	!> free up our memory
-	deallocate(  u )
-	deallocate(  v )
-	deallocate(  p )
-	deallocate( Fn )
-	deallocate( Gn )
-	deallocate(  Q )
+    use omp_lib
+    use size
+    use domain 
+    implicit none
+    
+    integer                                             :: timestep, t
+    type(element), allocatable, Target, dimension(:)    :: d!<solution domain
+    integer, allocatable, Target, dimension(:,:)        :: c!<cells
+
+    !> establish initial conditions on the host
+    call readHeader()
+    allocate(  d(numPoints) )
+    call readPoints(d)
+    allocate( c(numCells,5))
+    call readCells(c)
+    call assignConnectivitiesUsingCells(d,c)
+    call readBoundary(d)
+    call initialConditions(d)
+
+    !> Our main computational loop
+    do t=1,maxSteps
+        !> Calculate our timestep
+        call calcTStep(d,t,dt)
+        
+        !> Print the timestep to screen / gotta know what's going on
+        write(*,*) 'Timestep: ',t,'dt: ',dt
+        
+        !> First boundary condition
+        call ghostCondition(d)
+        
+        !> calculate Fn and Gn
+        call calcFnGn(d)
+         
+        !> calculate Qn
+        call calcQn(d)
+        
+        !> calculate the pressure field
+        call poisson(d,t)
+        
+        !> calculate u-vel and v-vel
+        call calcVel(d)
+        
+        !> Moving lid boundary
+        call lidCondition(d)
+        !> Plot to file
+        if(mod(t,pInterval)==0) then 
+            call writeVTK(d,c,t)
+        end if
+    end do
+
+    !> free up our memory
+    deallocate(  d )
+    deallocate(  c )
+
 end program simpleMAC
-	
+    
