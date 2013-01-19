@@ -193,7 +193,7 @@ class rectangle:
     # Overload init with empty shape
     
     # Constructor of a rectangle (or possibly square)
-    def __init__(self,xMin,yMin,xLeng,yLeng,npx,npy,(f1,f4,f2,f6)):
+    def __init__(self,xMin,yMin,xLeng,yLeng,npx,npy,(f1,f4,f2,f6),xfirst_leng,xlast_leng,yfirst_leng,ylast_leng):
         print 'Shape: Creating a rectangle...'
         
         self.dx     = xLeng / (npx-1)
@@ -201,16 +201,34 @@ class rectangle:
         self.xSize  = xMin + xLeng + self.dx*0.1
         self.ySize  = yMin + yLeng + self.dy*0.1
         self.totP   = npx * npy
+        self.xLeng  = xLeng
+        self.yLeng  = yLeng
         self.npx    = npx
         self.npy    = npy
+        self.xfirst_leng = xfirst_leng
+        self.yfirst_leng = yfirst_leng
+        self.xlast_leng = xlast_leng
+        self.ylast_leng = ylast_leng
         
         self.face1 = f1
         self.face4 = f4
         self.face2 = f2
         self.face6 = f6
         
-        self.x      = ar.arange(xMin,self.xSize,self.dx)
-        self.y      = ar.arange(yMin,self.ySize,self.dy)
+        
+        if(self.xfirst_leng==0 and self.xlast_leng==0):
+            self.x      = ar.arange(xMin,self.xSize,self.dx)
+        elif(xfirst_leng > 0):
+            self.x = self.first_power(self.xLeng,self.xfirst_leng,self.npx)
+        elif(xlast_leng > 0):
+            self.x = self.last_power(self.xLeng,self.xfirst_leng,self.npx)
+        
+        if(self.yfirst_leng==0):
+            self.y      = ar.arange(yMin,self.ySize,self.dy)
+        elif(yfirst_leng > 0):
+            self.y = self.first_power(self.yLeng,self.yfirst_leng,self.npy)
+        elif(ylast_leng > 0):
+            self.y = self.last_power(self.yLeng,self.yfirst_leng,self.npy)
         
         self.points = [(xp,yp,zp) for yp in self.y for xp in self.x for zp in [0.0]]
         self.connect= self.connections(self.points)
@@ -218,6 +236,7 @@ class rectangle:
         self.no_elements = len(self.connect)
         
         self.bc_sides()
+        
         
     
     
@@ -238,10 +257,12 @@ class rectangle:
         out     = sorted(val, key=operator.itemgetter(2,1,0))
         return  out
     
+    
     # Chops a list into 'size' tuples
     def chopper(self,list,size):
         for i in xrange(0, len(list), size):
             yield list[i:i+size]
+    
     
     # Calculates element connections
     def connections(self,points):
@@ -262,6 +283,7 @@ class rectangle:
                         break
         conList     = list(self.chopper(connection,4))
         return conList
+    
     
     def bc_sides(self):
         """it calculates boundary conditions for the shape - ELEMENTS ALREADY START FROM 1, NOT FROM 0"""
@@ -284,7 +306,28 @@ class rectangle:
         for i in range(self.npy-1):
             self.bc.append(((i+1)+i*(self.npx-2),6,self.face6))
     
-
+    
+    def first_power(self,leng,first,np):
+        """it calculates a non-uniform grid using the power distribution"""
+        
+        pow = math.log((first)/leng)
+        b = 1.0/((np-1)*1.0)
+        pow = pow/math.log(b)
+        
+        coord = []
+        dec_place = 7
+        
+        for i in range(0,np):
+            f = i*1.0/(np-1)*1.0
+            g = f**pow
+            pos = g*leng
+            pos_rounded = round(pos, dec_place)
+            coord.append(pos_rounded)
+            #print str(i) + ' ' +str(g)+ ' ' +str(xpos)
+            
+        return coord
+    
+    
 
 
 # A square is actually a rectangle
@@ -667,37 +710,16 @@ class genshape():
 
 if __name__ == '__main__':
     
-    s1 = square(0.0,0.0,2.0,5,5,(3,0,1,1))
-    s2 = square(2.0,0.0,2.0,5,5,(3,2,2,0))
-    s = s1 + s2
-    
-    #s = rampquad([0.0,0.0],[2.0,0.0],[0.0,2.0],[4.0,2.0],3,3,(0,1,2,3))
-    
-    #s = genshape([1.0,0.0],[4.0,3.0],[-2.0,6.0],[3.0,8.0],3,3,(0,1,2,3))
-    
-    #s1=rectangle(-4.0,0.0,6.0,4.0,25,17)
-    #s2=rectangle(4.0,2.0,4.0,2.0,17,17)
-    #s3=rampquad([0.0,0.0],[2.0,0.0],[0.0,2.0],[4.0,2.0],17,17)
-    #s4=rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],17,17)
-    #s3=genshape([2.0,0.0],[4.0,2.0],[2.0,4.0],[4.0,4.0],17,17)
-    #s5=rampquad([5.0,0.0],[8.0,0.0],[4.0,2.0],[8.0,2.0],17,17)
-    #s6=genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],17,17)
-    #s4=rectangle(0.0,8.0,8.0,4.0,5,3)
-    
-    #s1234 = genshape([0.0,0.0],[2.0,1.0],[-2.0,2.0],[5.0,3.0],31,31)
-    #s1234 = genshape([0.0,0.0],[1.0,1.0],[-2.0,2.0],[3.0,5.0],21,21)
-    
-    #s1234 = genshape([-2.0,2.0],[3.0,2.0],[-4.0,4.0],[10.0,7.0],31,31)
-    
-    #s = s1 + s2 + s3 + s4 + s5 + s6
-    
-    #s1=rampquad([-2.0,-2.0],[3.0,-2.0],[-2.0,0.0],[2.0,0.0],3,3)
-    #s2=genshape([3.0,-2.0],[5.0,0.0],[2.0,0.0],[4.0,2.0],3,3)
+    #s1 = square(0.0,0.0,2.0,5,5,(3,0,1,1))
+    #s2 = square(2.0,0.0,2.0,5,5,(3,2,2,0))
+    #s = s1 + s2
     
     #s = s1 + s2
     #simplemesh.simplemesh(s.points,s.connections,s.bc,6,6)
     
-    #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
-    #vtk.tofile('compl')
+    s = rectangle(0.0,0.0,5.0,4.0,8,5,(0,2,2,0),0.5,0.0,0.8,0.0)
+    
+    vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
+    vtk.tofile('test')
     
 

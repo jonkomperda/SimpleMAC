@@ -220,9 +220,9 @@ class simplemesh():
 
 if __name__ == '__main__':
     
-    s1 = meshIn.rectangle(0.0,0.0,17.92,1.0,33,7,(3,2,0,3))
-    s2 = meshIn.rectangle(-5.0,1.0,5.0,10.19,9,7,(3,0,2,1))
-    s3 = meshIn.rectangle(0.0,1.0,17.92,10.19,33,7,(0,2,2,0))
+    s1 = meshIn.rectangle(-5.0,1.0,5.0,10.76,9,7,(3,0,2,1))
+    s2 = meshIn.rectangle(0.0,1.0,17.92,10.76,33,7,(0,2,2,0))
+    s3 = meshIn.rectangle(0.0,0.0,17.92,1.0,33,7,(3,2,0,3))
     
     sint = s1 + s2 + s3
     
