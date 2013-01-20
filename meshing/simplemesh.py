@@ -220,16 +220,16 @@ class simplemesh():
 
 if __name__ == '__main__':
     
-    s1 = meshIn.rectangle(-5.0,1.0,5.0,10.76,9,7,(3,0,2,1))
-    s2 = meshIn.rectangle(0.0,1.0,17.92,10.76,33,7,(0,2,2,0))
-    s3 = meshIn.rectangle(0.0,0.0,17.92,1.0,33,7,(3,2,0,3))
+    s1 = meshIn.rectangle(-5.0,1.0,5.0,10.76,9,10,(3,0,2,1),0.0,0.3,0.1,0.0)
+    s2 = meshIn.rectangle(0.0,1.0,17.92,10.76,18,10,(0,2,2,0),0.3,0.0,0.1,0.0)
+    s3 = meshIn.rectangle(0.0,0.0,17.92,1.0,18,7,(3,2,0,3),0.3,0.0,0.0,0.1)
     
     sint = s1 + s2 + s3
     
     s = depth(sint.points,sint.connect,sint.bc,0.05,2,(2,2))
     
-    simplemesh('backstep_uniform',s.points,s.connect,s.bc,6,6,6)
+    simplemesh('backstep_notuniform',s.points,s.connect,s.bc,6,6,6)
     
     vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, hexahedron=s.connect))
-    vtk.tofile('backstep_uniform')
+    vtk.tofile('backstep_notuniform')
     

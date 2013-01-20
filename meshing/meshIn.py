@@ -219,16 +219,16 @@ class rectangle:
         if(self.xfirst_leng==0 and self.xlast_leng==0):
             self.x      = ar.arange(xMin,self.xSize,self.dx)
         elif(xfirst_leng > 0):
-            self.x = self.first_power(self.xLeng,self.xfirst_leng,self.npx)
+            self.x = self.first_power(self.xLeng,self.xfirst_leng,self.npx,xMin)
         elif(xlast_leng > 0):
-            self.x = self.last_power(self.xLeng,self.xfirst_leng,self.npx)
+            self.x = self.last_power(self.xLeng,self.xlast_leng,self.npx,xMin)
         
-        if(self.yfirst_leng==0):
+        if(self.yfirst_leng==0 and self.ylast_leng==0):
             self.y      = ar.arange(yMin,self.ySize,self.dy)
         elif(yfirst_leng > 0):
-            self.y = self.first_power(self.yLeng,self.yfirst_leng,self.npy)
+            self.y = self.first_power(self.yLeng,self.yfirst_leng,self.npy,yMin)
         elif(ylast_leng > 0):
-            self.y = self.last_power(self.yLeng,self.yfirst_leng,self.npy)
+            self.y = self.last_power(self.yLeng,self.ylast_leng,self.npy,yMin)
         
         self.points = [(xp,yp,zp) for yp in self.y for xp in self.x for zp in [0.0]]
         self.connect= self.connections(self.points)
@@ -307,8 +307,8 @@ class rectangle:
             self.bc.append(((i+1)+i*(self.npx-2),6,self.face6))
     
     
-    def first_power(self,leng,first,np):
-        """it calculates a non-uniform grid using the power distribution"""
+    def first_power(self,leng,first,np,min):
+        """it calculates a non-uniform grid using the power distribution - specified FIRST LENGTH"""
         
         pow = math.log((first)/leng)
         b = 1.0/((np-1)*1.0)
@@ -320,16 +320,42 @@ class rectangle:
         for i in range(0,np):
             f = i*1.0/(np-1)*1.0
             g = f**pow
-            pos = g*leng
+            pos = g*leng + min
             pos_rounded = round(pos, dec_place)
             coord.append(pos_rounded)
-            #print str(i) + ' ' +str(g)+ ' ' +str(xpos)
+            #print str(i) + '  ' +str(pos_rounded)
             
         return coord
     
     
-
-
+    def last_power(self,leng,last,np,min):
+        """it calculates a non-uniform grid using the power distribution - specified LAST LENGTH"""
+        
+        pow = math.log((last)/leng)
+        b = 1.0/((np-1)*1.0)
+        pow = pow/math.log(b)
+        
+        coord = []
+        dec_place = 7
+        
+        for i in range(0,np):
+            f = i*1.0/(np-1)*1.0
+            g = f**pow
+            pos = (1-g)*leng + min
+            pos_rounded = round(pos, dec_place)
+            coord.append(pos_rounded)
+            #print str(i) + '  ' +str(pos_rounded)
+        
+        temp = []
+        for i in range(len(coord)):
+            temp.append(coord[len(coord)-(i+1)])
+        
+        coord = temp
+        
+        return coord
+    
+    
+    
 # A square is actually a rectangle
 def square(xMin,yMin,leng,npx,npy,(f1,f2,f3,f4)):
         out = rectangle(xMin,yMin,leng,leng,npx,npy,(f1,f2,f3,f4))
@@ -710,14 +736,14 @@ class genshape():
 
 if __name__ == '__main__':
     
-    #s1 = square(0.0,0.0,2.0,5,5,(3,0,1,1))
-    #s2 = square(2.0,0.0,2.0,5,5,(3,2,2,0))
-    #s = s1 + s2
+    s1 = rectangle(-5.0,1.0,5.0,10.76,9,7,(3,0,2,1),0.0,0.5,0.2,0.0)
+    s2 = rectangle(0.0,1.0,17.92,10.76,18,7,(0,2,2,0),0.5,0.0,0.2,0.0)
+    s3 = rectangle(0.0,0.0,17.92,1.0,18,7,(3,2,0,3),0.5,0.0,0.0,0.2)
     
-    #s = s1 + s2
+    s = s1 + s2 + s3
     #simplemesh.simplemesh(s.points,s.connections,s.bc,6,6)
     
-    s = rectangle(0.0,0.0,5.0,4.0,8,5,(0,2,2,0),0.5,0.0,0.8,0.0)
+    #s = rectangle(0.0,1.0,17.92,10.76,18,7,(0,2,2,0),0.5,0.0,0.1,0.0)
     
     vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
     vtk.tofile('test')
