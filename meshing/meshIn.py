@@ -786,27 +786,50 @@ class gsnotunif():
         self.y2first = y2first
         self.y2last = y2last
         
-        self.y1pts = self.vpts_first(self.p1,self.p3,self.y1first,self.npy)
-        self.y2pts = self.vpts_adapt(self.p2,self.p4,self.y1pts,self.npy)
-        self.x1pts = self.hpts_first(self.p1,self.p2,self.x1first,self.npx)
-        self.x2pts = self.hpts_adapt(self.p3,self.p4,self.x1pts,self.npx)
+        #self.y1pts = self.vpts_last(self.p1,self.p3,self.y1last,self.npy)
+        #self.y2pts = self.vpts_adapt(self.p2,self.p4,self.y1pts,self.npy)
+        self.x1pts = self.hpts_last(self.p1,self.p2,self.x1first,self.npx)
+        #self.x2pts = self.hpts_adapt(self.p3,self.p4,self.x1pts,self.npx)
         #print self.y1pts
         #print self.y2pts
-        #print self.x1pts
-        print self.x2pts
+        print self.x1pts
+        #print self.x2pts
     
     
     def vpts_first(self,startpoint,finishpoint,yfirst,npy):
         """calculates the coordinates of the points on the two vertical sides (y sides)"""
         
-        sidelength = ((startpoint[0]-finishpoint[0])**2 + (startpoint[1]-finishpoint[1])**2)**0.5
+        ylength = finishpoint[1]-startpoint[1]
         
         vpts = []
         vpts.append(startpoint)
         dec_place = 7
         beta = self.calcbeta(startpoint,finishpoint)
         
-        ycoord = self.first_power(sidelength,yfirst,npy,startpoint[1])
+        ycoord = self.first_power(ylength,yfirst,npy,startpoint[1])
+        
+        for i in range(1,npy-1):
+            x_next = startpoint[0]+(ycoord[i]-startpoint[1])*math.tan(beta)
+            y_next = ycoord[i]
+            nextpoint = (round(x_next , dec_place) , round(y_next , dec_place), 0.0)
+            vpts.append(nextpoint)
+        
+        vpts.append(finishpoint)
+        
+        return(vpts)
+    
+    
+    def vpts_last(self,startpoint,finishpoint,ylast,npy):
+        """calculates the coordinates of the points on the two vertical sides (y sides) - last coordinates specified"""
+        
+        ylength = finishpoint[1]-startpoint[1]
+        
+        vpts = []
+        vpts.append(startpoint)
+        dec_place = 7
+        beta = self.calcbeta(startpoint,finishpoint)
+        
+        ycoord = self.last_power(ylength,ylast,npy,startpoint[1])
         
         for i in range(1,npy-1):
             x_next = startpoint[0]+(ycoord[i]-startpoint[1])*math.tan(beta)
@@ -822,7 +845,7 @@ class gsnotunif():
     def vpts_adapt(self,startpoint,finishpoint,ypts,npy):
         """it calculates the points on a vertical side without any coordinate distribution preferred"""
         
-        sidelength = ((startpoint[0]-finishpoint[0])**2 + (startpoint[1]-finishpoint[1])**2)**0.5
+        ylength = finishpoint[1]-startpoint[1]
         
         vpts = []
         vpts.append(startpoint)
@@ -844,14 +867,14 @@ class gsnotunif():
     def hpts_first(self,startpoint,finishpoint,xfirst,npx):
         """calculates the coordinates of the points on the horizontal sides"""
         
-        sidelength = ((startpoint[0]-finishpoint[0])**2 + (startpoint[1]-finishpoint[1])**2)**0.5
+        xlength = finishpoint[0]-startpoint[0]
         
         hpts = []
         hpts.append(startpoint)
         dec_place = 7
         alpha = self.calcalpha(startpoint,finishpoint)
         
-        xcoord = self.first_power(sidelength,xfirst,npx,startpoint[0])
+        xcoord = self.first_power(xlength,xfirst,npx,startpoint[0])
         
         for i in range(1,npx-1):
             x_next = xcoord[i]
@@ -865,10 +888,33 @@ class gsnotunif():
         
     
     
+    def hpts_last(self,startpoint,finishpoint,xlast,npx):
+        """calculates the coordinates of the points on the two horizontal sides (x sides) - last coordinates specified"""
+        
+        xlength = finishpoint[0]-startpoint[0]
+        
+        hpts = []
+        hpts.append(startpoint)
+        dec_place = 7
+        alpha = self.calcalpha(startpoint,finishpoint)
+        
+        xcoord = self.last_power(xlength,xlast,npx,startpoint[0])
+        
+        for i in range(1,npx-1):
+            x_next = xcoord[i]
+            y_next = startpoint[1]+(xcoord[i]-startpoint[0])*math.tan(alpha)
+            nextpoint = (round(x_next , dec_place) , round(y_next , dec_place), 0.0)
+            hpts.append(nextpoint)
+        
+        hpts.append(finishpoint)
+        
+        return(hpts)
+    
+    
     def hpts_adapt(self,startpoint,finishpoint,xpts,npx):
         """it calculates the points on a horizontal side without any coordinate distribution preferred"""
         
-        sidelength = ((startpoint[0]-finishpoint[0])**2 + (startpoint[1]-finishpoint[1])**2)**0.5
+        xlength = finishpoint[0]-startpoint[0]
         
         hpts = []
         hpts.append(startpoint)
@@ -900,7 +946,7 @@ class gsnotunif():
     
     
     def first_power(self,leng,first,np,min):
-        """it calculates a non-uniform grid using the power distribution - specified FIRST coordinate"""
+        """it calculates a non-uniform grid using the power distribution - specified FIRST dx or dy"""
         
         pow = math.log((first)/leng)
         b = 1.0/((np-1)*1.0)
@@ -916,6 +962,34 @@ class gsnotunif():
             pos_rounded = round(pos, dec_place)
             coord.append(pos_rounded)
             #print str(i) + '  ' +str(pos_rounded)
+        
+        return coord
+        
+    
+    
+    def last_power(self,leng,last,np,min):
+        """it calculates a non-uniform grid using the power distribution - specified LAST dx or dy"""
+        
+        pow = math.log((last)/leng)
+        b = 1.0/((np-1)*1.0)
+        pow = pow/math.log(b)
+        
+        coord = []
+        dec_place = 7
+        
+        for i in range(0,np):
+            f = i*1.0/(np-1)*1.0
+            g = f**pow
+            pos = (1-g)*leng + min
+            pos_rounded = round(pos, dec_place)
+            coord.append(pos_rounded)
+            #print str(i) + '  ' +str(pos_rounded)
+            
+        temp = []
+        for i in range(len(coord)):
+            temp.append(coord[len(coord)-(i+1)])
+            
+        coord = temp
         
         return coord
         
@@ -941,10 +1015,11 @@ if __name__ == '__main__':
     #s1 = rectangle(-5.0,1.0,5.0,10.76,9,7,(3,0,2,1),0.0,0.5,0.2,0.0)
     #s2 = rectangle(0.0,1.0,17.92,10.76,18,7,(0,2,2,0),0.5,0.0,0.2,0.0)
     #s3 = rectangle(0.0,0.0,17.92,1.0,18,7,(3,2,0,3),0.5,0.0,0.0,0.2)
+    s1 = rectangle(0.0,0.0,4.0,4.0,5,5,(3,2,0,3),0.5,0.0,0.0,0.5)
     
     #s = s1 + s2 + s3
     
-    s = gsnotunif((0.0,0.0),(4.0,0.0),(-2.0,4.0),(6.0,4.0),5,5,(2,2,2,2),0.5,0.0,0.5,0.0,0.0,0.0,0.0,0.0)
+    s = gsnotunif((0.0,0.0),(4.0,0.0),(-2.0,4.0),(6.0,4.0),5,5,(2,2,2,2),0.5,0.5,0.5,0.5,0.0,0.0,0.0,0.0)
     
     
     #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
