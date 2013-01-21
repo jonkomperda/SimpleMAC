@@ -583,10 +583,10 @@ class genshape():
         self.face2 = f2
         self.face6 = f6
         
-        self.x1first_leng = x2first_leng
-        self.y1first_leng = y2first_leng
-        self.x1last_leng = x2last_leng
-        self.y1last_leng = y2last_leng
+        self.x1first_leng = x1first_leng
+        self.y1first_leng = y1first_leng
+        self.x1last_leng = x1last_leng
+        self.y1last_leng = y1last_leng
         self.x2first_leng = x2first_leng
         self.y2first_leng = y2first_leng
         self.x2last_leng = x2last_leng
@@ -604,8 +604,6 @@ class genshape():
         
         self.l1_pts = self.ver_pts(self.p1,self.p3,self.dl1,self.npy)
         self.l2_pts = self.ver_pts(self.p2,self.p4,self.dl2,self.npy)
-        #self.a_pts = self.hor_pts(self.p1,self.p2,self.da,self.npx)
-        #self.b_pts = self.hor_pts(self.p3,self.p4,self.db,self.npx)
         
         self.points = []
         
@@ -649,7 +647,6 @@ class genshape():
             
         verpts.append(finishpoint)
         
-        print verpts
         return(verpts)
     
     
@@ -672,55 +669,6 @@ class genshape():
         
         horpts.append(finishpoint)
         return(horpts)
-    
-    
-    def first_power(self,leng,first,np,min):
-        """it calculates a non-uniform grid using the power distribution - specified FIRST LENGTH"""
-        
-        pow = math.log((first)/leng)
-        b = 1.0/((np-1)*1.0)
-        pow = pow/math.log(b)
-        
-        coord = []
-        dec_place = 7
-        
-        for i in range(0,np):
-            f = i*1.0/(np-1)*1.0
-            g = f**pow
-            pos = g*leng + min
-            pos_rounded = round(pos, dec_place)
-            coord.append(pos_rounded)
-            print str(i) + '  ' +str(pos_rounded)
-            
-        return coord
-    
-    
-    def last_power(self,leng,last,np,min):
-        """it calculates a non-uniform grid using the power distribution - specified LAST LENGTH"""
-        
-        pow = math.log((last)/leng)
-        b = 1.0/((np-1)*1.0)
-        pow = pow/math.log(b)
-        
-        coord = []
-        dec_place = 7
-        
-        for i in range(0,np):
-            f = i*1.0/(np-1)*1.0
-            g = f**pow
-            pos = (1-g)*leng + min
-            pos_rounded = round(pos, dec_place)
-            coord.append(pos_rounded)
-            #print str(i) + '  ' +str(pos_rounded)
-            
-        temp = []
-        for i in range(len(coord)):
-            temp.append(coord[len(coord)-(i+1)])
-            
-        coord = temp
-        
-        return coord
-        
     
     
     def calcalpha(self,A,B):
@@ -811,6 +759,169 @@ class genshape():
     
 
 
+class gsnotunif():
+    """it creates a generic shape with not uniform distribution of points"""
+    
+    def __init__(self,p1,p2,p3,p4,npx,npy,(f1,f4,f2,f6),x1first,x1last,y1first,y1last,x2first,x2last,y2first,y2last):
+        
+        self.p1 = (p1[0],p1[1],0.0)
+        self.p2 = (p2[0],p2[1],0.0)
+        self.p3 = (p3[0],p3[1],0.0)
+        self.p4 = (p4[0],p4[1],0.0)
+        
+        self.npx = npx
+        self.npy = npy
+        
+        self.face1 = f1
+        self.face4 = f4
+        self.face2 = f2
+        self.face6 = f6
+        
+        self.x1first = x1first
+        self.x1last = x1last
+        self.y1first = y1first
+        self.y1last = y1last
+        self.x2first = x2first
+        self.x2last = x2last
+        self.y2first = y2first
+        self.y2last = y2last
+        
+        self.y1pts = self.vpts_first(self.p1,self.p3,self.y1first,self.npy)
+        self.y2pts = self.vpts_adapt(self.p2,self.p4,self.y1pts,self.npy)
+        self.x1pts = self.hpts_first(self.p1,self.p2,self.x1first,self.npx)
+        self.x2pts = self.hpts_adapt(self.p3,self.p4,self.x1pts,self.npx)
+        #print self.y1pts
+        #print self.y2pts
+        #print self.x1pts
+        print self.x2pts
+    
+    
+    def vpts_first(self,startpoint,finishpoint,yfirst,npy):
+        """calculates the coordinates of the points on the two vertical sides (y sides)"""
+        
+        sidelength = ((startpoint[0]-finishpoint[0])**2 + (startpoint[1]-finishpoint[1])**2)**0.5
+        
+        vpts = []
+        vpts.append(startpoint)
+        dec_place = 7
+        beta = self.calcbeta(startpoint,finishpoint)
+        
+        ycoord = self.first_power(sidelength,yfirst,npy,startpoint[1])
+        
+        for i in range(1,npy-1):
+            x_next = startpoint[0]+(ycoord[i]-startpoint[1])*math.tan(beta)
+            y_next = ycoord[i]
+            nextpoint = (round(x_next , dec_place) , round(y_next , dec_place), 0.0)
+            vpts.append(nextpoint)
+        
+        vpts.append(finishpoint)
+        
+        return(vpts)
+    
+    
+    def vpts_adapt(self,startpoint,finishpoint,ypts,npy):
+        """it calculates the points on a vertical side without any coordinate distribution preferred"""
+        
+        sidelength = ((startpoint[0]-finishpoint[0])**2 + (startpoint[1]-finishpoint[1])**2)**0.5
+        
+        vpts = []
+        vpts.append(startpoint)
+        dec_place = 7
+        beta = self.calcbeta(startpoint,finishpoint)
+        
+        for i in range(1,npy-1):
+            ydistribution = (ypts[i][1]-ypts[0][1])/(ypts[npy-1][1]-ypts[0][1])
+            y_next = startpoint[1] + ydistribution*(finishpoint[1]-startpoint[1])
+            x_next = startpoint[0] + y_next*math.tan(beta)
+            nextpoint = (round(x_next , dec_place) , round(y_next , dec_place), 0.0)
+            vpts.append(nextpoint)
+        
+        vpts.append(finishpoint)
+        
+        return(vpts)
+    
+    
+    def hpts_first(self,startpoint,finishpoint,xfirst,npx):
+        """calculates the coordinates of the points on the horizontal sides"""
+        
+        sidelength = ((startpoint[0]-finishpoint[0])**2 + (startpoint[1]-finishpoint[1])**2)**0.5
+        
+        hpts = []
+        hpts.append(startpoint)
+        dec_place = 7
+        alpha = self.calcalpha(startpoint,finishpoint)
+        
+        xcoord = self.first_power(sidelength,xfirst,npx,startpoint[0])
+        
+        for i in range(1,npx-1):
+            x_next = xcoord[i]
+            y_next = startpoint[1]+(xcoord[i]-startpoint[1])*math.tan(alpha)
+            nextpoint = (round(x_next , dec_place) , round(y_next , dec_place), 0.0)
+            hpts.append(nextpoint)
+        
+        hpts.append(finishpoint)
+        
+        return(hpts)
+        
+    
+    
+    def hpts_adapt(self,startpoint,finishpoint,xpts,npx):
+        """it calculates the points on a horizontal side without any coordinate distribution preferred"""
+        
+        sidelength = ((startpoint[0]-finishpoint[0])**2 + (startpoint[1]-finishpoint[1])**2)**0.5
+        
+        hpts = []
+        hpts.append(startpoint)
+        dec_place = 7
+        alpha = self.calcalpha(startpoint,finishpoint)
+        
+        for i in range(1,npx-1):
+            xdistribution = (xpts[i][0]-xpts[0][0])/(xpts[npx-1][0]-xpts[0][0])
+            x_next = startpoint[0] + xdistribution*(finishpoint[0]-startpoint[0])
+            y_next = startpoint[1] + x_next*math.tan(alpha)
+            nextpoint = (round(x_next , dec_place) , round(y_next , dec_place), 0.0)
+            hpts.append(nextpoint)
+        
+        hpts.append(finishpoint)
+        
+        return(hpts)
+    
+    
+    def calcalpha(self,A,B):
+        """it calculates the angle among two vertices with respect to x axis"""
+        alpha = math.atan((B[1]-A[1])/(B[0]-A[0]))
+        return alpha
+    
+    
+    def calcbeta(self,A,B):
+        """it calculates the angle among two vertices with respect to y axis"""
+        beta = math.atan((B[0]-A[0])/(B[1]-A[1]))
+        return beta
+    
+    
+    def first_power(self,leng,first,np,min):
+        """it calculates a non-uniform grid using the power distribution - specified FIRST coordinate"""
+        
+        pow = math.log((first)/leng)
+        b = 1.0/((np-1)*1.0)
+        pow = pow/math.log(b)
+        
+        coord = []
+        dec_place = 7
+        
+        for i in range(0,np):
+            f = i*1.0/(np-1)*1.0
+            g = f**pow
+            pos = g*leng + min
+            pos_rounded = round(pos, dec_place)
+            coord.append(pos_rounded)
+            #print str(i) + '  ' +str(pos_rounded)
+        
+        return coord
+        
+        
+
+
 ############## Global Dictionaries
 # this needs to be fixed
 #elemType = {    'rectangle' :   rectangle,      \
@@ -833,10 +944,10 @@ if __name__ == '__main__':
     
     #s = s1 + s2 + s3
     
-    s = genshape((0.0,0.0),(4.0,0.0),(0.0,4.0),(6.0,4.0),5,5,(2,2,2,2),0.0,0.0,0.5,0.0,0.0,0.0,0.0,0.0)
+    s = gsnotunif((0.0,0.0),(4.0,0.0),(-2.0,4.0),(6.0,4.0),5,5,(2,2,2,2),0.5,0.0,0.5,0.0,0.0,0.0,0.0,0.0)
     
     
-    vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
-    vtk.tofile('test')
+    #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
+    #vtk.tofile('test')
     
 
