@@ -218,17 +218,23 @@ class rectangle:
         
         if(self.xfirst_leng==0 and self.xlast_leng==0):
             self.x      = ar.arange(xMin,self.xSize,self.dx)
+        elif(self.xfirst_leng!=0 and self.xlast_leng!=0):
+            print 'Error: just specify one length along the x axis'
         elif(xfirst_leng > 0):
             self.x = self.first_power(self.xLeng,self.xfirst_leng,self.npx,xMin)
         elif(xlast_leng > 0):
             self.x = self.last_power(self.xLeng,self.xlast_leng,self.npx,xMin)
         
+        
         if(self.yfirst_leng==0 and self.ylast_leng==0):
             self.y      = ar.arange(yMin,self.ySize,self.dy)
+        elif(self.yfirst_leng!=0 and self.ylast_leng!=0):
+            print 'Error: just specify one length along the x axis'
         elif(yfirst_leng > 0):
             self.y = self.first_power(self.yLeng,self.yfirst_leng,self.npy,yMin)
         elif(ylast_leng > 0):
             self.y = self.last_power(self.yLeng,self.ylast_leng,self.npy,yMin)
+            
         
         self.points = [(xp,yp,zp) for yp in self.y for xp in self.x for zp in [0.0]]
         self.connect= self.connections(self.points)
@@ -236,7 +242,6 @@ class rectangle:
         self.no_elements = len(self.connect)
         
         self.bc_sides()
-        
         
     
     
@@ -355,10 +360,36 @@ class rectangle:
         return coord
     
     
-    
+    def first_cosine(self,leng,first,np,min):
+        """it calculates a non-uniform grid using the cosine distribution - specified FIRST LENGTH"""
+        
+        pow = math.log((last)/leng)
+        b = 1.0/((np-1)*1.0)
+        pow = pow/math.log(b)
+        
+        coord = []
+        dec_place = 7
+        
+        for i in range(0,np):
+            f = i*1.0/(np-1)*1.0
+            g = f**pow
+            pos = (1-g)*leng + min
+            pos_rounded = round(pos, dec_place)
+            coord.append(pos_rounded)
+            #print str(i) + '  ' +str(pos_rounded)
+        
+        temp = []
+        for i in range(len(coord)):
+            temp.append(coord[len(coord)-(i+1)])
+        
+        coord = temp
+        
+        return coord
+        
+        
 # A square is actually a rectangle
-def square(xMin,yMin,leng,npx,npy,(f1,f2,f3,f4)):
-        out = rectangle(xMin,yMin,leng,leng,npx,npy,(f1,f2,f3,f4))
+def square(xMin,yMin,leng,npx,npy,(f1,f4,f2,f6)):
+        out = rectangle(xMin,yMin,leng,leng,npx,npy,(f1,f4,f2,f6))
         return out
 
 
@@ -536,7 +567,7 @@ class rampquad():
 
 class genshape():
     """creates a generic quad where you specifiy just the corners"""
-    def __init__(self, p1, p2, p3, p4, npx, npy, (f1,f2,f3,f4)):
+    def __init__(self, p1, p2, p3, p4, npx, npy, (f1,f4,f2,f6),x1first_leng,x1last_leng,y1first_leng,y1last_leng,x2first_leng,x2last_leng,y2first_leng,y2last_leng):
         print 'Shape: Creating a generic shape...'
         
         self.p1 = (p1[0],p1[1],0.0)
@@ -552,6 +583,15 @@ class genshape():
         self.face2 = f2
         self.face6 = f6
         
+        self.x1first_leng = x2first_leng
+        self.y1first_leng = y2first_leng
+        self.x1last_leng = x2last_leng
+        self.y1last_leng = y2last_leng
+        self.x2first_leng = x2first_leng
+        self.y2first_leng = y2first_leng
+        self.x2last_leng = x2last_leng
+        self.y2last_leng = y2last_leng
+                
         self.a = (((p1[0]-p2[0])**2)+((p1[1]-p2[1])**2))**0.5
         self.b = (((p3[0]-p4[0])**2)+((p3[1]-p4[1])**2))**0.5
         self.l1 = (((p1[0]-p3[0])**2)+((p1[1]-p3[1])**2))**0.5
@@ -608,6 +648,8 @@ class genshape():
             verpts.append(nextpoint)
             
         verpts.append(finishpoint)
+        
+        print verpts
         return(verpts)
     
     
@@ -630,6 +672,55 @@ class genshape():
         
         horpts.append(finishpoint)
         return(horpts)
+    
+    
+    def first_power(self,leng,first,np,min):
+        """it calculates a non-uniform grid using the power distribution - specified FIRST LENGTH"""
+        
+        pow = math.log((first)/leng)
+        b = 1.0/((np-1)*1.0)
+        pow = pow/math.log(b)
+        
+        coord = []
+        dec_place = 7
+        
+        for i in range(0,np):
+            f = i*1.0/(np-1)*1.0
+            g = f**pow
+            pos = g*leng + min
+            pos_rounded = round(pos, dec_place)
+            coord.append(pos_rounded)
+            print str(i) + '  ' +str(pos_rounded)
+            
+        return coord
+    
+    
+    def last_power(self,leng,last,np,min):
+        """it calculates a non-uniform grid using the power distribution - specified LAST LENGTH"""
+        
+        pow = math.log((last)/leng)
+        b = 1.0/((np-1)*1.0)
+        pow = pow/math.log(b)
+        
+        coord = []
+        dec_place = 7
+        
+        for i in range(0,np):
+            f = i*1.0/(np-1)*1.0
+            g = f**pow
+            pos = (1-g)*leng + min
+            pos_rounded = round(pos, dec_place)
+            coord.append(pos_rounded)
+            #print str(i) + '  ' +str(pos_rounded)
+            
+        temp = []
+        for i in range(len(coord)):
+            temp.append(coord[len(coord)-(i+1)])
+            
+        coord = temp
+        
+        return coord
+        
     
     
     def calcalpha(self,A,B):
@@ -736,14 +827,14 @@ class genshape():
 
 if __name__ == '__main__':
     
-    s1 = rectangle(-5.0,1.0,5.0,10.76,9,7,(3,0,2,1),0.0,0.5,0.2,0.0)
-    s2 = rectangle(0.0,1.0,17.92,10.76,18,7,(0,2,2,0),0.5,0.0,0.2,0.0)
-    s3 = rectangle(0.0,0.0,17.92,1.0,18,7,(3,2,0,3),0.5,0.0,0.0,0.2)
+    #s1 = rectangle(-5.0,1.0,5.0,10.76,9,7,(3,0,2,1),0.0,0.5,0.2,0.0)
+    #s2 = rectangle(0.0,1.0,17.92,10.76,18,7,(0,2,2,0),0.5,0.0,0.2,0.0)
+    #s3 = rectangle(0.0,0.0,17.92,1.0,18,7,(3,2,0,3),0.5,0.0,0.0,0.2)
     
-    s = s1 + s2 + s3
-    #simplemesh.simplemesh(s.points,s.connections,s.bc,6,6)
+    #s = s1 + s2 + s3
     
-    #s = rectangle(0.0,1.0,17.92,10.76,18,7,(0,2,2,0),0.5,0.0,0.1,0.0)
+    s = genshape((0.0,0.0),(4.0,0.0),(0.0,4.0),(6.0,4.0),5,5,(2,2,2,2),0.0,0.0,0.5,0.0,0.0,0.0,0.0,0.0)
+    
     
     vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
     vtk.tofile('test')
