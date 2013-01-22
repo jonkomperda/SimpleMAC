@@ -699,25 +699,7 @@ class genshape():
             k = k+1
             for j in range(0,self.npx-1):
                 conList.append((k,k+1,k+self.npx+1,k+self.npx))
-                #connection.append(k)
-                #connection.append(k+1)
-                #connection.append(k+self.npx+1)
-                #connection.append(k+self.npx)
                 k=k+1
-            """if (next[0] > here[0]):
-                #print i
-                for j in range(i+1,len(points)-1):
-                    other   = points[j]
-                    tan_other = (other[0] - self.p1[0])/(other[1] - self.p0[1])
-                    tan_here = (here[0] - self.p1[0])/(here[1] - self.p0[1])
-                    if (tan_other < (tan_here + error)) and (tan_other > (tan_here - error)):
-                        #print (i,i+1,j+1,j)
-                        temp        = (i,i+1,j+1,j)
-                        connection  = connection + temp
-                        break
-            for j in range(0,self.npy-1):
-                print i
-                print j"""
         return conList
     
     
@@ -763,6 +745,7 @@ class gsnotunif():
     """it creates a generic shape with not uniform distribution of points"""
     
     def __init__(self,p1,p2,p3,p4,npx,npy,(f1,f4,f2,f6),x1first,x1last,y1first,y1last,x2first,x2last,y2first,y2last):
+        print 'Shape: Creating a generic shape (not uniform grid)...'
         
         self.p1 = (p1[0],p1[1],0.0)
         self.p2 = (p2[0],p2[1],0.0)
@@ -786,14 +769,100 @@ class gsnotunif():
         self.y2first = y2first
         self.y2last = y2last
         
-        #self.y1pts = self.vpts_last(self.p1,self.p3,self.y1last,self.npy)
-        #self.y2pts = self.vpts_adapt(self.p2,self.p4,self.y1pts,self.npy)
-        self.x1pts = self.hpts_last(self.p1,self.p2,self.x1first,self.npx)
-        #self.x2pts = self.hpts_adapt(self.p3,self.p4,self.x1pts,self.npx)
-        #print self.y1pts
-        #print self.y2pts
-        print self.x1pts
-        #print self.x2pts
+        self.xycond = self.sidepts()
+        
+        self.coordinates()
+        self.connect = self.connections(self.points)
+        self.bc_sides()
+        
+    
+    
+    def sidepts(self):
+        """it calculates the coordinates of the points on the sides of the shape"""
+        
+        xcond = 1
+        ycond = 1
+        
+        if(self.x1first==0 and self.x1last==0):
+            if(self.x2first==0 and self.x2last==0):
+                x1 = (((self.p1[0]-self.p2[0])**2)+((self.p1[1]-self.p2[1])**2))**0.5
+                dx1 = x1/(self.npx-1)
+                self.x1pts = self.hpts_unif(self.p1,self.p2,dx1,self.npx)
+            elif(self.x2first>0):
+                self.x2pts = self.hpts_first(self.p3,self.p4,self.x2first,self.npx)
+                self.x1pts = self.hpts_adapt(self.p1,self.p2,self.x2pts,self.npx)
+                xcond = 2
+            elif(self.x2last>0):
+                self.x2pts = self.hpts_last(self.p3,self.p4,self.x2last,self.npx)
+                self.x1pts = self.hpts_adapt(self.p1,self.p2,self.x2pts,self.npx)
+                xcond = 2
+        elif(self.x1first>0):
+            self.x1pts = self.hpts_first(self.p1,self.p2,self.x1first,self.npx)
+        elif(self.x1last>0):
+            self.x1pts = self.hpts_last(self.p1,self.p2,self.x1last,self.npx)
+        
+        if(self.y1first==0 and self.y1last==0):
+            if(self.y2first==0 and self.y2last==0):
+                y1 = (((self.p1[0]-self.p3[0])**2)+((self.p1[1]-self.p3[1])**2))**0.5
+                dy1 = y1/(self.npy-1)
+                self.y1pts = self.vpts_unif(self.p1,self.p3,dy1,self.npy)
+                self.y2pts = self.vpts_adapt(self.p2,self.p4,self.y1pts,self.npy)
+            elif(self.y2first>0):
+                self.y2pts = self.vpts_first(self.p2,self.p4,self.y2first,self.npy)
+                self.y1pts = self.vpts_adapt(self.p1,self.p3,self.y2pts,self.npy)
+                ycond = 2
+            elif(self.y2last>0):
+                self.y2pts = self.vpts_last(self.p2,self.p4,self.y2last,self.npy)
+                self.y1pts = self.vpts_adapt(self.p1,self.p3,self.y2pts,self.npy)
+                ycond = 2
+        elif(self.y1first>0):
+            self.y1pts = self.vpts_first(self.p1,self.p3,self.y1first,self.npy)
+            self.y2pts = self.vpts_adapt(self.p2,self.p4,self.y1pts,self.npy)
+        elif(self.y1last>0):
+            self.y1pts = self.vpts_last(self.p1,self.p3,self.y1last,self.npy)
+            self.y2pts = self.vpts_adapt(self.p2,self.p4,self.y1pts,self.npy)
+        
+        return(xcond,ycond)
+    
+    
+    def coordinates(self):
+        """it calculates the coordinates of all the nodes of the mesh"""
+        
+        xcond = self.xycond[0]
+        ycond = self.xycond[1]
+        
+        self.points = []
+        
+        for k in range(self.npx):
+            self.points.append(self.x1pts[k])
+        
+        for k in range(1,self.npy):
+            startpt = ()
+            finalpt = ()
+            startpt = self.y1pts[k]
+            finalpt = self.y2pts[k]
+            row_k = self.hpts_adapt(startpt,finalpt,self.x1pts,self.npx)
+            for i in range(len(row_k)):
+                self.points.append(row_k[i])
+        
+        
+        #self.points = self.coordinates(self.x1pts,self.y1pts,self.x2pts,self.y2pts,self.npx,self.npy)
+        
+        
+        """for k in range(npy):
+            startpt = ()
+            finalpt = ()
+            startpt = self.l1_pts[k]
+            finalpt = self.l2_pts[k]
+            
+            length = (((startpt[0]-finalpt[0])**2)+((startpt[1]-finalpt[1])**2))**0.5
+            dl = length/(self.npx-1)
+            
+            for z in range(npx):
+                row = self.hor_pts(startpt,finalpt,dl,self.npx)
+                self.points.append(row[z])
+        
+        #print self.points"""
     
     
     def vpts_first(self,startpoint,finishpoint,yfirst,npy):
@@ -845,17 +914,18 @@ class gsnotunif():
     def vpts_adapt(self,startpoint,finishpoint,ypts,npy):
         """it calculates the points on a vertical side without any coordinate distribution preferred"""
         
-        ylength = finishpoint[1]-startpoint[1]
-        
+        ylength = ((finishpoint[0]-startpoint[0])**2+(finishpoint[1]-startpoint[1])**2)**0.5
         vpts = []
         vpts.append(startpoint)
         dec_place = 7
         beta = self.calcbeta(startpoint,finishpoint)
         
         for i in range(1,npy-1):
-            ydistribution = (ypts[i][1]-ypts[0][1])/(ypts[npy-1][1]-ypts[0][1])
-            y_next = startpoint[1] + ydistribution*(finishpoint[1]-startpoint[1])
-            x_next = startpoint[0] + y_next*math.tan(beta)
+            refl=((ypts[i][0]-ypts[0][0])**2+(ypts[i][1]-ypts[0][1])**2)**0.5
+            totl=((ypts[npy-1][0]-ypts[0][0])**2+(ypts[npy-1][1]-ypts[0][1])**2)**0.5
+            increment=ylength*(refl/totl)
+            y_next = startpoint[1] + increment*math.cos(beta)
+            x_next = startpoint[0] + increment*math.sin(beta)
             nextpoint = (round(x_next , dec_place) , round(y_next , dec_place), 0.0)
             vpts.append(nextpoint)
         
@@ -914,7 +984,7 @@ class gsnotunif():
     def hpts_adapt(self,startpoint,finishpoint,xpts,npx):
         """it calculates the points on a horizontal side without any coordinate distribution preferred"""
         
-        xlength = finishpoint[0]-startpoint[0]
+        xlength = ((finishpoint[0]-startpoint[0])**2+(finishpoint[1]-startpoint[1])**2)**0.5
         
         hpts = []
         hpts.append(startpoint)
@@ -922,15 +992,62 @@ class gsnotunif():
         alpha = self.calcalpha(startpoint,finishpoint)
         
         for i in range(1,npx-1):
-            xdistribution = (xpts[i][0]-xpts[0][0])/(xpts[npx-1][0]-xpts[0][0])
-            x_next = startpoint[0] + xdistribution*(finishpoint[0]-startpoint[0])
-            y_next = startpoint[1] + x_next*math.tan(alpha)
+            refl=((xpts[i][0]-xpts[0][0])**2+(xpts[i][1]-xpts[0][1])**2)**0.5
+            totl=((xpts[npx-1][0]-xpts[0][0])**2+(xpts[npx-1][1]-xpts[0][1])**2)**0.5
+            #xdistribution=refl/totl
+            increment=xlength*(refl/totl)
+            x_next = startpoint[0] + increment*math.cos(alpha)
+            y_next = startpoint[1] + increment*math.sin(alpha)
             nextpoint = (round(x_next , dec_place) , round(y_next , dec_place), 0.0)
             hpts.append(nextpoint)
+            
         
         hpts.append(finishpoint)
         
         return(hpts)
+    
+    
+    def vpts_unif(self,startpoint,finishpoint,increment,np):
+        """calculates points on the vertical sides of the shape"""
+        
+        verpts = []
+        verpts.append(startpoint)
+        dec_place = 7
+        i = 0
+        beta = self.calcbeta(startpoint,finishpoint)
+        dx = increment * math.cos(beta)
+        dy = increment * math.sin(beta)
+        
+        for i in range (0,np-2):
+            x_next = verpts[i][0] + increment * math.sin(beta)
+            y_next = verpts[i][1] + increment * math.cos(beta)
+            nextpoint = (round(x_next , dec_place) , round(y_next , dec_place), 0.0)
+            verpts.append(nextpoint)
+        
+        verpts.append(finishpoint)
+        
+        return(verpts)
+    
+    
+    def hpts_unif(self,startpoint,finishpoint,increment,np):
+        """calculates points on the horizontal lines of the shape"""
+        
+        horpts = []
+        horpts.append(startpoint)
+        dec_place = 7
+        i = 0
+        alpha = self.calcalpha(startpoint,finishpoint)
+        dx = increment * math.cos(alpha)
+        dy = increment * math.sin(alpha)
+        
+        for i in range (0,np-2):
+            x_next = horpts[i][0] + dx
+            y_next = horpts[i][1] + dy
+            nextpoint = (round(x_next , dec_place) , round(y_next , dec_place), 0.0)
+            horpts.append(nextpoint)
+        
+        horpts.append(finishpoint)
+        return(horpts)
     
     
     def calcalpha(self,A,B):
@@ -984,16 +1101,74 @@ class gsnotunif():
             pos_rounded = round(pos, dec_place)
             coord.append(pos_rounded)
             #print str(i) + '  ' +str(pos_rounded)
-            
+        
         temp = []
         for i in range(len(coord)):
             temp.append(coord[len(coord)-(i+1)])
-            
+        
         coord = temp
         
         return coord
+    
+    
+    # Calculates element connections
+    def connections(self,points):
+        conList = []
+        i = 0
+        j = 0
+        k = -1
+        for i in range(0,self.npy-1):
+            here    = points[i]
+            next    = points[i+1]
+            k = k+1
+            for j in range(0,self.npx-1):
+                conList.append((k,k+1,k+self.npx+1,k+self.npx))
+                k=k+1
+        return conList
+    
+    
+    def bc_sides(self):
+        """it calculates boundary conditions for the shape - ELEMENTS ALREADY START FROM 1, NOT FROM 0"""
         
+        self.bc = []
         
+        #bottom side (1)
+        for i in range(self.npx-1):
+            self.bc.append((i+1,1,self.face1))
+        
+        #right side (4)
+        for i in range(self.npy-1):
+            self.bc.append(((self.npx-1)*(i+1),4,self.face4))
+        
+        #top side (2)
+        for i in range(self.npx-1):
+            self.bc.append(((self.npy-2)*(self.npx-1)+i+1,2,self.face2))
+        
+        #left side (6)
+        for i in range(self.npy-1):
+            self.bc.append(((i+1)+i*(self.npx-2),6,self.face6))    
+    
+    
+    # Chops a list into 'size' tuples
+    def chopper(self,list,size):
+        for i in xrange(0, len(list), size):
+            yield list[i:i+size]
+    
+    
+    def __add__(self,other):                                #overloading of addition
+        temp        = self.points + other.points
+        del_points  = list(set(temp))
+        new_points  = self.sort(del_points)
+        
+        out         = unstructShape(new_points, old1 = self.points, old2 = other.points, old1c = self.connect, old2c = other.connect, old1bc = self.bc, old2bc = other.bc)
+        return out
+    
+    
+    def sort(self,val):
+        out     = sorted(val, key=operator.itemgetter(2,1,0))
+        return  out
+    
+    
 
 
 ############## Global Dictionaries
@@ -1015,14 +1190,15 @@ if __name__ == '__main__':
     #s1 = rectangle(-5.0,1.0,5.0,10.76,9,7,(3,0,2,1),0.0,0.5,0.2,0.0)
     #s2 = rectangle(0.0,1.0,17.92,10.76,18,7,(0,2,2,0),0.5,0.0,0.2,0.0)
     #s3 = rectangle(0.0,0.0,17.92,1.0,18,7,(3,2,0,3),0.5,0.0,0.0,0.2)
-    s1 = rectangle(0.0,0.0,4.0,4.0,5,5,(3,2,0,3),0.5,0.0,0.0,0.5)
+    #s1 = rectangle(0.0,0.0,4.0,4.0,5,5,(3,2,0,3),0.5,0.0,0.0,0.5)
     
     #s = s1 + s2 + s3
+    s1 = rectangle(-4.0,0.0,4.0,4.0,9,11,(3,2,0,3),0.0,0.75,0.0,1.0)
+    s2 = gsnotunif((0.0,0.0),(4.0,0.0),(0.0,4.0),(6.0,4.0),9,11,(2,2,2,2),0.75,0.0,0.0,0.0,0.0,0.0,0.0,1.0)
     
-    s = gsnotunif((0.0,0.0),(4.0,0.0),(-2.0,4.0),(6.0,4.0),5,5,(2,2,2,2),0.5,0.5,0.5,0.5,0.0,0.0,0.0,0.0)
+    s = s1 + s2
     
-    
-    #vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
-    #vtk.tofile('test')
+    vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
+    vtk.tofile('test')
     
 

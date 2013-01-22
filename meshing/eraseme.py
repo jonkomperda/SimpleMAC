@@ -1,5 +1,5 @@
 class genshape():
-    """creates a generic quad where you specifiy just the corners"""
+    """creates a generic quad where you specify just the corners"""
     def __init__(self, p1, p2, p3, p4, npx, npy, (f1,f4,f2,f6),x1first_leng,x1last_leng,y1first_leng,y1last_leng,x2first_leng,x2last_leng,y2first_leng,y2last_leng):
         print 'Shape: Creating a generic shape...'
         

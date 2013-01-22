@@ -220,16 +220,20 @@ class simplemesh():
 
 if __name__ == '__main__':
     
-    s1 = meshIn.rectangle(-5.0,1.0,5.0,10.76,9,10,(3,0,2,1),0.0,0.3,0.1,0.0)
-    s2 = meshIn.rectangle(0.0,1.0,17.92,10.76,18,10,(0,2,2,0),0.3,0.0,0.1,0.0)
-    s3 = meshIn.rectangle(0.0,0.0,17.92,1.0,18,7,(3,2,0,3),0.3,0.0,0.0,0.1)
+    #s1 = meshIn.rectangle(-5.0,1.0,5.0,10.76,9,10,(3,0,2,1),0.0,0.3,0.1,0.0)
+    #s2 = meshIn.rectangle(0.0,1.0,17.92,10.76,18,10,(0,2,2,0),0.3,0.0,0.1,0.0)
+    #s3 = meshIn.rectangle(0.0,0.0,17.92,1.0,18,7,(3,2,0,3),0.3,0.0,0.0,0.1)
+    
+    s1 = meshIn.rectangle(0.0,0.0,0.6,0.2,16,6,(1,1,0,1),0.0,0.0,0.0,0.0)
+    s2 = meshIn.rectangle(0.0,0.2,0.6,0.8,16,21,(0,0,1,1),0.0,0.0,0.0,0.0)
+    s3 = meshIn.rectangle(0.6,0.2,2.4,0.8,61,21,(1,2,1,0),0.0,0.0,0.0,0.0)
     
     sint = s1 + s2 + s3
     
-    s = depth(sint.points,sint.connect,sint.bc,0.05,2,(2,2))
+    s = depth(sint.points,sint.connect,sint.bc,0.04,2,(2,2))
     
-    simplemesh('backstep_notuniform',s.points,s.connect,s.bc,6,6,6)
+    simplemesh('ffs',s.points,s.connect,s.bc,5,5,5)
     
     vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, hexahedron=s.connect))
-    vtk.tofile('backstep_notuniform')
+    vtk.tofile('ffs')
     
