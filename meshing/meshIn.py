@@ -846,9 +846,6 @@ class gsnotunif():
                 self.points.append(row_k[i])
         
         
-        #self.points = self.coordinates(self.x1pts,self.y1pts,self.x2pts,self.y2pts,self.npx,self.npy)
-        
-        
         """for k in range(npy):
             startpt = ()
             finalpt = ()
@@ -948,7 +945,7 @@ class gsnotunif():
         
         for i in range(1,npx-1):
             x_next = xcoord[i]
-            y_next = startpoint[1]+(xcoord[i]-startpoint[1])*math.tan(alpha)
+            y_next = startpoint[1]+(xcoord[i]-startpoint[0])*math.tan(alpha)
             nextpoint = (round(x_next , dec_place) , round(y_next , dec_place), 0.0)
             hpts.append(nextpoint)
         
@@ -994,7 +991,6 @@ class gsnotunif():
         for i in range(1,npx-1):
             refl=((xpts[i][0]-xpts[0][0])**2+(xpts[i][1]-xpts[0][1])**2)**0.5
             totl=((xpts[npx-1][0]-xpts[0][0])**2+(xpts[npx-1][1]-xpts[0][1])**2)**0.5
-            #xdistribution=refl/totl
             increment=xlength*(refl/totl)
             x_next = startpoint[0] + increment*math.cos(alpha)
             y_next = startpoint[1] + increment*math.sin(alpha)
@@ -1193,10 +1189,10 @@ if __name__ == '__main__':
     #s1 = rectangle(0.0,0.0,4.0,4.0,5,5,(3,2,0,3),0.5,0.0,0.0,0.5)
     
     #s = s1 + s2 + s3
-    s1 = rectangle(-4.0,0.0,4.0,4.0,9,11,(3,2,0,3),0.0,0.75,0.0,1.0)
-    s2 = gsnotunif((0.0,0.0),(4.0,0.0),(0.0,4.0),(6.0,4.0),9,11,(2,2,2,2),0.75,0.0,0.0,0.0,0.0,0.0,0.0,1.0)
+    #s1 = rectangle(-4.0,0.0,4.0,4.0,9,11,(3,2,0,3),0.0,0.75,0.0,1.0)
+    s2 = gsnotunif((0.0,0.0),(4.0,-5.0),(-2.0,4.0),(6.0,9.0),9,11,(2,2,2,2),0.0,0.0,0.0,0.0,0.5,0.0,0.0,0.0)
     
-    s = s1 + s2
+    s = s2
     
     vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
     vtk.tofile('test')
