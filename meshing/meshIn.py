@@ -382,6 +382,7 @@ def square(xMin,yMin,leng,npx,npy,(f1,f4,f2,f6)):
         return out
 
 
+
 class rampquad():
     """creates a quad with a ramp on the right side"""
     def __init__(self, p1, p2, p3, p4, npx, npy, (f1,f4,f2,f6)):
@@ -777,18 +778,24 @@ class gsnotunif():
                 x1 = (((self.p1[0]-self.p2[0])**2)+((self.p1[1]-self.p2[1])**2))**0.5
                 dx1 = x1/(self.npx-1)
                 self.x1pts = self.hpts_unif(self.p1,self.p2,dx1,self.npx)
-            elif(self.x2first>0):
+            elif(self.x2first>0 and self.x2last==0):
                 self.x2pts = self.hpts_first(self.p3,self.p4,self.x2first,self.npx)
                 self.x1pts = self.hpts_adapt(self.p1,self.p2,self.x2pts,self.npx)
                 xcond = 2
-            elif(self.x2last>0):
+            elif(self.x2last>0 and self.x2first==0):
                 self.x2pts = self.hpts_last(self.p3,self.p4,self.x2last,self.npx)
                 self.x1pts = self.hpts_adapt(self.p1,self.p2,self.x2pts,self.npx)
                 xcond = 2
-        elif(self.x1first>0):
+            elif(self.x2first>0 and self.x2last>0):
+                self.x2pts = self.hpts_both(self.p3,self.p4,self.x2first,self.x2last,self.npx)
+                self.x1pts = self.hpts_adapt(self.p1,self.p2,self.x2pts,self.npx)
+                xcond = 2
+        elif(self.x1first>0 and self.x1last==0):
             self.x1pts = self.hpts_first(self.p1,self.p2,self.x1first,self.npx)
-        elif(self.x1last>0):
+        elif(self.x1last>0 and self.x1first==0):
             self.x1pts = self.hpts_last(self.p1,self.p2,self.x1last,self.npx)
+        elif(self.x1first>0 and self.x1last>0):
+            self.x2pts = self.hpts_both(self.p1,self.p2,self.x1first,self.x1last,self.npx)
         
         if(self.y1first==0 and self.y1last==0):
             if(self.y2first==0 and self.y2last==0):
@@ -796,19 +803,26 @@ class gsnotunif():
                 dy1 = y1/(self.npy-1)
                 self.y1pts = self.vpts_unif(self.p1,self.p3,dy1,self.npy)
                 self.y2pts = self.vpts_adapt(self.p2,self.p4,self.y1pts,self.npy)
-            elif(self.y2first>0):
+            elif(self.y2first>0 and self.y2last==0):
                 self.y2pts = self.vpts_first(self.p2,self.p4,self.y2first,self.npy)
                 self.y1pts = self.vpts_adapt(self.p1,self.p3,self.y2pts,self.npy)
                 ycond = 2
-            elif(self.y2last>0):
+            elif(self.y2last>0 and self.y2first==0):
                 self.y2pts = self.vpts_last(self.p2,self.p4,self.y2last,self.npy)
                 self.y1pts = self.vpts_adapt(self.p1,self.p3,self.y2pts,self.npy)
                 ycond = 2
-        elif(self.y1first>0):
+            elif(self.y2first>0 and self.y2last>0):
+                self.y2pts = self.vpts_both(self.p2,self.p4,self.y2first,self.y2last,self.npy)
+                self.y1pts = self.vpts_adapt(self.p1,self.p3,self.y2pts,self.npy)
+                ycond = 2
+        elif(self.y1first>0 and self.y1last==0):
             self.y1pts = self.vpts_first(self.p1,self.p3,self.y1first,self.npy)
             self.y2pts = self.vpts_adapt(self.p2,self.p4,self.y1pts,self.npy)
-        elif(self.y1last>0):
+        elif(self.y1last>0 and self.y1first==0):
             self.y1pts = self.vpts_last(self.p1,self.p3,self.y1last,self.npy)
+            self.y2pts = self.vpts_adapt(self.p2,self.p4,self.y1pts,self.npy)
+        elif(self.y1first>0 and self.y1last>0):
+            self.y1pts = self.vpts_both(self.p1,self.p3,self.y1first,self.y1last,self.npy)
             self.y2pts = self.vpts_adapt(self.p2,self.p4,self.y1pts,self.npy)
         
         return(xcond,ycond)
@@ -833,22 +847,6 @@ class gsnotunif():
             row_k = self.hpts_adapt(startpt,finalpt,self.x1pts,self.npx)
             for i in range(len(row_k)):
                 self.points.append(row_k[i])
-        
-        
-        """for k in range(npy):
-            startpt = ()
-            finalpt = ()
-            startpt = self.l1_pts[k]
-            finalpt = self.l2_pts[k]
-            
-            length = (((startpt[0]-finalpt[0])**2)+((startpt[1]-finalpt[1])**2))**0.5
-            dl = length/(self.npx-1)
-            
-            for z in range(npx):
-                row = self.hor_pts(startpt,finalpt,dl,self.npx)
-                self.points.append(row[z])
-        
-        #print self.points"""
     
     
     def vpts_first(self,startpoint,finishpoint,yfirst,npy):
@@ -895,6 +893,31 @@ class gsnotunif():
         vpts.append(finishpoint)
         
         return(vpts)
+    
+    
+    def vpts_both(self,startpoint,finishpoint,yfirst,ylast,np):
+        """it calculates a non-uniform grid using the power distribution - specified BOTH LENGTHS"""
+        
+        ylength = finishpoint[1]-startpoint[1]
+        
+        yleng1=ylength*(yfirst/(yfirst+ylast))
+        yleng2=ylength*(ylast/(yfirst+ylast))
+        npcorr = (np+1)/2
+        
+        beta = self.calcbeta(startpoint,finishpoint)
+        startpoint1=startpoint
+        startpoint2=(startpoint1[0]+yleng1*math.sin(beta),startpoint1[1]+yleng1*math.cos(beta),0.0)
+        
+        firstpoints = self.vpts_first(startpoint1,startpoint2,yfirst,npcorr)
+        lastpoints = self.vpts_last(startpoint2,finishpoint,ylast,npcorr)
+        
+        coord = []
+        for i in range(len(firstpoints)):
+            coord.append(firstpoints[i])
+        for i in range(1,len(lastpoints)):
+            coord.append(lastpoints[i])
+        
+        return(coord)
     
     
     def vpts_adapt(self,startpoint,finishpoint,ypts,npy):
@@ -965,6 +988,31 @@ class gsnotunif():
         hpts.append(finishpoint)
         
         return(hpts)
+    
+    
+    def hpts_both(self,startpoint,finishpoint,xfirst,xlast,np):
+        """it calculates a non-uniform grid using the power distribution - specified BOTH LENGTHS"""
+        
+        xlength = finishpoint[0]-startpoint[0]
+        
+        xleng1=xlength*(xfirst/(xfirst+xlast))
+        xleng2=xlength*(xlast/(xfirst+xlast))
+        npcorr = (np+1)/2
+        
+        alpha = self.calcalpha(startpoint,finishpoint)
+        startpoint1=startpoint
+        startpoint2=(startpoint1[0]+xleng1*math.cos(alpha),startpoint1[1]+xleng1*math.sin(alpha),0.0)
+        
+        firstpoints = self.hpts_first(startpoint1,startpoint2,xfirst,npcorr)
+        lastpoints = self.hpts_last(startpoint2,finishpoint,xlast,npcorr)
+        
+        coord = []
+        for i in range(len(firstpoints)):
+            coord.append(firstpoints[i])
+        for i in range(1,len(lastpoints)):
+            coord.append(lastpoints[i])
+        
+        return(coord)
     
     
     def hpts_adapt(self,startpoint,finishpoint,xpts,npx):
@@ -1179,9 +1227,10 @@ if __name__ == '__main__':
     
     #s = s1 + s2 + s3
     #s1 = rectangle(0.0,0.0,10.0,4.0,9,5,(3,2,0,1),0.0,1.0,0.0,0.0)
-    s = rectangle(0.0,0.0,10.0,4.0,25,15,(3,2,0,1),0.1,0.1,0.1,0.1)
+    #s = rectangle(0.0,0.0,10.0,4.0,25,15,(3,2,0,1),0.1,0.1,0.1,0.1)
     #s2 = rectangle(0.0,4.0,10.0,4.0,6,5,(0,2,3,1),1.0,0.0,0.0,0.5)
-    #s2 = gsnotunif((0.0,0.0),(4.0,-5.0),(-2.0,4.0),(6.0,9.0),9,11,(2,2,2,2),0.0,0.0,0.0,0.0,0.5,0.0,0.0,0.0)
+    
+    s = gsnotunif((0.0,0.0),(4.0,-5.0),(-2.0,4.0),(6.0,9.0),9,11,(2,2,2,2),0.0,0.0,0.0,0.0,0.3,0.3,0.5,0.5)
     
     #s = s1 + s2
     
