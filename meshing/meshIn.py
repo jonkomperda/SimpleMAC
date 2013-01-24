@@ -764,14 +764,10 @@ class gsnotunif():
         self.coordinates()
         self.connect = self.connections(self.points)
         self.bc_sides()
-        
     
     
     def sidepts(self):
         """it calculates the coordinates of the points on the sides of the shape"""
-        
-        xcond = 1
-        ycond = 1
         
         if(self.x1first==0 and self.x1last==0):
             if(self.x2first==0 and self.x2last==0):
@@ -781,15 +777,12 @@ class gsnotunif():
             elif(self.x2first>0 and self.x2last==0):
                 self.x2pts = self.hpts_first(self.p3,self.p4,self.x2first,self.npx)
                 self.x1pts = self.hpts_adapt(self.p1,self.p2,self.x2pts,self.npx)
-                xcond = 2
             elif(self.x2last>0 and self.x2first==0):
                 self.x2pts = self.hpts_last(self.p3,self.p4,self.x2last,self.npx)
                 self.x1pts = self.hpts_adapt(self.p1,self.p2,self.x2pts,self.npx)
-                xcond = 2
             elif(self.x2first>0 and self.x2last>0):
                 self.x2pts = self.hpts_both(self.p3,self.p4,self.x2first,self.x2last,self.npx)
                 self.x1pts = self.hpts_adapt(self.p1,self.p2,self.x2pts,self.npx)
-                xcond = 2
         elif(self.x1first>0 and self.x1last==0):
             self.x1pts = self.hpts_first(self.p1,self.p2,self.x1first,self.npx)
         elif(self.x1last>0 and self.x1first==0):
@@ -806,15 +799,12 @@ class gsnotunif():
             elif(self.y2first>0 and self.y2last==0):
                 self.y2pts = self.vpts_first(self.p2,self.p4,self.y2first,self.npy)
                 self.y1pts = self.vpts_adapt(self.p1,self.p3,self.y2pts,self.npy)
-                ycond = 2
             elif(self.y2last>0 and self.y2first==0):
                 self.y2pts = self.vpts_last(self.p2,self.p4,self.y2last,self.npy)
                 self.y1pts = self.vpts_adapt(self.p1,self.p3,self.y2pts,self.npy)
-                ycond = 2
             elif(self.y2first>0 and self.y2last>0):
                 self.y2pts = self.vpts_both(self.p2,self.p4,self.y2first,self.y2last,self.npy)
                 self.y1pts = self.vpts_adapt(self.p1,self.p3,self.y2pts,self.npy)
-                ycond = 2
         elif(self.y1first>0 and self.y1last==0):
             self.y1pts = self.vpts_first(self.p1,self.p3,self.y1first,self.npy)
             self.y2pts = self.vpts_adapt(self.p2,self.p4,self.y1pts,self.npy)
@@ -824,15 +814,10 @@ class gsnotunif():
         elif(self.y1first>0 and self.y1last>0):
             self.y1pts = self.vpts_both(self.p1,self.p3,self.y1first,self.y1last,self.npy)
             self.y2pts = self.vpts_adapt(self.p2,self.p4,self.y1pts,self.npy)
-        
-        return(xcond,ycond)
     
     
     def coordinates(self):
         """it calculates the coordinates of all the nodes of the mesh"""
-        
-        xcond = self.xycond[0]
-        ycond = self.xycond[1]
         
         self.points = []
         
@@ -1220,9 +1205,9 @@ class gsnotunif():
 
 if __name__ == '__main__':
     
-    #s1 = rectangle(-5.0,1.0,5.0,10.76,9,7,(3,0,2,1),0.0,0.5,0.2,0.0)
-    #s2 = rectangle(0.0,1.0,17.92,10.76,18,7,(0,2,2,0),0.5,0.0,0.2,0.0)
-    #s3 = rectangle(0.0,0.0,17.92,1.0,18,7,(3,2,0,3),0.5,0.0,0.0,0.2)
+    s1 = rectangle(-5.0,1.0,5.0,10.76,9,17,(3,0,2,1),0.0,0.5,0.1,0.1)
+    s2 = rectangle(0.0,1.0,17.92,10.76,18,17,(0,2,2,0),0.5,0.0,0.1,0.1)
+    s3 = rectangle(0.0,0.0,17.92,1.0,18,7,(3,2,0,3),0.5,0.0,0.1,0.1)
     #s1 = rectangle(0.0,0.0,4.0,4.0,5,5,(3,2,0,3),0.5,0.0,0.0,0.5)
     
     #s = s1 + s2 + s3
@@ -1230,11 +1215,11 @@ if __name__ == '__main__':
     #s = rectangle(0.0,0.0,10.0,4.0,25,15,(3,2,0,1),0.1,0.1,0.1,0.1)
     #s2 = rectangle(0.0,4.0,10.0,4.0,6,5,(0,2,3,1),1.0,0.0,0.0,0.5)
     
-    s = gsnotunif((0.0,0.0),(4.0,-5.0),(-2.0,4.0),(6.0,9.0),9,11,(2,2,2,2),0.0,0.0,0.0,0.0,0.3,0.3,0.5,0.5)
+    #s = gsnotunif((0.0,0.0),(4.0,-5.0),(-2.0,4.0),(6.0,9.0),9,11,(2,2,2,2),0.0,0.0,0.0,0.0,0.3,0.3,0.5,0.5)
     
-    #s = s1 + s2
+    s = s1 + s2 + s3
     
     vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
-    vtk.tofile('test')
+    vtk.tofile('bfs_notuniform')
     
 
