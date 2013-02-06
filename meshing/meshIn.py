@@ -44,8 +44,7 @@ class unstructShape:
         self.no_elements = len(self.connect)
         
         self.bc = self.boundary()
-        
-        
+    
     
     # Finds the element connections (*Needs to be improved, issues with gaps)
     def connections(self,points):
@@ -233,7 +232,13 @@ class rectangle:
         elif(ylast_leng > 0):
             self.y = self.last_power(self.yLeng,self.ylast_leng,self.npy,yMin)
         
-        self.points = [(xp,yp,zp) for yp in self.y for xp in self.x for zp in [0.0]]
+        self.pointstemp = [(xp,yp,zp) for yp in self.y for xp in self.x for zp in [0.0]]
+        self.points = []
+        dec_place = 7
+        for i in range(len(self.pointstemp)):
+            nextpoint = (round(self.pointstemp[i][0] , dec_place) , round(self.pointstemp[i][1] , dec_place), round(self.pointstemp[i][2] , dec_place))
+            self.points.append(nextpoint)
+
         self.connect= self.connections(self.points)
         self.no_elements = len(self.connect)
         self.bc_sides()
@@ -363,6 +368,16 @@ class rectangle:
         
         min1=min
         min2=min+leng1
+        
+        """
+        np1=np*(first/(first+last))
+        np2=np*(last/(first+last))
+        
+        np1 = round(np1,0)
+        np2 = round(np2,0)
+        
+        np1=int(np1)
+        np2=int(np2)"""
         
         firstpoints = self.first_power(leng1,first,npcorr,min1)
         lastpoints = self.last_power(leng2,last,npcorr,min2)
@@ -788,7 +803,7 @@ class gsnotunif():
         elif(self.x1last>0 and self.x1first==0):
             self.x1pts = self.hpts_last(self.p1,self.p2,self.x1last,self.npx)
         elif(self.x1first>0 and self.x1last>0):
-            self.x2pts = self.hpts_both(self.p1,self.p2,self.x1first,self.x1last,self.npx)
+            self.x1pts = self.hpts_both(self.p1,self.p2,self.x1first,self.x1last,self.npx)
         
         if(self.y1first==0 and self.y1last==0):
             if(self.y2first==0 and self.y2last==0):
@@ -891,12 +906,14 @@ class gsnotunif():
         
         beta = self.calcbeta(startpoint,finishpoint)
         startpoint1=startpoint
-        startpoint2=(startpoint1[0]+yleng1*math.sin(beta),startpoint1[1]+yleng1*math.cos(beta),0.0)
+        dec_place = 7
+        startpoint2=(round(startpoint1[0]+yleng1*math.tan(beta),dec_place),round(startpoint1[1]+yleng1,dec_place),0.0)
         
         firstpoints = self.vpts_first(startpoint1,startpoint2,yfirst,npcorr)
         lastpoints = self.vpts_last(startpoint2,finishpoint,ylast,npcorr)
         
         coord = []
+        dec_place = 7
         for i in range(len(firstpoints)):
             coord.append(firstpoints[i])
         for i in range(1,len(lastpoints)):
@@ -986,12 +1003,14 @@ class gsnotunif():
         
         alpha = self.calcalpha(startpoint,finishpoint)
         startpoint1=startpoint
-        startpoint2=(startpoint1[0]+xleng1*math.cos(alpha),startpoint1[1]+xleng1*math.sin(alpha),0.0)
+        dec_place = 7
+        startpoint2=(round(startpoint1[0]+xleng1,dec_place),round(startpoint1[1]+xleng1*math.tan(alpha),dec_place),0.0)
         
         firstpoints = self.hpts_first(startpoint1,startpoint2,xfirst,npcorr)
         lastpoints = self.hpts_last(startpoint2,finishpoint,xlast,npcorr)
         
         coord = []
+        dec_place = 7
         for i in range(len(firstpoints)):
             coord.append(firstpoints[i])
         for i in range(1,len(lastpoints)):
@@ -1205,21 +1224,26 @@ class gsnotunif():
 
 if __name__ == '__main__':
     
-    s1 = rectangle(-5.0,1.0,5.0,10.76,9,17,(3,0,2,1),0.0,0.5,0.1,0.1)
-    s2 = rectangle(0.0,1.0,17.92,10.76,18,17,(0,2,2,0),0.5,0.0,0.1,0.1)
-    s3 = rectangle(0.0,0.0,17.92,1.0,18,7,(3,2,0,3),0.5,0.0,0.1,0.1)
+    #s1 = rectangle(-5.0,1.0,5.0,10.76,9,17,(3,0,2,1),0.0,0.5,0.1,0.1)
+    #s2 = rectangle(0.0,1.0,17.92,10.76,18,17,(0,2,2,0),0.5,0.0,0.1,0.1)
+    #s3 = rectangle(0.0,0.0,17.92,1.0,18,7,(3,2,0,3),0.5,0.0,0.1,0.1)
     #s1 = rectangle(0.0,0.0,4.0,4.0,5,5,(3,2,0,3),0.5,0.0,0.0,0.5)
     
-    #s = s1 + s2 + s3
+    #s = rectangle(0.0,0.0,10.0,4.0,11,5,(2,2,2,2),0.5,1.0,0.0,0.0)
+    s1 = rectangle(0.0,0.0,4.0,1.0,5,3,(3,0,3,1),0.0,0.0,0.0,0.0)
+    s2 = gsnotunif((4.0,0.0),(5.0,0.2),(4.0,1.0),(5.0,1.0),2,3,(3,0,3,0),0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)
+    s3 = rectangle(5.0,0.2,5.0,0.8,6,3,(3,2,3,0),0.0,0.0,0.0,0.0)
+    
+    s = s1 + s2 + s3
     #s1 = rectangle(0.0,0.0,10.0,4.0,9,5,(3,2,0,1),0.0,1.0,0.0,0.0)
     #s = rectangle(0.0,0.0,10.0,4.0,25,15,(3,2,0,1),0.1,0.1,0.1,0.1)
     #s2 = rectangle(0.0,4.0,10.0,4.0,6,5,(0,2,3,1),1.0,0.0,0.0,0.5)
     
     #s = gsnotunif((0.0,0.0),(4.0,-5.0),(-2.0,4.0),(6.0,9.0),9,11,(2,2,2,2),0.0,0.0,0.0,0.0,0.3,0.3,0.5,0.5)
     
-    s = s1 + s2 + s3
+    #s = s1 + s2 + s3
     
     vtk = pyvtk.VtkData(pyvtk.UnstructuredGrid( s.points, quad=s.connect))
-    vtk.tofile('bfs_notuniform')
+    vtk.tofile('test')
     
 
