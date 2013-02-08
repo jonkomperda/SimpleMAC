@@ -1,6 +1,6 @@
 !>This is the main program. It calls all the necessary methods and contains the main calculation loop. 
 program simpleMAC
-    !test
+    !test paul
     use omp_lib
     use size
     use domain 
