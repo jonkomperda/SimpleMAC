@@ -234,14 +234,16 @@ class rectangle:
         
         self.pointstemp = [(xp,yp,zp) for yp in self.y for xp in self.x for zp in [0.0]]
         self.points = []
-        dec_place = 7
+        dec_place = 12
         for i in range(len(self.pointstemp)):
             nextpoint = (round(self.pointstemp[i][0] , dec_place) , round(self.pointstemp[i][1] , dec_place), round(self.pointstemp[i][2] , dec_place))
             self.points.append(nextpoint)
-
+        
         self.connect= self.connections(self.points)
         self.no_elements = len(self.connect)
         self.bc_sides()
+        
+        self.points = self.cut(self.points)
     
     
     # Overloading of the addition operator
@@ -319,7 +321,7 @@ class rectangle:
         pow = pow/math.log(b)
         
         coord = []
-        dec_place = 7
+        dec_place = 12
         
         for i in range(0,np):
             f = i*1.0/(np-1)*1.0
@@ -340,7 +342,7 @@ class rectangle:
         pow = pow/math.log(b)
         
         coord = []
-        dec_place = 7
+        dec_place = 12
         
         for i in range(0,np):
             f = i*1.0/(np-1)*1.0
@@ -389,6 +391,18 @@ class rectangle:
             coord.append(lastpoints[i])
             
         return(coord)
+    
+    
+    def cut(self,points):
+        """it rounds the points up to the 7th decimal place so that no errors happen in combining shapes"""
+        
+        dec_place = 8
+        pts_rounded = []
+        
+        for i in range(len(points)):
+            pts_rounded.append((round(points[i][0],dec_place), round(points[i][1],dec_place), round(points[i][2],dec_place)))
+        
+        return(pts_rounded)
     
     
 # A square is actually a rectangle
@@ -450,6 +464,8 @@ class rampquad():
         self.no_elements = len(self.connect)
         
         self.bc_sides()
+        
+        self.points = self.cut(self.points)
     
     
     def calctheta(self):
@@ -483,7 +499,7 @@ class rampquad():
         
         j = 0
         self.points = []
-        dec_place = 7
+        dec_place = 12
         
         for yp in self.y:       
             i = 0                                       
@@ -568,7 +584,19 @@ class rampquad():
         return  out
     
     
-
+    def cut(self,points):
+        """it rounds the points up to the 7th decimal place so that no errors happen in combining shapes"""
+        
+        dec_place = 8
+        pts_rounded = []
+        
+        for i in range(len(points)):
+            pts_rounded.append((round(points[i][0],dec_place), round(points[i][1],dec_place), round(points[i][2],dec_place)))
+            
+        return(pts_rounded)
+        
+    
+    
 
 class genshape():
     """creates a generic quad where you specifiy just the corners"""
@@ -631,6 +659,8 @@ class genshape():
         self.no_elements = len(self.connect)
         
         self.bc_sides()
+        
+        self.points = self.cut(self.points)
     
     
     def ver_pts(self,startpoint,finishpoint,increment,np):
@@ -638,7 +668,7 @@ class genshape():
         
         verpts = []
         verpts.append(startpoint)
-        dec_place = 7
+        dec_place = 12
         i = 0
         beta = self.calcbeta(startpoint,finishpoint)
         dx = increment * math.cos(beta)
@@ -660,7 +690,7 @@ class genshape():
         
         horpts = []
         horpts.append(startpoint)
-        dec_place = 7
+        dec_place = 12
         i = 0
         alpha = self.calcalpha(startpoint,finishpoint)
         dx = increment * math.cos(alpha)
@@ -744,6 +774,18 @@ class genshape():
         return  out
     
     
+    def cut(self,points):
+        """it rounds the points up to the 7th decimal place so that no errors happen in combining shapes"""
+        
+        dec_place = 8
+        pts_rounded = []
+        
+        for i in range(len(points)):
+            pts_rounded.append((round(points[i][0],dec_place), round(points[i][1],dec_place), round(points[i][2],dec_place)))
+            
+        return(pts_rounded)
+    
+    
 
 
 class gsnotunif():
@@ -779,6 +821,8 @@ class gsnotunif():
         self.coordinates()
         self.connect = self.connections(self.points)
         self.bc_sides()
+        
+        self.points = self.cut(self.points)
     
     
     def sidepts(self):
@@ -856,7 +900,7 @@ class gsnotunif():
         
         vpts = []
         vpts.append(startpoint)
-        dec_place = 7
+        dec_place = 12
         beta = self.calcbeta(startpoint,finishpoint)
         
         ycoord = self.first_power(ylength,yfirst,npy,startpoint[1])
@@ -879,7 +923,7 @@ class gsnotunif():
         
         vpts = []
         vpts.append(startpoint)
-        dec_place = 7
+        dec_place = 12
         beta = self.calcbeta(startpoint,finishpoint)
         
         ycoord = self.last_power(ylength,ylast,npy,startpoint[1])
@@ -906,14 +950,14 @@ class gsnotunif():
         
         beta = self.calcbeta(startpoint,finishpoint)
         startpoint1=startpoint
-        dec_place = 7
+        dec_place = 12
         startpoint2=(round(startpoint1[0]+yleng1*math.tan(beta),dec_place),round(startpoint1[1]+yleng1,dec_place),0.0)
         
         firstpoints = self.vpts_first(startpoint1,startpoint2,yfirst,npcorr)
         lastpoints = self.vpts_last(startpoint2,finishpoint,ylast,npcorr)
         
         coord = []
-        dec_place = 7
+        dec_place = 12
         for i in range(len(firstpoints)):
             coord.append(firstpoints[i])
         for i in range(1,len(lastpoints)):
@@ -928,7 +972,7 @@ class gsnotunif():
         ylength = ((finishpoint[0]-startpoint[0])**2+(finishpoint[1]-startpoint[1])**2)**0.5
         vpts = []
         vpts.append(startpoint)
-        dec_place = 7
+        dec_place = 12
         beta = self.calcbeta(startpoint,finishpoint)
         
         for i in range(1,npy-1):
@@ -952,7 +996,7 @@ class gsnotunif():
         
         hpts = []
         hpts.append(startpoint)
-        dec_place = 7
+        dec_place = 12
         alpha = self.calcalpha(startpoint,finishpoint)
         
         xcoord = self.first_power(xlength,xfirst,npx,startpoint[0])
@@ -976,7 +1020,7 @@ class gsnotunif():
         
         hpts = []
         hpts.append(startpoint)
-        dec_place = 7
+        dec_place = 12
         alpha = self.calcalpha(startpoint,finishpoint)
         
         xcoord = self.last_power(xlength,xlast,npx,startpoint[0])
@@ -1003,14 +1047,14 @@ class gsnotunif():
         
         alpha = self.calcalpha(startpoint,finishpoint)
         startpoint1=startpoint
-        dec_place = 7
+        dec_place = 12
         startpoint2=(round(startpoint1[0]+xleng1,dec_place),round(startpoint1[1]+xleng1*math.tan(alpha),dec_place),0.0)
         
         firstpoints = self.hpts_first(startpoint1,startpoint2,xfirst,npcorr)
         lastpoints = self.hpts_last(startpoint2,finishpoint,xlast,npcorr)
         
         coord = []
-        dec_place = 7
+        dec_place = 12
         for i in range(len(firstpoints)):
             coord.append(firstpoints[i])
         for i in range(1,len(lastpoints)):
@@ -1026,7 +1070,7 @@ class gsnotunif():
         
         hpts = []
         hpts.append(startpoint)
-        dec_place = 7
+        dec_place = 12
         alpha = self.calcalpha(startpoint,finishpoint)
         
         for i in range(1,npx-1):
@@ -1049,7 +1093,7 @@ class gsnotunif():
         
         verpts = []
         verpts.append(startpoint)
-        dec_place = 7
+        dec_place = 12
         i = 0
         beta = self.calcbeta(startpoint,finishpoint)
         dx = increment * math.cos(beta)
@@ -1071,7 +1115,7 @@ class gsnotunif():
         
         horpts = []
         horpts.append(startpoint)
-        dec_place = 7
+        dec_place = 12
         i = 0
         alpha = self.calcalpha(startpoint,finishpoint)
         dx = increment * math.cos(alpha)
@@ -1107,7 +1151,7 @@ class gsnotunif():
         pow = pow/math.log(b)
         
         coord = []
-        dec_place = 7
+        dec_place = 12
         
         for i in range(0,np):
             f = i*1.0/(np-1)*1.0
@@ -1129,7 +1173,7 @@ class gsnotunif():
         pow = pow/math.log(b)
         
         coord = []
-        dec_place = 7
+        dec_place = 12
         
         for i in range(0,np):
             f = i*1.0/(np-1)*1.0
@@ -1206,6 +1250,18 @@ class gsnotunif():
         return  out
     
     
+    def cut(self,points):
+        """it rounds the points up to the 7th decimal place so that no errors happen in combining shapes"""
+        
+        dec_place = 8
+        pts_rounded = []
+        
+        for i in range(len(points)):
+            pts_rounded.append((round(points[i][0],dec_place), round(points[i][1],dec_place), round(points[i][2],dec_place)))
+            
+        return(pts_rounded)
+    
+    
 
 
 ############## Global Dictionaries
@@ -1230,11 +1286,11 @@ if __name__ == '__main__':
     #s1 = rectangle(0.0,0.0,4.0,4.0,5,5,(3,2,0,3),0.5,0.0,0.0,0.5)
     
     #s = rectangle(0.0,0.0,10.0,4.0,11,5,(2,2,2,2),0.5,1.0,0.0,0.0)
-    s1 = rectangle(0.0,0.0,4.0,1.0,5,3,(3,0,3,1),0.0,0.0,0.0,0.0)
-    s2 = gsnotunif((4.0,0.0),(5.0,0.2),(4.0,1.0),(5.0,1.0),2,3,(3,0,3,0),0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)
-    s3 = rectangle(5.0,0.2,5.0,0.8,6,3,(3,2,3,0),0.0,0.0,0.0,0.0)
+    s5 = rectangle(0.0,0.0,4.0,4.0,4,4,(3,0,0,3),0.0,0.0,0.0,0.0)
+    s6 = gsnotunif((4.0,0.0),(8.0,4.0),(4.0,4.0),(8.0,6.0),4,4,(3,0,0,0),0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)
+    #s3 = rectangle(5.0,0.2,5.0,0.8,6,3,(3,2,3,0),0.0,0.0,0.0,0.0)
     
-    s = s1 + s2 + s3
+    s = s5 + s6
     #s1 = rectangle(0.0,0.0,10.0,4.0,9,5,(3,2,0,1),0.0,1.0,0.0,0.0)
     #s = rectangle(0.0,0.0,10.0,4.0,25,15,(3,2,0,1),0.1,0.1,0.1,0.1)
     #s2 = rectangle(0.0,4.0,10.0,4.0,6,5,(0,2,3,1),1.0,0.0,0.0,0.5)
