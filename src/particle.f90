@@ -85,6 +85,9 @@ subroutine ParticleMotion(p,d)
 			end do
 			
 			
+			!test
+			
+			
 
 		end do
 
