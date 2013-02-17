@@ -12,6 +12,8 @@ objects	=	src/carrier_data.f90 \
 			src/carrier_timeStep.f90	\
 			src/carrier_poisson.f90		\
 			src/carrier_vtk.f90		\
+			src/randomGenerationLibrary.f90		\
+			src/particle.f90		\
 			src/driver.f90       
 				
 main: $(objects)

@@ -1,14 +1,16 @@
 !>This is the main program. It calls all the necessary methods and contains the main calculation loop. 
 program simpleMAC
-    !test paul
     use omp_lib
     use size
-    use domain 
+    use domain
+    use parts 
+    use randomGenerationLibrary
     implicit none
     
     integer                                             :: timestep, t
     type(element), allocatable, Target, dimension(:)    :: d!<solution domain. contains every element point on the grid. 
     integer, allocatable, Target, dimension(:,:)        :: c!<cell connectivity data from input.vtk file
+    type(particle), allocatable, dimension(:)           :: p ! Monte Carlo Particles
 
     !> Read in the input.vtk file and store data in d and c. 
     call readHeader() !Read header of input vtk file
@@ -21,6 +23,10 @@ program simpleMAC
 
     !> establish initial conditions on the host
     call initialConditions(d)
+
+    ! Create Monte Carlo Particles
+    allocate( p(numParticles))
+    call InitiateParticles(p,d)
 
     !> Our main computational loop
     do t=1,maxSteps
@@ -56,6 +62,7 @@ program simpleMAC
     !> free up our memory
     deallocate(  d )
     deallocate(  c )
+    deallocate(  p )
 
 end program simpleMAC
     
