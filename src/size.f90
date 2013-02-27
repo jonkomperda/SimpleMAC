@@ -11,7 +11,7 @@ module size
     
     
     !Time Step sizes
-    integer, parameter          :: maxSteps         = 100 !<maxSteps Maximum number of timesteps to be taken for the code.  Will be 30,000
+    integer, parameter          :: maxSteps         = 30000 !<maxSteps Maximum number of timesteps to be taken for the code.  Will be 30,000
     double precision, parameter :: r                = 0.11d0 !<Convergence criteria
     integer, parameter          :: itmax            = 1000 !<Maximum number of steps for the Poisson solver to take before it gives up (it will be less than this if it converges)
     
@@ -26,6 +26,7 @@ module size
     double precision            :: dt       
 
     ! Particle Parameters
-    integer, parameter          :: numParticles     = 3721  ! Number of Monte Carlo Particles to be simulated.  Initially, one per cell in the grid.
+    integer, parameter          :: numParticles     = 3721  ! Number of Monte Carlo Particles to be simulated.  Initially, one per cell in the grid.  Will be 3721
+    integer, parameter          :: PartPrintInt     = 100   ! Particle Print Interval
 
 end module size

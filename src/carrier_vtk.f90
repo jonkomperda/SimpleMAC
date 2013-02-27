@@ -36,7 +36,7 @@
             write(unit=51, fmt=textIntText) 'POINTS',numPoints,' float'
 
             do n=1,numPoints
-                  write(unit=51, fmt=*) d(n)%xLoc(1),  d(n)%xLoc(2), '0'
+                  write(unit=51, fmt=*) d(n)%X(1),  d(n)%X(2), '0'
             end do
             
 !     ------Write out Cells

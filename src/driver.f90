@@ -3,7 +3,7 @@ program simpleMAC
     use omp_lib
     use size
     use domain
-    use parts 
+    use dispersed
     use randomGenerationLibrary
     implicit none
     
@@ -27,6 +27,9 @@ program simpleMAC
     ! Create Monte Carlo Particles
     allocate( p(numParticles))
     call InitiateParticles(p,d)
+    t = 0
+    call partVTK(p,t)
+
 
     !> Our main computational loop
     do t=1,maxSteps
@@ -53,10 +56,25 @@ program simpleMAC
         
         !> Moving lid boundary
         call lidCondition(d)
-        !> Plot to file
+
+        ! Calculate new particle location.
+        if (t .eq. 1) then
+            call ParticleMotion1(p,d)
+            ! Eulers Method to get things started
+        else
+            call ParticleMotion2(p,d)
+            ! Adam-Bashforth 2nd Order Method the rest of the way.
+        end if        
+
+        !> Plot Domain and Cells to file
         if(mod(t,pInterval)==0) then 
             call writeVTK(d,c,t)
         end if
+
+        ! Plot Particles to file
+        if(mod(t,PartPrintInt)==0) then 
+            call partVTK(p,t)
+        end if 
     end do
 
     !> free up our memory
