@@ -11,6 +11,7 @@ program simpleMAC
     type(element), allocatable, Target, dimension(:)    :: d!<solution domain. contains every element point on the grid. 
     integer, allocatable, Target, dimension(:,:)        :: c!<cell connectivity data from input.vtk file
     type(particle), allocatable, dimension(:)           :: p ! Monte Carlo Particles
+    double precision                                    :: tk   ! Total cycle time.
 
     !> Read in the input.vtk file and store data in d and c. 
     call readHeader() !Read header of input vtk file
@@ -24,17 +25,23 @@ program simpleMAC
     !> establish initial conditions on the host
     call initialConditions(d)
 
-    ! Create Monte Carlo Particles
+    ! Allocate the Particle Array
     allocate( p(numParticles))
-    call InitiateParticles(p,d)
-    t = 0
-    call partVTK(p,t)
 
+    ! Initiate the Particles.
+    t = 0
+    call InitiateParticles(p,d)     ! One particle placed per element.
+    call FluidVelocity(p,d)         ! Calculate the Particles initial velocity.
+    tk = 0
+    call partVTK(p,t,tk)               ! Plot the initial placement.
+    call writeVTK(d,c,t)
+    
 
     !> Our main computational loop
     do t=1,maxSteps
         !> Calculate our timestep
         call calcTStep(d,t,dt)
+        tk = tk + dt
         
         !> Print the timestep to screen / gotta know what's going on
         write(*,*) 'Timestep: ',t,'dt: ',dt
@@ -57,14 +64,16 @@ program simpleMAC
         !> Moving lid boundary
         call lidCondition(d)
 
-        ! Calculate new particle location.
+        ! Particles motion
         if (t .eq. 1) then
-            call ParticleMotion1(p,d)
-            ! Eulers Method to get things started
-        else
-            call ParticleMotion2(p,d)
-            ! Adam-Bashforth 2nd Order Method the rest of the way.
-        end if        
+            call PartMotionEuler(p,d)       ! Eulers Method for the first iteration.
+!            call RogueParticles(p,d)        ! Check for particles out of the domain and reposition them.
+            call FluidVelocity(p,d)         ! Calculate the fluid velocity at the new particle location.
+        else      
+            call PartMotionAdamBash(p,d)    ! Adam-Bashforth 2nd Order Method the rest of the way.
+!            call RogueParticles(p,d)        ! Check for particles out of the domain and reposition them.
+            call FluidVelocity(p,d)         ! Calculate the fluid velocity at the new particle location.
+        end if   
 
         !> Plot Domain and Cells to file
         if(mod(t,pInterval)==0) then 
@@ -73,7 +82,7 @@ program simpleMAC
 
         ! Plot Particles to file
         if(mod(t,PartPrintInt)==0) then 
-            call partVTK(p,t)
+            call partVTK(p,t,tk)
         end if 
     end do
 

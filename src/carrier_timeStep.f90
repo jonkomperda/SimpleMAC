@@ -13,7 +13,7 @@
         !We use different step sizes depending on how long we've been running
         if(t .gt. 10) then
             !Calculate first stability condition
-            dtR = r*dx*dy*re
+            dtR = 0.25d0*r*dx*dy*re
             
             !get the maximum value of u and v using worksharing
             !!@todo add parallel processing. it was removed due to do loop replacing maxval(u) and maxval(v) 
@@ -34,12 +34,12 @@
                 vmax2 = maxval(vmax1)
 
             !Calculate second stability condition
-            dtC = (1.0d0 / r) / (re * (abs(umax2) + abs(vmax2))**2 )
+            dtC = (4.0d0 * r) / (re * (abs(umax2) + abs(vmax2))**2 )
             
             !use the smaller of the two
             dtNew = min(dtR,dtC)
         else
             !If first few steps then take a very small step
-            dtNew = (r/25.0d0)*dx*dy*re
+            dtNew = (r/500.0d0)*dx*dy*re
         end if
     end subroutine calcTStep
